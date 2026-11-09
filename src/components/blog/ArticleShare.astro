@@ -1,0 +1,574 @@
+---
+import { siteConfig } from '../../config/site';
+import Icon from '../icons/Icon.astro';
+
+interface Props {
+  title: string;
+  summary?: string;
+  date?: Date;
+}
+
+const { title, summary = '', date } = Astro.props;
+const shareUrl = new URL(Astro.url.pathname, Astro.site ?? siteConfig.url).href;
+const encodedUrl = encodeURIComponent(shareUrl);
+const encodedTitle = encodeURIComponent(title);
+const dateLabel = date ? new Intl.DateTimeFormat('zh-CN', { dateStyle: 'long' }).format(date) : '';
+
+const links = [
+  {
+    label: '分享到 X',
+    href: `https://x.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`,
+    icon: 'x' as const,
+    external: true,
+  },
+  {
+    label: '通过邮件分享',
+    href: `mailto:?subject=${encodedTitle}&body=${encodedUrl}`,
+    icon: 'mail' as const,
+    external: false,
+  },
+];
+---
+
+<div class="article-share" role="group" aria-label="分享文章">
+  <span class="article-share__label">分享</span>
+  <div class="article-share__links">
+    {
+      links.map((link) => (
+        <a
+          class="article-share__button"
+          href={link.href}
+          target={link.external ? '_blank' : undefined}
+          rel={link.external ? 'noopener noreferrer' : undefined}
+          aria-label={link.label}
+          title={link.label}
+        >
+          <Icon name={link.icon} size={16} />
+        </a>
+      ))
+    }
+    <button
+      class="article-share__button"
+      type="button"
+      data-share-card-open
+      aria-label="生成分享卡片"
+      title="分享卡片"
+      aria-haspopup="dialog"
+    >
+      <Icon name="share" size={16} />
+    </button>
+    <button
+      class="article-share__button"
+      type="button"
+      data-share-copy
+      data-share-url={shareUrl}
+      aria-label="复制文章链接"
+      title="复制链接"
+    >
+      <Icon name="link" size={16} />
+    </button>
+    <span class="article-share__status" data-share-status role="status" aria-live="polite"></span>
+  </div>
+</div>
+
+<dialog
+  class="share-card"
+  data-share-card
+  aria-label="分享卡片"
+  data-title={title}
+  data-summary={summary}
+  data-date={dateLabel}
+  data-url={shareUrl}
+>
+  <div class="share-card__panel">
+    <button class="share-card__close" type="button" data-share-card-close aria-label="关闭分享卡片">
+      ×
+    </button>
+    <p class="share-card__status" data-share-card-status role="status">正在生成…</p>
+    <img class="share-card__image" data-share-card-image alt={`${title} 的分享卡片`} hidden />
+    <a class="share-card__save" data-share-card-save download hidden>保存图片</a>
+    <p class="share-card__hint">长按图片也可以保存</p>
+  </div>
+</dialog>
+
+<style>
+  .article-share {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding-block: var(--space-4);
+    border-top: 1px dashed var(--color-border);
+  }
+
+  .article-share__label {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-faint);
+  }
+
+  .article-share__links {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-1);
+    margin-left: auto;
+  }
+
+  .article-share__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--color-muted);
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      color var(--motion-fast) var(--ease-out),
+      border-color var(--motion-fast) var(--ease-out),
+      background-color var(--motion-fast) var(--ease-out);
+  }
+
+  .article-share__button:hover {
+    color: var(--color-text);
+    border-color: var(--color-border-strong);
+    background: var(--color-surface-soft);
+  }
+
+  .article-share__status {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 6px);
+    z-index: 2;
+    width: max-content;
+    max-width: 12rem;
+    padding: 0.35rem 0.55rem;
+    border: 1px solid var(--color-text);
+    border-radius: var(--radius-sm);
+    background: var(--color-text);
+    color: var(--color-bg);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    line-height: 1.4;
+    pointer-events: none;
+  }
+
+  .article-share__status:empty {
+    display: none;
+  }
+
+  .share-card {
+    width: min(28rem, calc(100vw - 2rem));
+    margin: auto;
+    max-width: none;
+    max-height: calc(100dvh - 2rem);
+    padding: 0;
+    border: 1.5px solid var(--color-text);
+    border-radius: var(--radius-card);
+    background: var(--color-bg);
+    color: var(--color-text);
+    box-shadow: var(--shadow-hard);
+  }
+
+  .share-card::backdrop {
+    background: rgb(0 0 0 / 58%);
+  }
+
+  .share-card__panel {
+    position: relative;
+    display: grid;
+    gap: var(--space-3);
+    max-height: calc(100dvh - 2rem);
+    padding: var(--space-3);
+    overflow-y: auto;
+    outline: none;
+  }
+
+  .share-card__close {
+    position: absolute;
+    top: var(--space-2);
+    right: var(--space-2);
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .share-card__close:hover {
+    background: var(--color-surface-soft);
+  }
+
+  .share-card__status {
+    display: grid;
+    min-height: 16rem;
+    place-items: center;
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+  }
+
+  .share-card__status[hidden],
+  .share-card__image[hidden],
+  .share-card__save[hidden] {
+    display: none;
+  }
+
+  .share-card__image {
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: #fffdf8;
+  }
+
+  .share-card__save {
+    display: block;
+    padding: 0.7rem 1rem;
+    border: 1.5px solid var(--color-text);
+    border-radius: var(--radius-sm);
+    background: var(--color-text);
+    color: var(--color-bg);
+    font-size: var(--text-sm);
+    text-align: center;
+    text-decoration: none;
+  }
+
+  .share-card__save:hover {
+    background: var(--color-surface-soft);
+    color: var(--color-text);
+  }
+
+  .share-card__hint {
+    display: none;
+    margin: 0;
+    color: var(--color-faint);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-align: center;
+  }
+
+  .share-card__image:not([hidden]) ~ .share-card__hint {
+    display: block;
+  }
+
+  @media (max-width: 40rem) {
+    .article-share__button {
+      width: 38px;
+      height: 38px;
+    }
+  }
+</style>
+
+<script>
+  type ShareCardDialog = HTMLDialogElement & {
+    dataset: DOMStringMap & {
+      title?: string;
+      summary?: string;
+      date?: string;
+      url?: string;
+    };
+  };
+
+  const copyButtons = document.querySelectorAll<HTMLButtonElement>('[data-share-copy]');
+
+  copyButtons.forEach((button) => {
+    const share = button.closest('.article-share');
+    const status = share?.querySelector<HTMLElement>('[data-share-status]');
+
+    button.addEventListener('click', async () => {
+      const url = button.dataset.shareUrl ?? window.location.href;
+
+      try {
+        await navigator.clipboard.writeText(url);
+        if (status) status.textContent = '链接已复制';
+      } catch {
+        window.prompt('复制文章链接', url);
+        if (status) status.textContent = '请手动复制';
+      }
+
+      window.setTimeout(() => {
+        if (status) status.textContent = '';
+      }, 2000);
+    });
+  });
+
+  const wrapText = (
+    context: CanvasRenderingContext2D,
+    text: string,
+    maxWidth: number,
+    maxLines: number,
+  ): string[] => {
+    const lines: string[] = [];
+    let current = '';
+
+    for (const character of Array.from(text.replace(/\s+/g, ' ').trim())) {
+      if (character === '\n') {
+        lines.push(current);
+        current = '';
+        continue;
+      }
+
+      const next = current + character;
+      if (current && context.measureText(next).width > maxWidth) {
+        lines.push(current.trimEnd());
+        current = character.trimStart();
+      } else {
+        current = next;
+      }
+    }
+
+    if (current) lines.push(current.trimEnd());
+
+    if (lines.length > maxLines) {
+      lines.length = maxLines;
+      lines[maxLines - 1] = `${lines[maxLines - 1].replace(/[\s，。；、,.!?！？]$/, '')}…`;
+    }
+
+    return lines;
+  };
+
+  const loadFirstArticleImage = async (): Promise<HTMLImageElement | null> => {
+    const source = document.querySelector<HTMLImageElement>('.article__body img');
+    const src = source?.currentSrc || source?.src;
+    if (!src) return null;
+
+    // 只使用同源图片，避免 canvas 被远程图片污染
+    if (new URL(src, location.href).origin !== location.origin) return null;
+
+    const image = new Image();
+    image.src = src;
+    try {
+      await image.decode();
+      return image;
+    } catch {
+      return null;
+    }
+  };
+
+  const renderShareCard = async (dialog: ShareCardDialog): Promise<string> => {
+    await document.fonts.ready;
+
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    if (!context) throw new Error('Canvas is not available');
+
+    const width = 1080;
+    const margin = 76;
+    const innerWidth = width - margin * 2;
+    const ink = '#171614';
+    const muted = '#6d6a64';
+    const accent = '#d9662f';
+    const paper = '#fffdf8';
+    const bodyFont = getComputedStyle(document.body).fontFamily || '"PingFang SC", sans-serif';
+    const monoFont =
+      getComputedStyle(document.documentElement).getPropertyValue('--font-mono').trim() ||
+      'monospace';
+
+    // 先在窄画布上量文字，再按内容决定卡片高度，避免短摘要留下大片空白
+    canvas.width = width;
+    canvas.height = 10;
+    context.fillStyle = ink;
+    context.font = `600 70px ${bodyFont}`;
+    const titleLines = wrapText(context, dialog.dataset.title || '', innerWidth, 4);
+
+    context.fillStyle = muted;
+    context.font = `33px ${bodyFont}`;
+    const summaryLines = wrapText(context, dialog.dataset.summary || '', innerWidth, 4);
+
+    const titleTop = 186;
+    const titleLineHeight = 88;
+    const titleBottom = titleTop + titleLines.length * titleLineHeight;
+    const summaryTop = titleBottom + (summaryLines.length > 0 ? 30 : 0);
+    const summaryLineHeight = 50;
+    const contentBottom = summaryTop + summaryLines.length * summaryLineHeight;
+
+    const media = await loadFirstArticleImage();
+    const mediaTop = contentBottom + 42;
+    const mediaHeight = 280;
+    const mediaBottom = media ? mediaTop + mediaHeight : mediaTop + 96;
+    const footerLineY = mediaBottom + 52;
+    const height = Math.max(720, Math.ceil(footerLineY + 140));
+
+    canvas.height = height;
+
+    context.fillStyle = paper;
+    context.fillRect(0, 0, width, height);
+
+    context.strokeStyle = ink;
+    context.lineWidth = 14;
+    context.strokeRect(18, 18, width - 36, height - 36);
+
+    // 顶部品牌与日期都以同一中心线对齐
+    context.fillStyle = accent;
+    context.fillRect(margin, 72, 42, 42);
+    context.textBaseline = 'middle';
+    context.fillStyle = ink;
+    context.font = `600 25px ${monoFont}`;
+    context.fillText('SSEAAN / BLOG', margin + 58, 93);
+
+    context.fillStyle = muted;
+    context.font = `22px ${monoFont}`;
+    context.textAlign = 'right';
+    context.fillText(dialog.dataset.date || '', width - margin, 94);
+    context.textAlign = 'left';
+
+    context.textBaseline = 'top';
+    context.fillStyle = ink;
+    context.font = `600 70px ${bodyFont}`;
+    titleLines.forEach((line, index) => {
+      context.fillText(line, margin, titleTop + index * titleLineHeight);
+    });
+
+    context.fillStyle = muted;
+    context.font = `33px ${bodyFont}`;
+    summaryLines.forEach((line, index) => {
+      context.fillText(line, margin, summaryTop + index * summaryLineHeight);
+    });
+
+    if (media) {
+      // 图片收在页边距以内，不再压住卡片外框
+      const scale = Math.max(innerWidth / media.naturalWidth, mediaHeight / media.naturalHeight);
+      const sourceWidth = innerWidth / scale;
+      const sourceHeight = mediaHeight / scale;
+      const sourceX = (media.naturalWidth - sourceWidth) / 2;
+      const sourceY = (media.naturalHeight - sourceHeight) / 2;
+      context.drawImage(
+        media,
+        sourceX,
+        sourceY,
+        sourceWidth,
+        sourceHeight,
+        margin,
+        mediaTop,
+        innerWidth,
+        mediaHeight,
+      );
+      context.strokeStyle = ink;
+      context.lineWidth = 3;
+      context.strokeRect(margin, mediaTop, innerWidth, mediaHeight);
+    } else {
+      context.strokeStyle = accent;
+      context.lineWidth = 2;
+      context.strokeRect(margin, mediaTop, innerWidth, 96);
+      context.fillStyle = accent;
+      context.font = `600 26px ${monoFont}`;
+      context.textAlign = 'center';
+      context.fillText('SSEAAN / NOTES', width / 2, mediaTop + 52);
+      context.textAlign = 'left';
+    }
+
+    context.strokeStyle = '#d7d2c8';
+    context.lineWidth = 2;
+    context.beginPath();
+    context.moveTo(margin, footerLineY);
+    context.lineTo(width - margin, footerLineY);
+    context.stroke();
+
+    context.fillStyle = ink;
+    context.font = `600 28px ${monoFont}`;
+    context.fillText('READ ONLINE', margin, footerLineY + 28);
+
+    context.fillStyle = muted;
+    context.font = `23px ${monoFont}`;
+    const url = new URL(dialog.dataset.url || location.href).host;
+    context.fillText(url, margin, footerLineY + 68);
+
+    context.fillStyle = accent;
+    context.font = `600 25px ${monoFont}`;
+    context.textAlign = 'right';
+    context.fillText('+ + +', width - margin, footerLineY + 32);
+    context.textAlign = 'left';
+
+    return new Promise((resolve, reject) => {
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          reject(new Error('Unable to create image'));
+          return;
+        }
+        resolve(URL.createObjectURL(blob));
+      }, 'image/png');
+    });
+  };
+
+  document.querySelectorAll<ShareCardDialog>('[data-share-card]').forEach((dialog) => {
+    const trigger = document.querySelector<HTMLButtonElement>('[data-share-card-open]');
+    if (!trigger) return;
+
+    const closeButton = dialog.querySelector<HTMLButtonElement>('[data-share-card-close]');
+    const status = dialog.querySelector<HTMLElement>('[data-share-card-status]');
+    const image = dialog.querySelector<HTMLImageElement>('[data-share-card-image]');
+    const save = dialog.querySelector<HTMLAnchorElement>('[data-share-card-save]');
+    let objectUrl = '';
+
+    const reset = () => {
+      if (status) {
+        status.hidden = false;
+        status.textContent = '正在生成…';
+      }
+      if (image) {
+        image.hidden = true;
+        image.removeAttribute('src');
+      }
+      if (save) {
+        save.hidden = true;
+        save.removeAttribute('href');
+      }
+    };
+
+    trigger.addEventListener('click', async () => {
+      if (dialog.open) return;
+      reset();
+      dialog.showModal();
+
+      try {
+        if (objectUrl) URL.revokeObjectURL(objectUrl);
+        objectUrl = await renderShareCard(dialog);
+        if (image) {
+          image.src = objectUrl;
+          image.hidden = false;
+        }
+        if (save) {
+          save.href = objectUrl;
+          save.download = `${location.pathname.split('/').filter(Boolean).pop() || 'article'}.png`;
+          save.hidden = false;
+        }
+        if (status) {
+          status.hidden = true;
+          status.textContent = '';
+        }
+      } catch {
+        if (status) status.textContent = '分享卡片生成失败，请稍后重试。';
+      }
+    });
+
+    closeButton?.addEventListener('click', () => dialog.close());
+
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+
+    dialog.addEventListener('close', () => {
+      window.requestAnimationFrame(() => trigger.focus());
+    });
+  });
+</script>

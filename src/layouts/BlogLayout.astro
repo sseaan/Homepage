@@ -1,0 +1,275 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import ArticleMeta from '../components/blog/ArticleMeta.astro';
+import ArticleToc from '../components/blog/ArticleToc.astro';
+import SummaryCallout from '../components/blog/SummaryCallout.astro';
+import ArticleShare from '../components/blog/ArticleShare.astro';
+import ArticleMusic from '../components/blog/ArticleMusic.astro';
+import TwikooComments from '../components/comments/TwikooComments.astro';
+import Icon from '../components/icons/Icon.astro';
+import { readingMinutes } from '../utils/blog';
+import type { BlogPost } from '../utils/blog';
+
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  post: BlogPost;
+  headings: Heading[];
+  prev?: BlogPost | null;
+  next?: BlogPost | null;
+}
+
+const { post, headings, prev = null, next = null } = Astro.props;
+const { title, summary, pubDate, updatedDate, tags = [] } = post.data;
+const hasToc = headings.filter((heading) => heading.depth >= 2 && heading.depth <= 4).length > 1;
+---
+
+<BaseLayout title={title} description={summary} type="article">
+  <ArticleMusic music={post.data.music} title={title} />
+
+  <div class="container page article">
+    <nav class="article__back" aria-label="返回">
+      <a class="text-link" href="/blog">
+        <Icon name="arrow-left" size={14} />
+        文章列表
+      </a>
+    </nav>
+
+    <div class="article__layout" class:list={{ 'article__layout--with-toc': hasToc }}>
+      <article class="article__main">
+        <header class="article__header">
+          <h1 class="article__title">{title}</h1>
+          <ArticleMeta
+            pubDate={pubDate}
+            updatedDate={updatedDate}
+            readingTime={readingMinutes(post.body)}
+            tags={tags}
+          />
+          {summary && <SummaryCallout summary={summary} />}
+        </header>
+
+        <div class="prose article__body" data-lightbox-group>
+          <slot />
+        </div>
+
+        <footer class="article__footer">
+          <nav class="article__pager" aria-label="相邻文章">
+            {
+              prev ? (
+                <a class="article__pager-link" href={`/blog/${prev.id}`}>
+                  <span class="article__pager-label">← 上一篇</span>
+                  <span class="article__pager-title">{prev.data.title}</span>
+                </a>
+              ) : (
+                <span />
+              )
+            }
+            {
+              next && (
+                <a class="article__pager-link article__pager-link--next" href={`/blog/${next.id}`}>
+                  <span class="article__pager-label">下一篇 →</span>
+                  <span class="article__pager-title">{next.data.title}</span>
+                </a>
+              )
+            }
+          </nav>
+
+          <ArticleShare title={title} summary={summary} date={pubDate} />
+
+          <TwikooComments path={`/blog/${post.id}`} title={title} />
+        </footer>
+      </article>
+
+      {
+        hasToc && (
+          <aside class="article__aside">
+            <nav class="toc" aria-labelledby="toc-title">
+              <p class="toc__label" id="toc-title">
+                目录
+              </p>
+              <ArticleToc headings={headings} />
+            </nav>
+          </aside>
+        )
+      }
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .article {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .article__back a {
+    color: var(--color-faint);
+    border-bottom-color: transparent;
+  }
+
+  .article__back a:hover {
+    color: var(--color-text);
+    border-bottom-color: var(--color-border-strong);
+  }
+
+  .article__layout {
+    display: grid;
+    /* 没有目录时也保持正文栏宽，避免页头/分享栏被拉到 60rem */
+    grid-template-columns: minmax(0, var(--prose-width));
+    gap: var(--space-7);
+    align-items: start;
+  }
+
+  .article__layout--with-toc {
+    grid-template-columns: minmax(0, 40rem) 12rem;
+    justify-content: space-between;
+  }
+
+  .article__main {
+    display: grid;
+    gap: var(--space-6);
+    min-width: 0;
+  }
+
+  .article__aside {
+    position: sticky;
+    top: calc(var(--header-height) + var(--space-5));
+    max-height: calc(100svh - var(--header-height) - var(--space-8));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-top: 0.15rem;
+  }
+
+  .toc__label {
+    margin: 0 0 var(--space-2);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-faint);
+  }
+
+  .article__header {
+    display: grid;
+    gap: var(--space-3);
+    padding-bottom: var(--space-5);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .article__title {
+    font-size: var(--text-3xl);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--color-text);
+  }
+
+  .article__body {
+    padding-bottom: 0;
+  }
+
+  /* 文末分割线略微收窄 */
+  .article__body::after {
+    content: '';
+    display: block;
+    width: 92%;
+    height: 1px;
+    margin: var(--space-6) auto 0;
+    background: var(--color-border);
+  }
+
+  .article__footer {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .article__pager {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
+
+  .article__pager-link {
+    display: grid;
+    gap: 0.1rem;
+    min-width: 0;
+    text-decoration: none;
+  }
+
+  .article__pager-link--next {
+    justify-self: end;
+    text-align: right;
+  }
+
+  .article__pager-label {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--color-faint);
+  }
+
+  .article__pager-title {
+    font-size: var(--text-base);
+    color: var(--color-text);
+  }
+
+  .article__pager-link:hover .article__pager-title {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  @media (max-width: 60rem) {
+    .article__layout--with-toc {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .article__aside {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  // 目录高亮：滚动时把当前章节标出来（无 TOC 的页面直接跳过）
+  const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]'));
+  const entries = links
+    .map((link) => {
+      const id = decodeURIComponent((link.getAttribute('href') ?? '').replace(/^#/, ''));
+      const heading = id ? document.getElementById(id) : null;
+      return heading ? { link, heading } : null;
+    })
+    .filter((entry): entry is { link: HTMLAnchorElement; heading: HTMLElement } => entry !== null);
+
+  if (entries.length > 0) {
+    const offset = 96;
+    let frame = 0;
+
+    const update = () => {
+      frame = 0;
+      let current = entries[0];
+
+      for (const entry of entries) {
+        if (entry.heading.getBoundingClientRect().top <= offset) current = entry;
+        else break;
+      }
+
+      for (const entry of entries) {
+        const active = entry === current;
+        entry.link.classList.toggle('is-active', active);
+        if (active) entry.link.setAttribute('aria-current', 'location');
+        else entry.link.removeAttribute('aria-current');
+      }
+    };
+
+    const schedule = () => {
+      if (frame !== 0) return;
+      frame = window.requestAnimationFrame(update);
+    };
+
+    update();
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+  }
+</script>
