@@ -191,10 +191,11 @@ draft: false # true 时不会出现在列表、RSS、sitemap
 
 ### 图片与分享
 
+- Blog 正文图片托管在 S3 / CDN：`https://img.mvr.cc/blog/<Post>/...`，Markdown 中使用完整 URL；本地文章图片副本已移除，S3 是唯一源。
 - Blog 正文图片和 Ech0 动态共用 `src/components/media/Lightbox.astro`。
 - 分享栏只有 X、邮件、分享卡片、复制链接。
 - 分享卡片由 Canvas 生成，包含标题、摘要、正文首图、日期和站点地址；宽 1080px，可下载或长按保存。
-- 首图使用同源图片；远程图片不会进入卡片，避免 Canvas 被跨域污染。
+- 首图优先使用正文首图；跨域 CDN 图片需要返回 `Access-Control-Allow-Origin`，否则卡片自动降级为不含首图的版本。
 
 ## 文章音乐（api-enhanced）
 

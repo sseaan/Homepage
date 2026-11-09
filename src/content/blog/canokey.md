@@ -16,7 +16,7 @@ Canokey Canary 是一款国产硬件安全密钥，支持 FIDO2、OpenPGP、PIV�
 
 直接在淘宝官方店铺 Canokeys 购买即可，价格大概在 200 元以下（固件为3.0.3正式版）
 
-<img src="/images/blog/canokey/purchase.png" alt="购买页面" loading="lazy" decoding="async" />
+<img src="https://img.mvr.cc/blog/Canokey/purchase.png" alt="购买页面" loading="lazy" decoding="async" />
 
 ## 初始化
 

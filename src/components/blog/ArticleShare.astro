@@ -347,20 +347,37 @@ const links = [
     return lines;
   };
 
-  const loadFirstArticleImage = async (): Promise<HTMLImageElement | null> => {
+  interface ArticleImage {
+    image: HTMLImageElement;
+    objectUrl?: string;
+  }
+
+  const loadFirstArticleImage = async (): Promise<ArticleImage | null> => {
     const source = document.querySelector<HTMLImageElement>('.article__body img');
     const src = source?.currentSrc || source?.src;
     if (!src) return null;
 
-    // 只使用同源图片，避免 canvas 被远程图片污染
-    if (new URL(src, location.href).origin !== location.origin) return null;
-
+    const url = new URL(src, location.href);
     const image = new Image();
-    image.src = src;
+    let objectUrl: string | undefined;
+
     try {
+      if (url.origin !== location.origin) {
+        // CDN 必须返回 Access-Control-Allow-Origin；否则 Canvas 会被污染。
+        const response = await fetch(url.href, { mode: 'cors', credentials: 'omit' });
+        if (!response.ok) return null;
+
+        const blob = await response.blob();
+        objectUrl = URL.createObjectURL(blob);
+        image.src = objectUrl;
+      } else {
+        image.src = url.href;
+      }
+
       await image.decode();
-      return image;
+      return { image, objectUrl };
     } catch {
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
       return null;
     }
   };
@@ -447,13 +464,14 @@ const links = [
 
     if (media) {
       // 图片收在页边距以内，不再压住卡片外框
-      const scale = Math.max(innerWidth / media.naturalWidth, mediaHeight / media.naturalHeight);
+      const { image, objectUrl } = media;
+      const scale = Math.max(innerWidth / image.naturalWidth, mediaHeight / image.naturalHeight);
       const sourceWidth = innerWidth / scale;
       const sourceHeight = mediaHeight / scale;
-      const sourceX = (media.naturalWidth - sourceWidth) / 2;
-      const sourceY = (media.naturalHeight - sourceHeight) / 2;
+      const sourceX = (image.naturalWidth - sourceWidth) / 2;
+      const sourceY = (image.naturalHeight - sourceHeight) / 2;
       context.drawImage(
-        media,
+        image,
         sourceX,
         sourceY,
         sourceWidth,
@@ -463,6 +481,7 @@ const links = [
         innerWidth,
         mediaHeight,
       );
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
       context.strokeStyle = ink;
       context.lineWidth = 3;
       context.strokeRect(margin, mediaTop, innerWidth, mediaHeight);

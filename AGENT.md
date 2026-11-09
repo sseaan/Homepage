@@ -97,7 +97,7 @@ src/
 
 - `src/config/site.ts`：站点身份、导航、社交、页脚、备案、Ech0、Twikoo。
 - `src/data/`：首页、About、友链的文字内容；不要把个人经历写进组件。
-- `src/content/blog/`：文章正文与 frontmatter；图片放 `public/images/blog/<slug>/`。
+- `src/content/blog/`：文章正文与 frontmatter；图片使用 S3/CDN 完整 URL，不放本地 `public/images/blog/`。
 - `src/lib/`：可测试的纯逻辑；不要放 JSX/样式。
 - `src/components/`：展示与局部交互；跨页面复用的基础组件放 `site/`、`media/`、`icons/`。
 - `src/layouts/`：页面骨架和跨页面组合；不要在这里写文章内容。
@@ -145,9 +145,11 @@ music: https://music.163.com/song?id=... # 可选
 
 ### 图片
 
-- Blog 图片放在 `public/images/blog/<slug>/`，使用压缩后的本地文件；不要依赖远程图床。
+- Blog 图片托管在 S3 / CDN：`https://img.mvr.cc/blog/<Post>/...`；Markdown 使用完整 HTTPS URL，不依赖本地 `public/images/blog/` 路径。
+- 新增或迁移图片时确认 CDN 路径大小写和扩展名（例如 `Yubikey`、`2025Summary`）；不要假设与本地目录完全一致。
+- 本地文章图片目录已移除，S3/CDN 是唯一源；删除文章时同步清理 S3 对象。
 - 正文图片自动进入共享灯箱；画廊使用同组容器，灯箱内左右切换。
-- 分享卡片复用正文首图；只读取同源图片，避免 Canvas 污染。
+- 分享卡片复用正文首图；同源或返回 CORS 头的 CDN 图片才可进入 Canvas，否则降级为不含图片的卡片。
 - 新增图片要确认授权与体积；删除文章时同步清理其未引用图片。
 
 ## 6. 视觉规范

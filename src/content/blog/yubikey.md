@@ -6,7 +6,7 @@ tags:
   - 'Security'
 ---
 
-<img src="/images/blog/yubikey/yubikey.jpg" alt="Yubikey" loading="lazy" decoding="async" />
+<img src="https://img.mvr.cc/blog/Yubikey/yubikey.jpg" alt="Yubikey" loading="lazy" decoding="async" />
 
 在前几天军训期间收到了之前淘的 YUbikey 5C NFC （5.8 固件），折腾了几天之后发现和 Canokey 实现的功能差不了多少，甚至下文要说的 SSH 登录 Canokey 也可以做到，但还是写一篇 Blog 记录一下好了
 

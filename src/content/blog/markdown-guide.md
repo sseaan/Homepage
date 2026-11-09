@@ -232,13 +232,13 @@ pnpm build
 ### Figure / Caption
 
 <figure class="figure--md">
-  <img src="/images/blog/2025/daily/travel/lingyanshan.jpg" alt="苏州灵岩山" loading="lazy" decoding="async" />
+  <img src="https://img.mvr.cc/blog/2025Summary/daily/travel/lingyanshan.jpg" alt="苏州灵岩山" loading="lazy" decoding="async" />
   <figcaption>图注示例：灵岩山的山脊与城市边缘。</figcaption>
 </figure>
 
 没有图注时，直接使用标准 Markdown 图片：
 
-![苏州 · 灵岩山](/images/blog/2025/daily/travel/lingyanshan.jpg)
+![苏州 · 灵岩山](https://img.mvr.cc/blog/2025Summary/daily/travel/lingyanshan.jpg)
 
 ### Gallery
 
@@ -247,13 +247,13 @@ pnpm build
 <ul class="gallery cols-2">
   <li>
     <figure>
-      <img src="/images/blog/2025/daily/travel/lingyanshan.jpg" alt="灵岩山" loading="lazy" decoding="async" />
+      <img src="https://img.mvr.cc/blog/2025Summary/daily/travel/lingyanshan.jpg" alt="灵岩山" loading="lazy" decoding="async" />
       <figcaption>灵岩山</figcaption>
     </figure>
   </li>
   <li>
     <figure>
-      <img src="/images/blog/2025/daily/travel/haining.jpg" alt="海宁" loading="lazy" decoding="async" />
+      <img src="https://img.mvr.cc/blog/2025Summary/daily/travel/haining.jpg" alt="海宁" loading="lazy" decoding="async" />
       <figcaption>海宁</figcaption>
     </figure>
   </li>
