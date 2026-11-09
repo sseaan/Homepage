@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Evil Ech0</title>
+  <link href="http://echo.ssean.cn/"/>
+  <entry>
+    <title>Evil</title>
+    <updated>2026-02-01T00:00:00Z</updated>
+    <id>tag:evil,1</id>
+    <content type="html">&lt;script&gt;alert(1)&lt;/script&gt;&lt;style&gt;body{display:none}&lt;/style&gt;&lt;p onclick="alert(2)" style="color:red"&gt;hello&lt;/p&gt;&lt;a href="javascript:alert(3)"&gt;js&lt;/a&gt;&lt;a href="http://echo.ssean.cn/x" rel="opener"&gt;internal&lt;/a&gt;&lt;a href="https://example.com"&gt;external&lt;/a&gt;&lt;img src="http://echo.ssean.cn/a.png" onerror="alert(4)" /&gt;&lt;img src="http://evil.example/b.png" /&gt;&lt;img src="data:image/png;base64,AAAA" /&gt;&lt;iframe src="https://evil.example"&gt;&lt;/iframe&gt;&lt;span class="tag"&gt;#测试&lt;/span&gt;</content>
+    <link rel="alternate" href="https://echo.ssean.cn/echo/evil"/>
+  </entry>
+</feed>

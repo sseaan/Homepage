@@ -1,0 +1,424 @@
+/*
+ * Ech0 动态列表：只读 Feed 的展示样式。
+ * 内容 HTML 由 lib/ech0.ts 清洗后注入，这里的 .ech0-item__content 规则作用于动态节点。
+ */
+
+.ech0-feed {
+  display: grid;
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+  max-width: 42rem;
+}
+
+.ech0-feed [hidden] {
+  display: none !important;
+}
+
+/* ---------- 状态 ---------- */
+
+.ech0-state {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-soft);
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+}
+
+.ech0-state--loading {
+  padding-block: var(--space-5);
+}
+
+.ech0-state--error {
+  align-items: flex-start;
+  border-color: color-mix(in srgb, var(--color-danger) 40%, var(--color-border));
+  border-left: 3px solid var(--color-danger);
+  background: var(--color-bg);
+}
+
+.ech0-state--empty {
+  flex-direction: column;
+  align-items: flex-start;
+  border-style: dashed;
+  background: transparent;
+}
+
+.ech0-state__title {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.ech0-state__detail {
+  margin: 0.15rem 0 0;
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+  overflow-wrap: anywhere;
+}
+
+.ech0-state__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.ech0-spinner {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  border: 1.5px solid var(--color-border-strong);
+  border-top-color: var(--color-text);
+  border-radius: 50%;
+  animation: ech0-spin 0.8s linear infinite;
+}
+
+@keyframes ech0-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- 列表 ---------- */
+
+.ech0-list {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ech0-item {
+  display: grid;
+  gap: var(--space-2);
+  padding-block: var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.ech0-item:last-child {
+  border-bottom: 0;
+}
+
+.ech0-item__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.ech0-item__time {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-faint);
+}
+
+.ech0-item__badge {
+  padding: 0 0.35em;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+}
+
+.ech0-item__content {
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-soft);
+  overflow-wrap: anywhere;
+}
+
+.ech0-item__content p {
+  margin: 0 0 var(--space-2);
+}
+
+.ech0-item__content p:last-child {
+  margin-bottom: 0;
+}
+
+.ech0-item__content a {
+  color: var(--color-text);
+  text-decoration: underline;
+  text-decoration-color: var(--color-border-strong);
+  text-underline-offset: 3px;
+}
+
+.ech0-item__content a:hover {
+  text-decoration-color: currentColor;
+}
+
+.ech0-media {
+  margin-bottom: var(--space-3);
+}
+
+.ech0-media--single img {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: 460px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+/* 2–4 张：横向轮播 */
+.ech0-carousel {
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-soft);
+}
+
+.ech0-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.ech0-carousel:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.ech0-carousel__track {
+  display: flex;
+  width: 100%;
+}
+
+.ech0-carousel__slide {
+  position: relative;
+  flex: 0 0 100%;
+  min-width: 0;
+  max-width: 100%;
+  height: clamp(220px, 38vw, 420px);
+  overflow: hidden;
+  scroll-snap-align: start;
+}
+
+.ech0-carousel__slide img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.ech0-carousel__controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.ech0-carousel__status {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-faint);
+}
+
+.ech0-carousel__nav {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.ech0-carousel__button {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast) var(--ease-out),
+    border-color var(--motion-fast) var(--ease-out);
+}
+
+.ech0-carousel__button:hover:not(:disabled) {
+  background: var(--color-surface-soft);
+  border-color: var(--color-text);
+}
+
+.ech0-carousel__button:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.ech0-carousel__button:disabled {
+  color: var(--color-faint);
+  border-color: var(--color-border);
+  cursor: default;
+}
+
+/* 5 张以上：3 列宫格 */
+.ech0-media--grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.ech0-grid__cell {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-soft);
+}
+
+.ech0-grid__cell img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ech0-grid__link {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.ech0-grid__more {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--color-bg) 58%, transparent);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: var(--text-xl);
+}
+
+.ech0-item__content blockquote {
+  margin: var(--space-2) 0;
+  padding-left: var(--space-3);
+  border-left: 2px solid var(--color-border-strong);
+  color: var(--color-muted);
+}
+
+.ech0-item__content code {
+  padding: 0.1em 0.3em;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-soft);
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  color: var(--color-text);
+}
+
+.ech0-item__content pre {
+  max-width: 100%;
+  overflow-x: auto;
+  margin: var(--space-2) 0;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-soft);
+  font-size: var(--text-sm);
+  line-height: 1.7;
+}
+
+.ech0-item__content pre code {
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.ech0-item__content ul,
+.ech0-item__content ol {
+  margin: var(--space-2) 0;
+  padding-left: 1.3em;
+}
+
+.ech0-item__content li::marker {
+  color: var(--color-faint);
+}
+
+.ech0-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ech0-tag {
+  display: inline-flex;
+  margin: 0;
+  padding: 0 0.4em;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-muted);
+}
+
+.ech0-item__placeholder {
+  margin: 0;
+  color: var(--color-faint);
+  font-size: var(--text-sm);
+}
+
+.ech0-item__origin {
+  justify-self: start;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+  text-decoration: none;
+  border-bottom: 1px solid var(--color-border-strong);
+  padding-bottom: 1px;
+}
+
+.ech0-item__origin:hover {
+  color: var(--color-text);
+  border-bottom-color: var(--color-text);
+}
+
+.ech0-feed__foot {
+  margin: var(--space-2) 0 0;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-faint);
+}
+
+.ech0-feed__foot a {
+  color: var(--color-muted);
+  text-decoration: none;
+  border-bottom: 1px solid var(--color-border-strong);
+}
+
+.ech0-feed__foot a:hover {
+  color: var(--color-text);
+  border-bottom-color: var(--color-text);
+}
+
+@media (max-width: 40rem) {
+  .ech0-media--single img {
+    max-height: 340px;
+  }
+
+  .ech0-carousel__slide {
+    height: clamp(220px, 62vw, 340px);
+  }
+
+  .ech0-carousel__button {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ech0-spinner {
+    animation: none;
+  }
+}

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Test Ech0</title>
+  <link href="http://echo.ssean.cn/"/>
+  <updated>2026-01-03T00:00:00Z</updated>
+  <entry>
+    <title>Old</title>
+    <updated>2026-01-01T00:00:00Z</updated>
+    <id>tag:test,1</id>
+    <content type="html">&lt;p&gt;old &lt;span class="tag"&gt;#旧&lt;/span&gt;&lt;/p&gt;</content>
+    <link rel="alternate" href="http://echo.ssean.cn/echo/1"/>
+  </entry>
+  <entry>
+    <title>New</title>
+    <updated>2026-01-03T00:00:00Z</updated>
+    <id>tag:test,3</id>
+    <content type="html">&lt;p&gt;new&lt;/p&gt;&lt;img src="http://echo.ssean.cn/api/files/a.png" alt="A"/&gt;</content>
+    <link rel="alternate" href="/echo/3"/>
+  </entry>
+  <entry>
+    <title>Duplicate</title>
+    <updated>2026-01-03T00:00:00Z</updated>
+    <id>tag:test,3</id>
+    <content type="html">&lt;p&gt;duplicate&lt;/p&gt;</content>
+  </entry>
+  <entry>
+    <title>Bad date</title>
+    <updated>not-a-date</updated>
+    <id>tag:test,4</id>
+    <content type="html">&lt;p&gt;bad&lt;/p&gt;</content>
+  </entry>
+  <entry>
+    <title>Plain text</title>
+    <updated>2026-01-02T12:00:00Z</updated>
+    <id>tag:test,5</id>
+    <content type="text">&lt;b&gt;not bold&lt;/b&gt;</content>
+  </entry>
+  <entry>
+    <title>Middle</title>
+    <updated>2026-01-02T00:00:00Z</updated>
+    <id>tag:test,2</id>
+    <content type="html">&lt;p&gt;middle&lt;/p&gt;</content>
+  </entry>
+</feed>
