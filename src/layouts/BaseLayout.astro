@@ -1,6 +1,7 @@
 ---
 import SiteHeader from '../components/site/SiteHeader.astro';
 import SiteFooter from '../components/site/SiteFooter.astro';
+import { ClientRouter } from 'astro:transitions';
 import ThemeInit from '../components/theme/ThemeInit.astro';
 import SplashInit from '../components/splash/SplashInit.astro';
 import DotSplash from '../components/splash/DotSplash.astro';
@@ -23,8 +24,8 @@ interface Props {
   noindex?: boolean;
   /** og:type */
   type?: 'website' | 'article';
-  /** 文章自带音乐时隐藏全局歌单播放器 */
-  hideMusic?: boolean;
+  /** 当前文章的音乐来源；会覆盖全站歌单 */
+  pageMusic?: string | null;
 }
 
 const {
@@ -32,7 +33,7 @@ const {
   description = siteConfig.description,
   noindex = false,
   type = 'website',
-  hideMusic = false,
+  pageMusic = null,
 } = Astro.props;
 
 const pageTitle = title
@@ -74,8 +75,9 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? siteConfig.url).href
 
     <ThemeInit />
     <SplashInit />
+    <ClientRouter />
   </head>
-  <body>
+  <body data-page-music={pageMusic || undefined}>
     <a class="skip-link" href="#main">跳到主要内容</a>
     <DotSplash />
     <SiteHeader />
@@ -83,16 +85,11 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? siteConfig.url).href
       <slot />
     </main>
     <SiteFooter />
-    {
-      !hideMusic && siteConfig.music.playlist && (
-        <MusicPlayer
-          variant="global"
-          source={siteConfig.music.playlist}
-          sourceType="playlist"
-          label={siteConfig.music.label}
-        />
-      )
-    }
+    <MusicPlayer
+      globalSource={siteConfig.music.playlist}
+      pageMusic={pageMusic}
+      label={siteConfig.music.label}
+    />
     <Lightbox />
     <MarkdownEnhance />
   </body>

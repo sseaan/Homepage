@@ -7,29 +7,30 @@ interface Props {
 }
 
 const { items } = Astro.props;
+
+const accentLabels = {
+  zzz: { label: '// Zenless Zone Zero', symbols: '+ + +' },
+  overcooked: { label: '// Overcooked! 2', symbols: '+ + +' },
+} as const;
 ---
 
 <ul class="rows">
   {
     items.map((item) => (
-      <li class:list={['row', { 'game-row--zzz': item.accent === 'zzz' }]}>
+      <li class:list={['row', item.accent ? `game-row--${item.accent}` : '']}>
         <div class="row__body">
           <h3 class="row__title">
             <Icon name={item.icon} size={15} />
             <span>{item.name}</span>
-            {item.accent === 'zzz' && (
-              <span class="game-row__zzz">
-                <span aria-hidden="true">// </span>Zenless Zone Zero
-              </span>
-            )}
+            {item.accent && <span class="game-row__accent">{accentLabels[item.accent].label}</span>}
             {item.pending && <span class="pending">待补充</span>}
           </h3>
           <p class="row__desc">{item.note}</p>
         </div>
         <div class="row__meta">
-          {item.accent === 'zzz' && (
+          {item.accent && (
             <span class="game-row__symbols" aria-hidden="true">
-              + + +
+              {accentLabels[item.accent].symbols}
             </span>
           )}
           <span>{item.platform}</span>
@@ -45,24 +46,28 @@ const { items } = Astro.props;
     align-self: center;
   }
 
-  /* 绝区零：只保留橙色文字标签和符号，不改图标与背景 */
+  /* 游戏装饰：只保留主题色文字标签和符号，不改图标与背景 */
   .game-row--zzz {
-    --zzz-orange: #d9662f;
+    --game-accent: #d9662f;
   }
 
-  .game-row__zzz {
-    color: var(--zzz-orange);
+  .game-row--overcooked {
+    --game-accent: #b23b2e;
+  }
+
+  .game-row__accent {
+    color: var(--game-accent);
     font-family: var(--font-mono);
     font-size: 10px;
     letter-spacing: 0.02em;
     line-height: 1.5;
     white-space: nowrap;
     padding-bottom: 1px;
-    border-bottom: 1px dashed color-mix(in srgb, var(--zzz-orange) 60%, transparent);
+    border-bottom: 1px dashed color-mix(in srgb, var(--game-accent) 60%, transparent);
   }
 
   .game-row__symbols {
-    color: var(--zzz-orange);
+    color: var(--game-accent);
     font-family: var(--font-mono);
     font-size: 10px;
     letter-spacing: 0.25em;
@@ -70,7 +75,7 @@ const { items } = Astro.props;
   }
 
   @media (max-width: 34rem) {
-    .game-row__zzz {
+    .game-row__accent {
       font-size: 9px;
     }
   }

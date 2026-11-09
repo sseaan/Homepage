@@ -35,6 +35,11 @@ export const iconShapes = {
     '<path d="M18.5 5.5v13L8 12z" fill="currentColor" stroke="none"/><path d="M5.5 5.5v13"/>',
   'skip-forward':
     '<path d="M5.5 5.5v13L16 12z" fill="currentColor" stroke="none"/><path d="M18.5 5.5v13"/>',
+  shuffle:
+    '<path d="m18 14 4 4-4 4"/><path d="m18 2 4 4-4 4"/><path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.8-1.1 2-1.7 3.3-1.7H22"/><path d="m2 6 4.8 4.8M22 18h-1.8c-1.3 0-2.5-.6-3.3-1.7l-4-5.6"/>',
+  volume:
+    '<path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/>',
+  'volume-x': '<path d="M11 5 6 9H2v6h4l5 4z"/><path d="m16 9 5 6M21 9l-5 6"/>',
   gamepad:
     '<path d="M6 11h3.5M7.75 9.25v3.5"/><path d="M16 10.5h.01M18.5 12.5h.01"/><path d="M17.3 5H6.7a4 4 0 0 0-3.98 3.6l-.63 5.7A3.9 3.9 0 0 0 6 18.7c.9 0 1.75-.36 2.4-1l1.35-1.35a2 2 0 0 1 1.4-.58h1.7a2 2 0 0 1 1.4.58L15.6 17.7c.65.64 1.5 1 2.4 1a3.9 3.9 0 0 0 3.91-4.4l-.63-5.7A4 4 0 0 0 17.3 5z"/>',
   music:

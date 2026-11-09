@@ -76,6 +76,13 @@ const latestPosts = allPosts.slice(0, 3);
       </div>
 
       <div class="hero__side">
+        <Doodle
+          variant="arrow"
+          width={54}
+          height={34}
+          strokeWidth={1.8}
+          class="doodle--ink hero__arrow"
+        />
         <div class="hero__portrait">
           <Avatar size="100%" shape="square" />
           <span class="hero__portrait-label" aria-hidden="true">SSEAAN<br />2026</span>
@@ -272,6 +279,15 @@ const latestPosts = allPosts.slice(0, 3);
     min-width: 0;
   }
 
+  .hero__arrow {
+    position: absolute;
+    top: 2%;
+    left: -0.75rem;
+    transform: rotate(14deg);
+    opacity: 0.75;
+    pointer-events: none;
+  }
+
   /* 新粗野主义头像：方形粗框 + 硬阴影 + 标签 */
   .hero__portrait {
     position: relative;
@@ -367,6 +383,12 @@ const latestPosts = allPosts.slice(0, 3);
       left: -0.6rem;
       bottom: -0.75rem;
       font-size: 8px;
+    }
+  }
+
+  @media (max-width: 52rem) {
+    .hero__arrow {
+      display: none;
     }
   }
 

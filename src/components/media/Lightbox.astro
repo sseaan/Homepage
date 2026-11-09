@@ -37,124 +37,104 @@ import '../../styles/lightbox.css';
 </dialog>
 
 <script>
-  const root = document.querySelector<HTMLDialogElement>('[data-lightbox-root]');
+  let root: HTMLDialogElement | null = null;
+  let imageEl: HTMLImageElement | null = null;
+  let countEl: HTMLElement | null = null;
+  let closeEl: HTMLButtonElement | null = null;
+  let prevEl: HTMLButtonElement | null = null;
+  let nextEl: HTMLButtonElement | null = null;
 
-  if (root) {
-    const imageEl = root.querySelector<HTMLImageElement>('[data-lightbox-image]');
-    const countEl = root.querySelector<HTMLElement>('[data-lightbox-count]');
-    const closeEl = root.querySelector<HTMLButtonElement>('[data-lightbox-close]');
-    const prevEl = root.querySelector<HTMLButtonElement>('[data-lightbox-prev]');
-    const nextEl = root.querySelector<HTMLButtonElement>('[data-lightbox-next]');
+  let gallery: { src: string; alt: string }[] = [];
+  let index = 0;
+  let lastTrigger: HTMLImageElement | null = null;
 
-    let gallery: { src: string; alt: string }[] = [];
-    let index = 0;
-    let lastTrigger: HTMLImageElement | null = null;
+  const getGroup = (image: HTMLImageElement): HTMLElement | null =>
+    image.closest<HTMLElement>('.gallery') ?? image.closest<HTMLElement>('[data-lightbox-group]');
 
-    const getGroup = (image: HTMLImageElement): HTMLElement | null =>
-      image.closest<HTMLElement>('.gallery') ?? image.closest<HTMLElement>('[data-lightbox-group]');
+  const getImages = (image: HTMLImageElement): HTMLImageElement[] => {
+    const group = getGroup(image);
+    const scope: ParentNode = group ?? image.parentElement ?? image;
+    const isGallery = Boolean(group?.classList.contains('gallery'));
 
-    const getImages = (image: HTMLImageElement): HTMLImageElement[] => {
-      const group = getGroup(image);
-      const scope: ParentNode = group ?? image.parentElement ?? image;
-      const isGallery = Boolean(group?.classList.contains('gallery'));
+    return Array.from(scope.querySelectorAll<HTMLImageElement>('img')).filter((item) => {
+      if (!item.isConnected || item.closest('a')) return false;
+      // 正文里的独立图片不要混进画廊的上一张/下一张
+      return isGallery || !item.closest('.gallery');
+    });
+  };
 
-      return Array.from(scope.querySelectorAll<HTMLImageElement>('img')).filter((item) => {
-        if (!item.isConnected || item.closest('a')) return false;
-        // 正文里的独立图片不要混进画廊的上一张/下一张
-        return isGallery || !item.closest('.gallery');
-      });
-    };
+  const update = () => {
+    const item = gallery[index];
+    if (!imageEl || !item) return;
 
-    const update = () => {
-      const item = gallery[index];
-      if (!imageEl || !item) return;
+    imageEl.src = item.src;
+    imageEl.alt = item.alt;
+    if (countEl) countEl.textContent = `${index + 1} / ${gallery.length}`;
+    if (prevEl) prevEl.disabled = index === 0;
+    if (nextEl) nextEl.disabled = index === gallery.length - 1;
+  };
 
-      imageEl.src = item.src;
-      imageEl.alt = item.alt;
-      if (countEl) countEl.textContent = `${index + 1} / ${gallery.length}`;
-      if (prevEl) prevEl.disabled = index === 0;
-      if (nextEl) nextEl.disabled = index === gallery.length - 1;
-    };
+  const move = (delta: number) => {
+    if (gallery.length === 0) return;
+    index = Math.min(gallery.length - 1, Math.max(0, index + delta));
+    update();
+  };
 
-    const move = (delta: number) => {
-      if (gallery.length === 0) return;
-      index = Math.min(gallery.length - 1, Math.max(0, index + delta));
-      update();
-    };
+  const close = () => {
+    if (root?.open) root.close();
+  };
 
-    const close = () => {
-      if (root.open) root.close();
-    };
+  const open = (image: HTMLImageElement) => {
+    if (!root?.isConnected) bindRoot();
+    if (!root || !imageEl) return;
 
-    const open = (image: HTMLImageElement) => {
-      if (!imageEl) return;
+    const images = getImages(image);
+    const triggerIndex = images.indexOf(image);
+    if (triggerIndex === -1) return;
 
-      const images = getImages(image);
-      const triggerIndex = images.indexOf(image);
-      if (triggerIndex === -1) return;
+    gallery = images.map((item) => ({
+      src: item.currentSrc || item.src,
+      alt: item.alt ?? '',
+    }));
+    index = triggerIndex;
+    lastTrigger = image;
+    update();
 
-      gallery = images.map((item) => ({
-        src: item.currentSrc || item.src,
-        alt: item.alt ?? '',
-      }));
-      index = triggerIndex;
-      lastTrigger = image;
-      update();
+    if (typeof root.showModal === 'function') {
+      document.documentElement.classList.add('lightbox-open');
+      root.showModal();
+      closeEl?.focus();
+    }
+  };
 
-      if (typeof root.showModal === 'function') {
-        document.documentElement.classList.add('lightbox-open');
-        root.showModal();
-        closeEl?.focus();
-      }
-    };
+  const enhance = (image: HTMLImageElement) => {
+    if (!getGroup(image) || image.closest('a') || image.dataset.lightboxReady === 'true') return;
 
-    const enhance = (image: HTMLImageElement) => {
-      if (!getGroup(image) || image.closest('a') || image.dataset.lightboxReady === 'true') return;
+    image.dataset.lightboxReady = 'true';
+    image.classList.add('is-zoomable');
+    image.tabIndex = 0;
+    image.setAttribute('role', 'button');
+    image.setAttribute('aria-label', image.alt ? `查看大图：${image.alt}` : '查看大图');
+  };
 
-      image.dataset.lightboxReady = 'true';
-      image.classList.add('is-zoomable');
-      image.tabIndex = 0;
-      image.setAttribute('role', 'button');
-      image.setAttribute('aria-label', image.alt ? `查看大图：${image.alt}` : '查看大图');
-    };
+  const enhanceAll = (scope: ParentNode = document) => {
+    scope.querySelectorAll<HTMLImageElement>('img').forEach(enhance);
+  };
 
-    const enhanceAll = (scope: ParentNode = document) => {
-      scope.querySelectorAll<HTMLImageElement>('img').forEach(enhance);
-    };
-
-    enhanceAll();
-
-    if ('MutationObserver' in window) {
-      const observer = new MutationObserver((mutations) => {
-        for (const mutation of mutations) {
-          for (const node of mutation.addedNodes) {
-            if (!(node instanceof Element)) continue;
-            if (node instanceof HTMLImageElement) enhance(node);
-            else enhanceAll(node);
-          }
-        }
-      });
-      observer.observe(document.body, { childList: true, subtree: true });
+  const bindRoot = () => {
+    const nextRoot = document.querySelector<HTMLDialogElement>('[data-lightbox-root]');
+    if (!nextRoot || nextRoot.dataset.lightboxBound === 'true') {
+      root = nextRoot;
+      return;
     }
 
-    document.addEventListener('click', (event) => {
-      const target = event.target as Element | null;
-      const image = target?.closest<HTMLImageElement>('img.is-zoomable');
-      if (!image) return;
-      event.preventDefault();
-      open(image);
-    });
-
-    document.addEventListener('keydown', (event) => {
-      const active = document.activeElement;
-      if (!(active instanceof HTMLImageElement) || !active.classList.contains('is-zoomable')) {
-        return;
-      }
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        open(active);
-      }
-    });
+    root = nextRoot;
+    root.dataset.lightboxBound = 'true';
+    imageEl = root.querySelector<HTMLImageElement>('[data-lightbox-image]');
+    countEl = root.querySelector<HTMLElement>('[data-lightbox-count]');
+    closeEl = root.querySelector<HTMLButtonElement>('[data-lightbox-close]');
+    prevEl = root.querySelector<HTMLButtonElement>('[data-lightbox-prev]');
+    nextEl = root.querySelector<HTMLButtonElement>('[data-lightbox-next]');
 
     closeEl?.addEventListener('click', close);
     prevEl?.addEventListener('click', () => move(-1));
@@ -183,5 +163,52 @@ import '../../styles/lightbox.css';
       // dialog 默认的焦点恢复可能晚于 close 事件，放到下一帧确保回到原图片
       if (trigger?.isConnected) window.requestAnimationFrame(() => trigger.focus());
     });
+  };
+
+  const boot = () => {
+    bindRoot();
+    enhanceAll();
+  };
+
+  document.addEventListener('click', (event) => {
+    const target = event.target as Element | null;
+    const image = target?.closest<HTMLImageElement>('img.is-zoomable');
+    if (!image) return;
+    event.preventDefault();
+    open(image);
+  });
+
+  document.addEventListener('keydown', (event) => {
+    const active = document.activeElement;
+    if (!(active instanceof HTMLImageElement) || !active.classList.contains('is-zoomable')) {
+      return;
+    }
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      open(active);
+    }
+  });
+
+  if ('MutationObserver' in window) {
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        for (const node of mutation.addedNodes) {
+          if (!(node instanceof Element)) continue;
+          if (node instanceof HTMLImageElement) enhance(node);
+          else enhanceAll(node);
+        }
+      }
+    });
+    observer.observe(document.documentElement, { childList: true, subtree: true });
   }
+
+  document.addEventListener('astro:before-swap', () => {
+    close();
+    document.documentElement.classList.remove('lightbox-open');
+    gallery = [];
+    lastTrigger = null;
+  });
+
+  document.addEventListener('astro:page-load', boot);
+  boot();
 </script>

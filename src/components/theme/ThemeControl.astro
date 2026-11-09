@@ -61,8 +61,6 @@ const modes = [
 <script>
   const STORAGE_KEY = 'site-theme';
   const root = document.documentElement;
-  const trigger = document.querySelector<HTMLButtonElement>('[data-theme-trigger]');
-  const announce = document.querySelector<HTMLElement>('[data-theme-announce]');
   const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
   type Mode = 'light' | 'system' | 'dark';
@@ -75,6 +73,9 @@ const modes = [
     system: '自动（跟随系统）',
     dark: '黑夜',
   };
+
+  const getTrigger = () => document.querySelector<HTMLButtonElement>('[data-theme-trigger]');
+  const getAnnounce = () => document.querySelector<HTMLElement>('[data-theme-announce]');
 
   const getMode = (): Mode => {
     const mode = root.dataset.themeMode;
@@ -95,11 +96,11 @@ const modes = [
   };
 
   const syncUi = (mode: Mode) => {
-    if (trigger) {
-      trigger.dataset.mode = mode;
-      trigger.setAttribute('aria-label', `主题：${labels[mode]}，点击切换`);
-      trigger.setAttribute('title', `当前：${labels[mode]}（自动 → 白天 → 黑夜）`);
-    }
+    const trigger = getTrigger();
+    if (!trigger) return;
+    trigger.dataset.mode = mode;
+    trigger.setAttribute('aria-label', `主题：${labels[mode]}，点击切换`);
+    trigger.setAttribute('title', `当前：${labels[mode]}（自动 → 白天 → 黑夜）`);
   };
 
   const applyTheme = (mode: Mode, persist = true, silent = false) => {
@@ -117,12 +118,17 @@ const modes = [
       }
     }
 
+    const announce = getAnnounce();
     if (!silent && announce) announce.textContent = `主题已切换为${labels[mode]}`;
 
     window.dispatchEvent(new CustomEvent('site:theme-change', { detail: { mode, resolved } }));
   };
 
-  trigger?.addEventListener('click', () => {
+  document.addEventListener('click', (event) => {
+    const target = event.target as Element | null;
+    const trigger = target?.closest<HTMLButtonElement>('[data-theme-trigger]');
+    if (!trigger) return;
+
     const index = cycle.indexOf(getMode());
     const next = cycle[(index + 1) % cycle.length] ?? 'system';
     applyTheme(next);
@@ -134,8 +140,9 @@ const modes = [
   };
   mediaQuery.addEventListener('change', onSystemChange);
 
-  // 只读已保存的偏好，避免与 ThemeInit 的首屏结果不一致
-  const initialMode = readStoredMode();
-  if (root.dataset.themeMode !== initialMode) applyTheme(initialMode, false, true);
-  else syncUi(initialMode);
+  // 页面首次加载与 ClientRouter 导航后都重新应用，避免 html 属性被替换后丢失主题
+  const boot = () => applyTheme(readStoredMode(), false, true);
+  boot();
+  document.addEventListener('astro:after-swap', boot);
+  document.addEventListener('astro:page-load', boot);
 </script>

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   formatDuration,
+  parseNeteaseLyrics,
   parseNeteaseMusicSource,
   parseNeteasePlaylistId,
   parseNeteaseSongId,
@@ -82,5 +83,32 @@ describe('formatDuration', () => {
     [3600, '60:00'],
   ])('formats %s as %s', (input, expected) => {
     expect(formatDuration(input)).toBe(expected);
+  });
+});
+
+describe('parseNeteaseLyrics', () => {
+  it('parses timestamps and drops metadata or empty lines', () => {
+    const lyrics = parseNeteaseLyrics(
+      [
+        '[ti:测试歌曲]',
+        '[ar:测试歌手]',
+        '[00:12.34]第一句',
+        '[00:15.5][00:18.00]重复句',
+        '[00:20.123]最后一句',
+        '[00:22.00]',
+      ].join('\n'),
+    );
+
+    expect(lyrics).toEqual([
+      { time: 12.34, text: '第一句' },
+      { time: 15.5, text: '重复句' },
+      { time: 18, text: '重复句' },
+      { time: 20.123, text: '最后一句' },
+    ]);
+  });
+
+  it('returns an empty array for instrumental or invalid lyrics', () => {
+    expect(parseNeteaseLyrics('')).toEqual([]);
+    expect(parseNeteaseLyrics('纯音乐，请欣赏')).toEqual([]);
   });
 });

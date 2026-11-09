@@ -43,8 +43,8 @@ export interface Game {
   platform: string;
   note: string;
   icon: IconName;
-  /** 特殊视觉风格；zzz 为绝区零的黄黑点缀 */
-  accent?: 'zzz';
+  /** 特殊视觉风格；zzz 为绝区零的橙色点缀，overcooked 为胡闹厨房的番茄红点缀 */
+  accent?: 'zzz' | 'overcooked';
   pending?: boolean;
 }
 
@@ -122,6 +122,7 @@ export const games: Game[] = [
     platform: 'PC / 主机',
     note: '和朋友一起玩，飞盘|困难',
     icon: 'gamepad',
+    accent: 'overcooked',
   },
 ];
 

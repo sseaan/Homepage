@@ -1,719 +1,272 @@
 ---
 import Icon from '../icons/Icon.astro';
+import '../../styles/music.css';
 
 interface Props {
-  /** global：全站歌单入口 + 面板；article：文章右下角封面按钮 */
-  variant?: 'global' | 'article';
-  /** 网易云单曲 / 歌单链接、纯数字歌曲 ID，或 playlist:<id> */
-  source: string;
-  /** 纯数字 ID 的默认类型；歌单入口固定传 playlist */
-  sourceType?: 'song' | 'playlist';
+  /** 全局网易云歌单链接或纯数字歌单 ID；null 时只保留文章音乐能力 */
+  globalSource?: string | null;
+  /** 纯数字全局源的默认类型；默认按歌单处理 */
+  globalSourceType?: 'song' | 'playlist';
+  /** 当前页面是否带文章音乐（首屏渲染时决定要不要输出播放器） */
+  pageMusic?: string | null;
   /** 全局入口按钮文字 */
   label?: string;
 }
 
-const { variant = 'global', source, sourceType, label = '听歌' } = Astro.props;
+const {
+  globalSource = null,
+  globalSourceType = 'playlist',
+  pageMusic = null,
+  label = '听歌',
+} = Astro.props;
 const apiBase = (import.meta.env.PUBLIC_NETEASE_API_BASE ?? '').replace(/\/+$/, '');
-const enabled = Boolean(apiBase && source.trim());
-const isGlobal = variant === 'global';
+const enabled = Boolean(apiBase && (globalSource?.trim() || pageMusic?.trim()));
 ---
 
 {
   enabled && (
     <div
-      class:list={['music-player', `music-player--${variant}`]}
-      hidden
+      class="music-player"
+      id="site-music-player"
+      transition:persist="site-music-player"
       data-music-player
-      data-variant={variant}
       data-api-base={apiBase}
-      data-source={source}
-      data-source-type={sourceType}
-      data-state={isGlobal ? 'idle' : 'loading'}
+      data-mode="global"
+      data-global-source={globalSource ?? ''}
+      data-global-source-type={globalSourceType}
+      data-state="idle"
       data-open="false"
       data-playing="false"
+      data-dismissed="false"
+      hidden
     >
-      {isGlobal ? (
-        <>
-          <button
-            class="music-launcher"
-            type="button"
-            data-music-launcher
-            aria-expanded="false"
-            aria-controls="music-panel"
-            aria-label="打开音乐播放器"
-          >
-            <Icon name="music" size={18} />
-            <span>{label}</span>
-            <span class="music-launcher__bars" data-music-bars aria-hidden="true" hidden>
-              <i />
-              <i />
-              <i />
-            </span>
-          </button>
+      <button
+        class="music-launcher"
+        type="button"
+        data-music-launcher
+        aria-expanded="false"
+        aria-controls="music-panel"
+        aria-label="打开音乐播放器"
+      >
+        <Icon name="music" size={18} />
+        <span>{label}</span>
+        <span class="music-launcher__bars" data-music-bars aria-hidden="true" hidden>
+          <i />
+          <i />
+          <i />
+        </span>
+      </button>
 
-          <section
-            class="music-panel"
-            id="music-panel"
-            data-music-panel
-            tabindex="-1"
-            aria-label="音乐播放器"
-            hidden
-          >
-            <header class="music-panel__header">
-              <div class="music-panel__heading">
-                <p class="music-panel__eyebrow" data-music-collection-label>
-                  歌单
-                </p>
-                <p class="music-panel__collection" data-music-collection-name>
-                  加载中…
-                </p>
-              </div>
-              <button
-                class="music-panel__close"
-                type="button"
-                data-music-collapse
-                aria-label="收起播放器"
-                title="收起"
-              >
-                ×
-              </button>
-            </header>
-
-            <div class="music-panel__now">
-              <div class="music-panel__cover">
-                <span class="music-panel__cover-placeholder" data-music-placeholder>
-                  <Icon name="music" size={20} />
-                </span>
-                <img data-music-cover alt="" width="112" height="112" loading="lazy" hidden />
-              </div>
-              <div class="music-panel__track-info">
-                <p class="music-panel__song" data-music-song>
-                  正在加载歌单…
-                </p>
-                <p class="music-panel__artist" data-music-artist />
-              </div>
-            </div>
-
-            <div class="music-panel__controls">
-              <div class="music-panel__transport">
-                <button type="button" data-music-prev aria-label="上一首" title="上一首">
-                  <Icon name="skip-back" size={16} />
-                </button>
-                <button
-                  class="music-panel__play"
-                  type="button"
-                  data-music-play
-                  aria-label="播放"
-                  aria-pressed="false"
-                  title="播放 / 暂停"
-                >
-                  <span data-music-play-icon>
-                    <Icon name="play" size={16} />
-                  </span>
-                  <span data-music-pause-icon hidden>
-                    <Icon name="pause" size={16} />
-                  </span>
-                </button>
-                <button type="button" data-music-next aria-label="下一首" title="下一首">
-                  <Icon name="skip-forward" size={16} />
-                </button>
-              </div>
-              <div class="music-panel__timeline">
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  step="0.1"
-                  value="0"
-                  data-music-progress
-                  aria-label="播放进度"
-                  disabled
-                />
-                <span data-music-time>0:00 / 0:00</span>
-              </div>
-            </div>
-
-            <p class="music-panel__status" data-music-status role="status">
-              正在加载歌单…
+      <section
+        class="music-panel"
+        id="music-panel"
+        data-music-panel
+        tabindex="-1"
+        aria-label="音乐播放器"
+        hidden
+      >
+        <header class="music-panel__header">
+          <div class="music-panel__heading">
+            <p class="music-panel__eyebrow" data-music-collection-label>
+              歌单
             </p>
-            <p class="music-panel__error" data-music-error role="status" hidden />
-            <ol class="music-panel__list" data-music-list hidden />
-          </section>
-        </>
-      ) : (
-        <>
+            <p class="music-panel__collection" data-music-collection-name>
+              加载中…
+            </p>
+          </div>
           <button
-            class="music-cover"
+            class="music-panel__close"
             type="button"
-            data-music-toggle
-            aria-label="播放文章音乐"
-            aria-pressed="false"
-          >
-            <span class="music-cover__placeholder" data-music-placeholder>
-              <Icon name="music" size={24} />
-            </span>
-            <img
-              data-music-cover
-              alt=""
-              width="160"
-              height="160"
-              loading="lazy"
-              decoding="async"
-              hidden
-            />
-            <span class="music-cover__icon" data-music-toggle-icon aria-hidden="true">
-              ▶
-            </span>
-            <span class="music-cover__spinner" data-music-spinner aria-hidden="true" />
-          </button>
-          <button
-            class="music-cover__close"
-            type="button"
-            data-music-close
-            aria-label="关闭音乐播放器"
-            title="关闭"
+            data-music-collapse
+            aria-label="收起播放器"
+            title="收起"
           >
             ×
           </button>
-        </>
-      )}
+        </header>
 
-      {isGlobal ? null : <p class="music-error" data-music-error role="status" hidden />}
+        <div class="music-panel__now">
+          <div class="music-panel__cover">
+            <span class="music-panel__cover-placeholder" data-music-panel-placeholder>
+              <Icon name="music" size={20} />
+            </span>
+            <img data-music-panel-cover alt="" width="112" height="112" loading="lazy" hidden />
+          </div>
+          <div class="music-panel__track-info">
+            <p class="music-panel__song" data-music-song>
+              正在加载歌单…
+            </p>
+            <p class="music-panel__artist" data-music-artist />
+          </div>
+        </div>
+
+        <div class="music-panel__controls">
+          <div class="music-panel__transport">
+            <button
+              type="button"
+              data-music-shuffle
+              aria-label="随机播放"
+              aria-pressed="false"
+              title="随机播放"
+            >
+              <Icon name="shuffle" size={15} />
+            </button>
+            <button type="button" data-music-prev aria-label="上一首" title="上一首">
+              <Icon name="skip-back" size={16} />
+            </button>
+            <button
+              class="music-panel__play"
+              type="button"
+              data-music-play
+              aria-label="播放"
+              aria-pressed="false"
+              title="播放 / 暂停"
+            >
+              <span data-music-play-icon>
+                <Icon name="play" size={16} />
+              </span>
+              <span data-music-pause-icon hidden>
+                <Icon name="pause" size={16} />
+              </span>
+            </button>
+            <button type="button" data-music-next aria-label="下一首" title="下一首">
+              <Icon name="skip-forward" size={16} />
+            </button>
+            <button
+              type="button"
+              data-music-mute
+              aria-label="静音"
+              aria-pressed="false"
+              title="静音"
+            >
+              <span data-music-volume-on>
+                <Icon name="volume" size={15} />
+              </span>
+              <span data-music-volume-off hidden>
+                <Icon name="volume-x" size={15} />
+              </span>
+            </button>
+            <input
+              class="music-panel__volume"
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value="0.8"
+              data-music-volume
+              aria-label="音量"
+            />
+          </div>
+          <div class="music-panel__timeline">
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="0.1"
+              value="0"
+              data-music-progress
+              aria-label="播放进度"
+              disabled
+            />
+            <span data-music-time>0:00 / 0:00</span>
+          </div>
+        </div>
+
+        <div class="music-panel__tabs" role="tablist" aria-label="播放器视图">
+          <button
+            class="music-panel__tab"
+            id="music-tab-list"
+            type="button"
+            role="tab"
+            data-music-tab="list"
+            aria-selected="true"
+            aria-controls="music-list-panel"
+          >
+            曲目
+          </button>
+          <button
+            class="music-panel__tab"
+            id="music-tab-lyrics"
+            type="button"
+            role="tab"
+            data-music-tab="lyrics"
+            aria-selected="false"
+            aria-controls="music-lyrics-panel"
+            tabindex="-1"
+          >
+            歌词
+          </button>
+        </div>
+
+        <p class="music-panel__status" data-music-status role="status">
+          正在加载歌单…
+        </p>
+        <p class="music-panel__error" data-music-panel-error role="status" hidden />
+
+        <div
+          id="music-list-panel"
+          data-music-list-panel
+          role="tabpanel"
+          aria-labelledby="music-tab-list"
+        >
+          <ol class="music-panel__list" data-music-list hidden />
+        </div>
+
+        <div
+          id="music-lyrics-panel"
+          data-music-lyrics-panel
+          role="tabpanel"
+          aria-labelledby="music-tab-lyrics"
+          hidden
+        >
+          <div class="music-panel__lyrics" data-music-lyrics>
+            <p class="music-panel__lyric-empty">播放歌曲后显示歌词。</p>
+          </div>
+        </div>
+      </section>
+
+      <div class="music-cover-player" data-music-article>
+        <button
+          class="music-cover"
+          type="button"
+          data-music-toggle
+          aria-label="播放文章音乐"
+          aria-pressed="false"
+        >
+          <span class="music-cover__placeholder" data-music-placeholder>
+            <Icon name="music" size={24} />
+          </span>
+          <img
+            data-music-cover
+            alt=""
+            width="160"
+            height="160"
+            loading="lazy"
+            decoding="async"
+            hidden
+          />
+          <span class="music-cover__icon" data-music-toggle-icon aria-hidden="true">
+            {' '}
+            ▶{' '}
+          </span>
+          <span class="music-cover__spinner" data-music-spinner aria-hidden="true" />
+        </button>
+        <button
+          class="music-cover__close"
+          type="button"
+          data-music-article-close
+          aria-label="关闭音乐播放器"
+          title="关闭"
+        >
+          ×
+        </button>
+      </div>
+
+      <p class="music-error" data-music-article-error role="status" hidden />
       <audio data-music-audio preload="none" />
     </div>
   )
 }
-
-<style is:global>
-  .music-player {
-    position: fixed;
-    right: max(var(--gutter), env(safe-area-inset-right));
-    bottom: max(var(--space-4), env(safe-area-inset-bottom));
-    z-index: 40;
-  }
-
-  .music-player [hidden] {
-    display: none !important;
-  }
-
-  /* ---------- 全局入口 ---------- */
-
-  .music-launcher {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    min-height: 2.5rem;
-    padding: 0.35rem 0.85rem;
-    border: 1.5px solid var(--color-text);
-    border-radius: var(--radius-sm);
-    background: var(--color-bg);
-    color: var(--color-text);
-    font-family: var(--font-mono);
-    font-size: var(--text-xs);
-    letter-spacing: 0.08em;
-    cursor: pointer;
-    box-shadow: var(--shadow-hard-ink);
-    transition:
-      transform var(--motion-fast) var(--ease-out),
-      box-shadow var(--motion-fast) var(--ease-out);
-  }
-
-  .music-launcher:hover {
-    transform: translate(1px, 1px);
-    box-shadow: 2px 2px 0 var(--color-text);
-  }
-
-  .music-launcher:focus-visible {
-    outline: 2px solid var(--color-focus);
-    outline-offset: 3px;
-  }
-
-  .music-player[data-playing='true'] .music-launcher > .icon {
-    display: none;
-  }
-
-  .music-launcher__bars {
-    display: inline-flex;
-    align-items: flex-end;
-    gap: 2px;
-    height: 0.85rem;
-  }
-
-  .music-launcher__bars i {
-    display: block;
-    width: 2px;
-    height: 100%;
-    background: var(--doodle-accent);
-    transform-origin: bottom;
-    animation: music-bar 900ms ease-in-out infinite;
-  }
-
-  .music-launcher__bars i:nth-child(2) {
-    height: 62%;
-    animation-delay: 120ms;
-  }
-
-  .music-launcher__bars i:nth-child(3) {
-    height: 82%;
-    animation-delay: 240ms;
-  }
-
-  /* ---------- 全局面板 ---------- */
-
-  .music-panel {
-    display: flex;
-    flex-direction: column;
-    width: min(21rem, calc(100vw - 2 * var(--gutter)));
-    max-height: min(36rem, calc(100svh - var(--header-height) - var(--space-6)));
-    overflow: hidden;
-    border: 1.5px solid var(--color-text);
-    border-radius: var(--radius-card);
-    background: var(--color-bg);
-    box-shadow: 6px 6px 0 var(--color-text);
-  }
-
-  .music-panel__header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: var(--space-3);
-    padding: 0.7rem 0.85rem;
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .music-panel__heading {
-    min-width: 0;
-  }
-
-  .music-panel__eyebrow {
-    margin: 0;
-    font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--color-faint);
-  }
-
-  .music-panel__collection {
-    margin: 0.1rem 0 0;
-    overflow: hidden;
-    font-size: var(--text-sm);
-    font-weight: 600;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .music-panel__close {
-    display: grid;
-    flex: none;
-    width: 1.6rem;
-    height: 1.6rem;
-    padding: 0;
-    border: 1px solid var(--color-border-strong);
-    border-radius: 50%;
-    background: var(--color-bg);
-    color: var(--color-text);
-    font-size: 0.9rem;
-    line-height: 1;
-    cursor: pointer;
-    place-items: center;
-  }
-
-  .music-panel__close:hover {
-    border-color: var(--color-text);
-    background: var(--color-surface-soft);
-  }
-
-  .music-panel__now {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    padding: 0.75rem 0.85rem 0.6rem;
-  }
-
-  .music-panel__cover {
-    display: grid;
-    flex: none;
-    width: 3.5rem;
-    height: 3.5rem;
-    overflow: hidden;
-    border: 1px solid var(--color-text);
-    background: var(--color-surface-soft);
-    place-items: center;
-  }
-
-  .music-panel__cover img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .music-panel__cover-placeholder {
-    display: grid;
-    color: var(--color-muted);
-    place-items: center;
-  }
-
-  .music-panel__track-info {
-    min-width: 0;
-  }
-
-  .music-panel__song {
-    margin: 0;
-    overflow: hidden;
-    font-size: var(--text-base);
-    font-weight: 600;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .music-panel__artist {
-    margin: 0.15rem 0 0;
-    overflow: hidden;
-    font-family: var(--font-mono);
-    font-size: var(--text-xs);
-    color: var(--color-muted);
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .music-panel__controls {
-    display: grid;
-    gap: 0.4rem;
-    padding: 0 0.85rem 0.75rem;
-  }
-
-  .music-panel__transport {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .music-panel__transport button {
-    display: grid;
-    width: 2rem;
-    height: 2rem;
-    padding: 0;
-    border: 1px solid var(--color-border-strong);
-    border-radius: 50%;
-    background: var(--color-bg);
-    color: var(--color-text);
-    cursor: pointer;
-    place-items: center;
-  }
-
-  .music-panel__transport button:hover {
-    border-color: var(--color-text);
-    background: var(--color-surface-soft);
-  }
-
-  .music-panel__transport .music-panel__play {
-    width: 2.5rem;
-    height: 2.5rem;
-    border-color: var(--color-text);
-    border-width: 1.5px;
-    box-shadow: 2px 2px 0 var(--color-text);
-  }
-
-  .music-panel__transport .music-panel__play:hover {
-    transform: translate(1px, 1px);
-    box-shadow: 1px 1px 0 var(--color-text);
-  }
-
-  .music-panel__timeline {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .music-panel__timeline input {
-    flex: 1;
-    min-width: 0;
-    height: 1rem;
-    accent-color: var(--color-text);
-    cursor: pointer;
-  }
-
-  .music-panel__timeline input:disabled {
-    cursor: default;
-    opacity: 0.5;
-  }
-
-  .music-panel__timeline span {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    color: var(--color-faint);
-    white-space: nowrap;
-  }
-
-  .music-panel__status,
-  .music-panel__error {
-    margin: 0;
-    padding: 0.5rem 0.85rem;
-    border-top: 1px solid var(--color-border);
-    font-family: var(--font-mono);
-    font-size: var(--text-xs);
-    color: var(--color-faint);
-  }
-
-  .music-panel__error {
-    color: var(--color-danger);
-  }
-
-  .music-panel__list {
-    max-height: 11.5rem;
-    padding: 0;
-    margin: 0;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    border-top: 1px solid var(--color-border);
-    list-style: none;
-  }
-
-  .music-panel__list li {
-    border-top: 1px solid var(--color-border);
-  }
-
-  .music-panel__list li:first-child {
-    border-top: 0;
-  }
-
-  .music-panel__track {
-    display: grid;
-    grid-template-columns: 1.6rem minmax(0, 1fr);
-    gap: 0.5rem;
-    align-items: center;
-    width: 100%;
-    padding: 0.4rem 0.85rem;
-    border: 0;
-    background: transparent;
-    color: var(--color-text);
-    text-align: left;
-    cursor: pointer;
-  }
-
-  .music-panel__track:hover {
-    background: var(--color-surface-soft);
-  }
-
-  .music-panel__track.is-active {
-    background: var(--color-surface-soft);
-    box-shadow: inset 2px 0 0 var(--color-text);
-  }
-
-  .music-panel__track.is-unavailable {
-    color: var(--color-faint);
-    text-decoration: line-through;
-  }
-
-  .music-panel__track-index {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    color: var(--color-faint);
-  }
-
-  .music-panel__track.is-active .music-panel__track-index {
-    color: var(--doodle-accent);
-  }
-
-  .music-panel__track-body {
-    display: grid;
-    gap: 0.05rem;
-    min-width: 0;
-  }
-
-  .music-panel__track-name {
-    overflow: hidden;
-    font-size: var(--text-sm);
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .music-panel__track-artist {
-    overflow: hidden;
-    font-family: var(--font-mono);
-    font-size: 10px;
-    color: var(--color-muted);
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  /* ---------- 文章封面按钮 ---------- */
-
-  .music-cover {
-    position: relative;
-    display: grid;
-    width: 4.5rem;
-    height: 4.5rem;
-    padding: 0;
-    overflow: hidden;
-    border: 1.5px solid var(--color-text);
-    border-radius: var(--radius-card);
-    background: var(--color-surface-soft);
-    color: var(--color-text);
-    box-shadow: var(--shadow-hard-ink);
-    cursor: pointer;
-    place-items: center;
-    transition:
-      transform var(--motion-fast) var(--ease-out),
-      box-shadow var(--motion-fast) var(--ease-out);
-  }
-
-  .music-cover:hover {
-    transform: translate(-1px, -1px);
-    box-shadow: 4px 4px 0 var(--color-text);
-  }
-
-  .music-cover:focus-visible {
-    outline: 2px solid var(--color-focus);
-    outline-offset: 3px;
-  }
-
-  .music-cover__placeholder {
-    display: grid;
-    color: var(--color-muted);
-    place-items: center;
-  }
-
-  .music-cover img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .music-cover__icon {
-    position: absolute;
-    right: 0.25rem;
-    bottom: 0.25rem;
-    display: grid;
-    width: 1.45rem;
-    height: 1.45rem;
-    border: 1px solid var(--color-text);
-    border-radius: 50%;
-    background: var(--color-bg);
-    color: var(--color-text);
-    font-size: 0.55rem;
-    line-height: 1;
-    place-items: center;
-  }
-
-  .music-cover__spinner {
-    position: absolute;
-    display: none;
-    width: 1rem;
-    height: 1rem;
-    border: 2px solid var(--color-border);
-    border-top-color: var(--color-text);
-    border-radius: 50%;
-    animation: music-spin 700ms linear infinite;
-  }
-
-  .music-player--article[data-state='loading'] .music-cover__spinner {
-    display: block;
-  }
-
-  .music-player--article[data-state='loading'] .music-cover__icon {
-    visibility: hidden;
-  }
-
-  .music-cover__close {
-    position: absolute;
-    top: -0.45rem;
-    right: -0.45rem;
-    display: grid;
-    width: 1.25rem;
-    height: 1.25rem;
-    padding: 0;
-    border: 1px solid var(--color-text);
-    border-radius: 50%;
-    background: var(--color-bg);
-    color: var(--color-text);
-    font-size: 0.75rem;
-    line-height: 1;
-    cursor: pointer;
-    opacity: 0;
-    place-items: center;
-    transition: opacity var(--motion-fast) var(--ease-out);
-  }
-
-  .music-player--article:hover .music-cover__close,
-  .music-player--article:focus-within .music-cover__close,
-  .music-player--article[data-state='error'] .music-cover__close {
-    opacity: 1;
-  }
-
-  /* ---------- 错误提示 ---------- */
-
-  .music-error {
-    position: absolute;
-    right: 0;
-    bottom: calc(100% + 0.5rem);
-    width: max-content;
-    max-width: 15rem;
-    padding: 0.35rem 0.55rem;
-    border: 1px solid var(--color-text);
-    border-radius: var(--radius-sm);
-    background: var(--color-text);
-    color: var(--color-bg);
-    font-family: var(--font-mono);
-    font-size: 10px;
-    line-height: 1.4;
-  }
-
-  .music-player audio {
-    display: none;
-  }
-
-  @keyframes music-spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  @keyframes music-bar {
-    0%,
-    100% {
-      transform: scaleY(0.35);
-    }
-
-    50% {
-      transform: scaleY(1);
-    }
-  }
-
-  @media (max-width: 40rem) {
-    .music-cover {
-      width: 3.75rem;
-      height: 3.75rem;
-    }
-
-    .music-cover__close {
-      opacity: 1;
-    }
-
-    .music-panel {
-      width: calc(100vw - 2 * var(--gutter));
-    }
-
-    .music-panel__list {
-      max-height: 9rem;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .music-launcher,
-    .music-cover,
-    .music-cover__close,
-    .music-panel__transport .music-panel__play {
-      transition: none;
-    }
-
-    .music-launcher__bars i,
-    .music-cover__spinner {
-      animation: none;
-    }
-  }
-</style>
 
 <script>
   import '../../lib/netease-player';

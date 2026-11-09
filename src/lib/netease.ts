@@ -111,3 +111,36 @@ export const formatDuration = (seconds: number): string => {
   const rest = total % 60;
   return `${minutes}:${String(rest).padStart(2, '0')}`;
 };
+
+export interface LyricLine {
+  /** 开始时间（秒） */
+  time: number;
+  text: string;
+}
+
+/**
+ * 解析网易云 / 标准 LRC 歌词。
+ * 只保留带时间戳且有文本的行，按时间排序；元数据标签（[ti:] 等）会被忽略。
+ */
+export const parseNeteaseLyrics = (value: string): LyricLine[] => {
+  const lines: LyricLine[] = [];
+  const timestamp = /\[(\d{1,3}):(\d{2})(?:[.:](\d{1,3}))?\]/g;
+
+  for (const raw of value.split(/\r?\n/)) {
+    const matches = [...raw.matchAll(timestamp)];
+    if (matches.length === 0) continue;
+
+    const text = raw.replace(/\[[^\]]*\]/g, '').trim();
+    if (!text) continue;
+
+    for (const match of matches) {
+      const minutes = Number(match[1]);
+      const seconds = Number(match[2]);
+      const fraction = match[3] ? Number(`0.${match[3]}`) : 0;
+      const time = minutes * 60 + seconds + fraction;
+      if (Number.isFinite(time)) lines.push({ time, text });
+    }
+  }
+
+  return lines.sort((a, b) => a.time - b.time);
+};

@@ -4,13 +4,13 @@
 
 轻量、克制、持续维护的个人主页：Home / Blog / Ech0 / About 四个入口，Astro 静态生成。
 
-极简黑白为底，少量新粗野主义的粗边与硬阴影，手绘只作为页头、星号和圈选的批注出现。内容以 Markdown 管理，评论、动态和全站音乐分别在浏览器端连接独立服务，主站保持纯静态。
+极简黑白为底，少量新粗野主义的粗边与硬阴影，手绘只作为页头、头像、返回箭头、星号和圈选的批注出现。内容以 Markdown 管理，评论、动态和全站音乐分别在浏览器端连接独立服务，主站保持纯静态。
 
 > 这是个人站点，不是可直接套用的通用主题。站点信息、导航、首页文案和社交链接都集中在 `src/config` 与 `src/data`，修改内容不需要改模板。
 
 ## 链接
 
-- 线上站点：<https://ssean.cn>
+- 线上站点：<https://www.ssean.cn>
 - 仓库地址：<https://github.com/sseaan/Homepage>
 - 工程规范与验收清单：[AGENT.md](./AGENT.md)
 - Markdown 排版示例（草稿，不公开发布）：[`src/content/blog/markdown-guide.md`](./src/content/blog/markdown-guide.md)
@@ -31,7 +31,8 @@
 - **Markdown 扩展**：提示块、`==高亮==`、行内/整段剧透、折叠、图注、画廊、任务列表、代码块语言/行号/复制按钮。
 - **共享图片灯箱**：Blog 与 Ech0 共用一套 `<dialog>`，支持同组切换、Esc 关闭、焦点回归和滚动锁定。
 - **文章分享**：X、邮件、生成分享卡片、复制链接；分享卡片是 1080px 宽的 PNG，可下载或长按保存。
-- **全站音乐**：可选接入 api-enhanced；右下角「听歌」入口打开全局歌单，文章可用 frontmatter 覆盖为单曲/歌单并默认显示封面播放器。
+- **全站音乐**：可选接入 api-enhanced；右下角「听歌」入口打开全局歌单，支持随机、音量、同步歌词与进度控制，并借助 ClientRouter 跨页继续播放；文章可用 frontmatter 覆盖为单曲/歌单并默认显示封面播放器。
+- **跨页无缝**：ClientRouter 导航保留主题、音乐播放器与播放进度；页面级脚本在导航后重新初始化，灯箱、评论、Ech0、目录和分享卡片不会失效。
 - **Ech0 动态**：浏览器读取公开 Atom Feed，DOMPurify 清洗，按图片数量自动切换单图、轮播和宫格。
 - **Twikoo 评论**：自托管固定版本客户端，懒加载、独立错误状态，主题切换不丢失草稿。
 - **可访问性**：键盘焦点、跳转链接、减少动效、语义化状态提示和响应式布局。
@@ -76,7 +77,7 @@ pnpm dev               # http://localhost:4321
 3. 构建命令：`pnpm build`；输出目录：`dist`。
 4. Node 版本选择 **24.18.0**（EdgeOne 的 22.11 / 22.17 / 22.21 都低于 Astro 7 要求的 22.23.4；24.18.0 已实测通过）。
 5. 在 `main` 分支开启 Auto Deploy。
-6. 设置生产环境变量 `SITE_URL=https://ssean.cn`（不要以 `/` 结尾），或在 `astro.config.mjs` 中修改默认域名。
+6. 设置生产环境变量 `SITE_URL=https://www.ssean.cn`（不要以 `/` 结尾），或在 `astro.config.mjs` 中修改默认域名。
 
 静态站点不依赖 SPA fallback，`/about`、`/blog`、`/blog/<slug>` 可以直接访问和刷新。
 
@@ -94,11 +95,11 @@ EdgeOne 的自动部署由 push 触发；如果平台不等待 checks，建议�
 
 ### 环境变量
 
-| 变量                      | 何时需要            | 说明                                                                    |
-| ------------------------- | ------------------- | ----------------------------------------------------------------------- |
-| `SITE_URL`                | 生产环境建议设置    | canonical、Open Graph、RSS、sitemap 的绝对地址；默认 `https://ssean.cn` |
-| `PUBLIC_TWIKOO_ENV_ID`    | 需要覆盖评论后端时  | Twikoo 后端根地址；未设置时使用 `src/config/site.ts` 中的值             |
-| `PUBLIC_NETEASE_API_BASE` | 需要全站/文章音乐时 | api-enhanced 根地址；不设置时完全不输出播放器                           |
+| 变量                      | 何时需要            | 说明                                                                        |
+| ------------------------- | ------------------- | --------------------------------------------------------------------------- |
+| `SITE_URL`                | 生产环境建议设置    | canonical、Open Graph、RSS、sitemap 的绝对地址；默认 `https://www.ssean.cn` |
+| `PUBLIC_TWIKOO_ENV_ID`    | 需要覆盖评论后端时  | Twikoo 后端根地址；未设置时使用 `src/config/site.ts` 中的值                 |
+| `PUBLIC_NETEASE_API_BASE` | 需要全站/文章音乐时 | api-enhanced 根地址；不设置时完全不输出播放器                               |
 
 `PUBLIC_` 变量会进入浏览器构建产物，不要放密钥。Twikoo `envId` 和 api-enhanced 地址本身是公开地址。
 
@@ -135,7 +136,7 @@ src/
 ├── config/site.ts  站点级配置
 ├── data/           首页、About、友链
 ├── lib/            Ech0、Markdown 扩展、网易云解析与播放器逻辑
-├── styles/         tokens / themes / global / prose-extras / comments / ech0
+├── styles/         tokens / themes / global / music / prose-extras / comments / ech0
 └── content.config.ts
 ```
 
@@ -209,7 +210,9 @@ music: {
 },
 ```
 
-默认只在右下角显示「听歌」入口，点击后展开歌单面板（封面、曲目列表、上一首/播放/下一首、进度条）；收起面板后音乐继续播放。未点击前不会请求 API，也不自动播放。
+默认只在右下角显示「听歌」入口，点击后展开歌单面板（封面、曲目列表、随机播放、上一首/播放/下一首、音量、进度条、同步歌词）；收起面板后音乐继续播放。未点击前不会请求 API，也不自动播放。
+
+播放器依赖 Astro `ClientRouter` 和 `transition:persist` 保持同一个 `<audio>` 元素，在同一站内切换页面时音乐不会中断。歌单/歌曲信息会缓存到 `localStorage`（24 小时），歌词缓存 7 天；再次访问时不会重复请求歌单。只有首次加载不自动播放，若跳转前正在播放，进入新页面后会自动续播。
 
 文章 frontmatter 的 `music` 会覆盖全站歌单，并在文章右下角默认显示现有封面按钮样式：
 
@@ -226,7 +229,7 @@ music: https://music.163.com/song?id=123456
 PUBLIC_NETEASE_API_BASE=https://music-api.example.com
 ```
 
-歌曲详情走 `/song/detail?ids=`，歌单走 `/playlist/detail?id=` + `/playlist/track/all`；音频优先 `/song/url/v1?id=&level=exhigh`，失败回退 `standard` 和旧 `/song/url`。
+歌曲详情走 `/song/detail?ids=`，歌单走 `/playlist/detail?id=` + `/playlist/track/all`；歌词走 `/lyric?id=`；音频优先 `/song/url/v1?id=&level=exhigh`，失败回退 `standard` 和旧 `/song/url`。
 
 注意：
 
@@ -235,6 +238,7 @@ PUBLIC_NETEASE_API_BASE=https://music-api.example.com
 - VIP、无音源或接口风控时显示「该歌曲暂不可播放」，不影响正文。
 - 音频地址会从 `http:` 升级为 `https:`；请只播放有权使用的音乐。
 - 未配置 `music.playlist`、文章 `music` 或 `PUBLIC_NETEASE_API_BASE` 时，播放器完全不输出。
+- 跨页连续播放依赖 ClientRouter；新增页面脚本时必须在 `astro:page-load` 后重新初始化，或使用幂等守卫，避免导航后交互失效。
 
 ## 评论（Twikoo 2.0.17）
 
@@ -304,7 +308,7 @@ pnpm preview
 - 首页名字使用自托管的 **Great Vibes**（SIL OFL，来自 `@fontsource/great-vibes`，只加载 latin 400 子集），许可证见 `public/fonts/GreatVibes-LICENSE.txt`。
 - 主题顺序固定为 **自动 → 白天 → 黑夜**；首屏由 `ThemeInit` 写回 `data-theme`，无 JS 时跟随系统。
 - 开屏点阵约 1 秒，同一会话只播放一次；`prefers-reduced-motion: reduce` 时直接跳过。
-- 手绘 `Doodle.astro` 提供 `underline / squiggle / arrow / arrow-down / asterisk / star / circle / ring / bracket / divider`，按需取用，不要每个标题都挂装饰。
+- 手绘 `Doodle.astro` 提供 `underline / squiggle / arrow / arrow-left / arrow-down / asterisk / star / circle / ring / bracket / divider`，按需取用，不要每个标题都挂装饰。
 
 ## 质量与维护
 

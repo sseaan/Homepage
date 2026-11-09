@@ -70,7 +70,7 @@ export interface FilingRecord {
 
 export const siteConfig = {
   /** 正式域名确定后同步修改 astro.config.mjs 的 site 或设置 SITE_URL 环境变量 */
-  url: 'https://ssean.cn',
+  url: 'https://www.ssean.cn',
   name: 'Sseaan',
   title: 'Sseaan',
   tagline: '山河见证长久，片刻亦能生辉。',

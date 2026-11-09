@@ -30,7 +30,8 @@
 - Twikoo 客户端使用仓库内固定版本 `public/vendor/twikoo/twikoo-2.0.17.all.min.js`，不要改回第三方 CDN。
 - 不把生产域名、社交链接、个人资料硬编码进组件；统一放 `src/config/site.ts` 或 `src/data`。
 - 新增视觉样式必须使用 `src/styles/tokens.css` / `themes.css` 的令牌，不在组件里硬编码主题色。
-- 不自动播放音乐；音频接口失败、VIP 或无音源时必须优雅降级；全局播放器默认只显示入口按钮，点击后才请求歌单。
+- 不自动播放音乐；音频接口失败、VIP 或无音源时必须优雅降级；全局播放器默认只显示入口按钮，点击后才请求歌单。首次加载不自动播放，但用户已在播放时跨页必须继续。
+- 跨页连续播放依赖 `ClientRouter` + `transition:persist="site-music-player"`；不要移除持久化音乐根节点，也不要在导航后重建 `<audio>`。
 - 所有交互控件必须有键盘焦点、可访问名称和适当的 `aria-*`；尊重 `prefers-reduced-motion`。
 
 ## 3. 环境与命令
@@ -90,7 +91,7 @@ src/
 ├── layouts/        BaseLayout、BlogLayout
 ├── pages/          /、/about、/ech0、/blog、/blog/[...slug]、/rss.xml、/404
 ├── lib/            ech0.ts、netease.ts、netease-player.ts、remark-markdown-extras.mjs
-├── styles/         tokens、themes、global、prose-extras、comments、ech0、lightbox、doodles
+├── styles/         tokens、themes、global、music、prose-extras、comments、ech0、lightbox、doodles
 └── content.config.ts
 ```
 
@@ -102,7 +103,7 @@ src/
 - `src/lib/`：可测试的纯逻辑与独立客户端控制器；不要放 JSX/样式。
 - `src/components/`：展示与局部交互；跨页面复用的基础组件放 `site/`、`media/`、`icons/`。
 - `src/layouts/`：页面骨架和跨页面组合；不要在这里写文章内容。
-- `src/styles/`：设计令牌与全局/领域样式；组件 scoped 样式只处理局部布局。
+- `src/styles/`：设计令牌与全局/领域样式；组件 scoped 样式只处理局部布局。`music.css` 必须保持全局样式，因为曲目/歌词节点由客户端动态生成。
 
 ## 5. 内容规范
 
@@ -159,8 +160,8 @@ music: https://music.163.com/song?id=... # 可选，歌曲或歌单
 - 排版：全站容器 60rem；普通文章正文 40rem；带目录时 40rem + 12rem。
 - 形状：1.5–2px 粗边、2px 直角圆角、无模糊硬阴影；不要堆叠卡片和阴影。
 - 字体：系统无衬线为正文；首页名字使用自托管 Great Vibes（SIL OFL）；不请求第三方字体服务。
-- 手绘只做少量批注：Home 名字、Blog/About/Ech0 页头、404 箭头、圈选/星号。不要每个标题都加装饰。
-- 绝区零条目只使用橙色 `// Zenless Zone Zero` 与 `+ + +` 符号；不要改图标或背景。
+- 手绘只做少量批注：Home 名字/头像箭头、文章返回箭头、Blog/About/Ech0 页头、404 箭头、圈选/星号。不要每个标题都加装饰。
+- 游戏条目装饰统一使用 `// 游戏名` 与 `+ + +`：绝区零为橙色 `#d9662f`，胡闹厨房为番茄红 `#b23b2e`；不要改图标或背景。
 - 分享栏固定 X / 邮件 / 分享卡片 / 复制链接，不增加 Facebook、微博、Telegram。
 - 分享卡片为 Canvas 生成，宽 1080px，高度随标题/摘要动态计算；顶部品牌/日期同一中心线，图片收在页边距内。
 - 主题顺序固定为 **自动 → 白天 → 黑夜**；首屏 ThemeInit 防闪烁；无 JS 跟随系统。
@@ -190,13 +191,23 @@ music: https://music.163.com/song?id=... # 可选，歌曲或歌单
 ### api-enhanced 音乐播放器
 
 - 全局歌单在 `src/config/site.ts` 的 `music.playlist`（网易云歌单链接或纯数字 ID）；null 时不渲染。
-- 全站只在浏览页面右下角显示「听歌」入口；点击后展开面板，收起后继续播放；未打开前不请求 API。面板含封面、曲目列表、上一首/播放/下一首、进度条。
+- 全站只在浏览页面右下角显示「听歌」入口；点击后展开面板，收起后继续播放；未打开前不请求 API。面板含封面、曲目列表、随机、上一首/播放/下一首、音量、进度条和歌词。
 - 文章有 `music` 时隐藏全站入口，替换为文章自己的单曲/歌单，默认显示现有右下角封面按钮；歌单按顺序自动续播。
-- 解析：`src/lib/netease.ts` 的 `parseNeteaseMusicSource`；纯数字默认单曲，歌单使用歌单链接或 `playlist:<id>`。
-- 接口：单曲 `/song/detail?ids=`，歌单 `/playlist/detail?id=` + `/playlist/track/all`；音频 `/song/url/v1?id=&level=exhigh`，失败回退 `standard` 和旧 `/song/url`。
-- 客户端逻辑在 `src/lib/netease-player.ts`，组件在 `src/components/music/MusicPlayer.astro`；动态生成的曲目列表样式必须使用非 scoped 样式（当前组件 style 为 global）。
+- 页面上下文通过 `<body data-page-music="...">` 传给持久播放器；音乐根节点带 `transition:persist`，ClientRouter 导航时同一个 `<audio>` 元素被保留，因此跨页不中断。
+- 音乐根节点内的两种 UI（全局面板 + 文章封面）同时在 DOM 中，由 `data-mode` 切换；不要按页面条件决定是否渲染，否则持久化会失效。
+- 歌单/歌曲信息缓存到 `localStorage` 24 小时，歌词缓存 7 天；缓存键以 `site-music:` 开头。不要在未播放时预取 `/song/url`。
+- 解析：`src/lib/netease.ts` 的 `parseNeteaseMusicSource` / `parseNeteaseLyrics`；纯数字默认单曲，歌单使用歌单链接或 `playlist:<id>`。
+- 接口：单曲 `/song/detail?ids=`，歌单 `/playlist/detail?id=` + `/playlist/track/all`，歌词 `/lyric?id=`；音频 `/song/url/v1?id=&level=exhigh`，失败回退 `standard` 和旧 `/song/url`。
+- 客户端逻辑在 `src/lib/netease-player.ts`，组件在 `src/components/music/MusicPlayer.astro`；动态生成的曲目/歌词样式在 `src/styles/music.css`，不要改成 scoped。
 - HTTPS 站点要求 API 也是 HTTPS；CORS 由 api-enhanced 的 `CORS_ALLOW_ORIGIN` 配置。
 - 不硬编码歌曲、不自动播放、不下载音频；只播放有授权的音乐。加载失败、VIP、无音源和音频错误都要有可见状态。
+
+### ClientRouter 与页面脚本
+
+- `BaseLayout` 启用 Astro `ClientRouter`；所有页面级脚本必须在 `astro:page-load` 后重新初始化，或使用 `data-*-ready` 等幂等守卫。
+- 全局监听器（主题、灯箱、音乐）只绑定一次；页面级监听器在 `astro:before-swap` 清理，避免跨页重复。
+- 新增交互组件时至少验证：直接访问、从其它页面客户端跳转进入、返回上一页、浏览器前进/后退。
+- 不要把页面专属状态（文章 ID、评论 path、当前音乐）写进持久化根节点；通过新的 `<body>` 属性或当前 DOM 读取。
 
 ### 分享卡片
 
@@ -208,11 +219,11 @@ music: https://music.163.com/song?id=... # 可选，歌曲或歌单
 
 ## 8. 环境变量与部署
 
-| 变量                      | 作用                                      | 注意                                                    |
-| ------------------------- | ----------------------------------------- | ------------------------------------------------------- |
-| `SITE_URL`                | canonical / OG / RSS / sitemap 的绝对地址 | 生产建议显式设置，例如 `https://ssean.cn`，末尾不要 `/` |
-| `PUBLIC_TWIKOO_ENV_ID`    | 覆盖 Twikoo 后端根地址                    | 公开地址；默认在 `src/config/site.ts`                   |
-| `PUBLIC_NETEASE_API_BASE` | api-enhanced 根地址                       | 公开地址；HTTPS 站点必须 HTTPS；不配置则不渲染播放器    |
+| 变量                      | 作用                                      | 注意                                                        |
+| ------------------------- | ----------------------------------------- | ----------------------------------------------------------- |
+| `SITE_URL`                | canonical / OG / RSS / sitemap 的绝对地址 | 生产建议显式设置，例如 `https://www.ssean.cn`，末尾不要 `/` |
+| `PUBLIC_TWIKOO_ENV_ID`    | 覆盖 Twikoo 后端根地址                    | 公开地址；默认在 `src/config/site.ts`                       |
+| `PUBLIC_NETEASE_API_BASE` | api-enhanced 根地址                       | 公开地址；HTTPS 站点必须 HTTPS；不配置则不渲染播放器        |
 
 - 部署：EdgeOne Makers，Astro preset，`pnpm install --frozen-lockfile`，构建 `pnpm build`，输出 `dist`，Node `24.18.0`。EdgeOne 的 22.11 / 22.17 / 22.21 低于 Astro 7 的 22.23.4 最低要求，不要选择。
 - 主站和 Twikoo 后端分开部署；主站 push 不会更新评论后端。
@@ -246,6 +257,8 @@ music: https://music.163.com/song?id=... # 可选，歌曲或歌单
 - [ ] Ech0 空/错/成功状态正常；恶意 HTML 被清洗
 - [ ] Twikoo 失败不影响正文；主题切换不丢草稿
 - [ ] 音乐无配置时不请求；全站入口默认折叠；VIP/无音源/歌单加载失败有提示
+- [ ] 随机、音量、歌词可用；已播放状态下跨页音乐继续，歌单信息命中缓存
+- [ ] ClientRouter 导航后主题、灯箱、评论、Ech0、TOC、分享卡片仍可用
 - [ ] 有 `music` 的文章不显示全站入口，文章播放器默认可见且不自动播放；歌单自动续播
 - [ ] 分享卡片图片不溢出、顶部对齐、短摘要高度紧凑
 
@@ -262,26 +275,28 @@ music: https://music.163.com/song?id=... # 可选，歌曲或歌单
 
 ## 11. 关键决策与坑
 
-| 项       | 决策                                                                                                |
-| -------- | --------------------------------------------------------------------------------------------------- |
-| 框架     | Astro 7，而不是早期计划中的 Astro 5；内容集合、`render()`、`glob()` 按 v7 写                        |
-| Node     | 24.18.0（EdgeOne / CI）；22.23.4 为最低要求；Node 26 下 `pnpm check` 的 WASM 可能崩溃               |
-| pnpm     | `pnpm-workspace.yaml` 固定 `@napi-rs/wasm-runtime@1.2.7`、`@emnapi/runtime@1.11.3`，避免 check 崩溃 |
-| Markdown | 使用 unified + remark-directive；不要直接切回 Sätteri 默认处理器而不迁移插件                        |
-| 文章宽度 | 无目录页面也保持 40rem，避免分享栏/页头被拉到 60rem                                                 |
-| 分享栏   | 仅 X、邮件、分享卡片、复制链接                                                                      |
-| 分享卡片 | 1080px 宽，动态高度，图片内缩，顶部中心线对齐                                                       |
-| 音乐     | api-enhanced 可选；全局歌单入口默认折叠，文章 music 覆盖歌单并默认显示封面；无配置不输出播放器      |
-| Twikoo   | 固定客户端版本，自托管，懒加载；不改评论 path                                                       |
-| Ech0     | 客户端读取 + DOMPurify；构建不依赖线上 Feed                                                         |
-| 字体     | Great Vibes 自托管，SIL OFL；正文不回退到远程字体                                                   |
-| 绝区零   | 只保留橙色文字和 `+ + +`，不改图标/背景                                                             |
-| 历史计划 | 已移除；本文件是唯一工程规范，README 是使用说明                                                     |
+| 项       | 决策                                                                                                        |
+| -------- | ----------------------------------------------------------------------------------------------------------- |
+| 框架     | Astro 7，而不是早期计划中的 Astro 5；内容集合、`render()`、`glob()` 按 v7 写                                |
+| Node     | 24.18.0（EdgeOne / CI）；22.23.4 为最低要求；Node 26 下 `pnpm check` 的 WASM 可能崩溃                       |
+| pnpm     | `pnpm-workspace.yaml` 固定 `@napi-rs/wasm-runtime@1.2.7`、`@emnapi/runtime@1.11.3`，避免 check 崩溃         |
+| Markdown | 使用 unified + remark-directive；不要直接切回 Sätteri 默认处理器而不迁移插件                                |
+| 文章宽度 | 无目录页面也保持 40rem，避免分享栏/页头被拉到 60rem                                                         |
+| 分享栏   | 仅 X、邮件、分享卡片、复制链接                                                                              |
+| 分享卡片 | 1080px 宽，动态高度，图片内缩，顶部中心线对齐                                                               |
+| 音乐     | api-enhanced 可选；全局歌单入口默认折叠，文章 music 覆盖歌单并默认显示封面；ClientRouter + persist 跨页延续 |
+| 跨页脚本 | ClientRouter 下脚本只执行一次；页面级初始化统一挂 `astro:page-load`，全局监听器只绑定一次                   |
+| Twikoo   | 固定客户端版本，自托管，懒加载；不改评论 path                                                               |
+| Ech0     | 客户端读取 + DOMPurify；构建不依赖线上 Feed                                                                 |
+| 字体     | Great Vibes 自托管，SIL OFL；正文不回退到远程字体                                                           |
+| 游戏装饰 | 绝区零橙色 / 胡闹厨房番茄红，统一 `// 名称` + `+ + +`，不改图标/背景                                        |
+| 域名     | 正式站点固定 `https://www.ssean.cn`；Canonical / RSS / sitemap 都使用 www                                   |
+| 历史计划 | 已移除；本文件是唯一工程规范，README 是使用说明                                                             |
 
 ## 12. 当前状态
 
 - 阶段 0–5 已完成：工程、视觉、博客、Twikoo、Ech0、内容填充。
-- 博客已包含灯箱、分享卡片、Markdown 扩展、api-enhanced 全站歌单与文章音乐播放器。
+- 博客已包含灯箱、分享卡片、Markdown 扩展、api-enhanced 全站歌单与文章音乐播放器（随机 / 音量 / 歌词 / 跨页连续播放 / 缓存）。
 - `markdown-guide.md` 作为长期保留的 Markdown 排版示例草稿，保持 `draft: true`，不公开发布。
 - 阶段 6 仍需在正式域名下完成 CORS/评论回归、CI 门禁、备份策略和桌面/移动端/无障碍/三主题全量验收。
 - 站点使用 EdgeOne Makers 部署；Twikoo 后端独立维护。
