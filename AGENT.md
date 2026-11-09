@@ -21,7 +21,7 @@
 ## 2. 不可协商的约束
 
 - 使用 **Astro 7 + TypeScript strict + pnpm**；提交 `pnpm-lock.yaml`。
-- Node 固定为 **22.23.4**；CI 和本地检查都以此为准。
+- Node 使用 **24.18.0**（CI / EdgeOne）；最低支持 22.23.4（Astro 7 要求）。
 - 主站保持静态输出 `output: 'static'`，不引入 SSR、Edge Function、数据库或在线 CMS。
 - 不引入 React/Vue/Svelte/Tailwind 等 UI 框架；交互使用原生 CSS + 渐进增强脚本。
 - 不把密钥、Twikoo 管理凭据、API cookie 写入前端或 Git。`.env` 被忽略，只提交 `.env.example`。
@@ -37,9 +37,9 @@
 
 ### 环境
 
-- Node.js **22.23.4**（见 `.nvmrc`；Astro 7 要求 `>=22.23.4`）
+- Node.js **24.18.0**（推荐；见 `.nvmrc`；最低 22.23.4）
 - pnpm **12.18.0**（见 `packageManager`）
-- 本机若同时装有 Node 26，`pnpm check` 可能因 WASM 运行时崩溃；先切换到 Node 22.23.4。
+- 本机若同时装有 Node 26，`pnpm check` 可能因 WASM 运行时崩溃；使用 Node 24.18.0。
 
 ### 常用命令
 
@@ -209,7 +209,7 @@ music: https://music.163.com/song?id=... # 可选
 | `PUBLIC_TWIKOO_ENV_ID`    | 覆盖 Twikoo 后端根地址                    | 公开地址；默认在 `src/config/site.ts`                   |
 | `PUBLIC_NETEASE_API_BASE` | api-enhanced 根地址                       | 公开地址；HTTPS 站点必须 HTTPS；不配置则不渲染播放器    |
 
-- 部署：EdgeOne Makers，Astro preset，`pnpm install --frozen-lockfile`，构建 `pnpm build`，输出 `dist`，Node `22.23.4`。
+- 部署：EdgeOne Makers，Astro preset，`pnpm install --frozen-lockfile`，构建 `pnpm build`，输出 `dist`，Node `24.18.0`。EdgeOne 的 22.11 / 22.17 / 22.21 低于 Astro 7 的 22.23.4 最低要求，不要选择。
 - 主站和 Twikoo 后端分开部署；主站 push 不会更新评论后端。
 - CI 在 `.github/workflows/ci.yml`，执行格式检查、`astro check`、Vitest 和构建。
 - `SITE_URL` 未设置时使用 `astro.config.mjs` 的默认域名；不要在其他文件重复硬编码域名。
@@ -259,7 +259,7 @@ music: https://music.163.com/song?id=... # 可选
 | 项       | 决策                                                                                                |
 | -------- | --------------------------------------------------------------------------------------------------- |
 | 框架     | Astro 7，而不是早期计划中的 Astro 5；内容集合、`render()`、`glob()` 按 v7 写                        |
-| Node     | 22.23.4；Node 26 下 `pnpm check` 的 WASM 可能崩溃                                                   |
+| Node     | 24.18.0（EdgeOne / CI）；22.23.4 为最低要求；Node 26 下 `pnpm check` 的 WASM 可能崩溃               |
 | pnpm     | `pnpm-workspace.yaml` 固定 `@napi-rs/wasm-runtime@1.2.7`、`@emnapi/runtime@1.11.3`，避免 check 崩溃 |
 | Markdown | 使用 unified + remark-directive；不要直接切回 Sätteri 默认处理器而不迁移插件                        |
 | 文章宽度 | 无目录页面也保持 40rem，避免分享栏/页头被拉到 60rem                                                 |

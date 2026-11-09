@@ -1,6 +1,6 @@
 # Sseaan
 
-[![CI](https://img.shields.io/github/actions/workflow/status/sseaan/Homepage/ci.yml?style=flat&label=CI&labelColor=171717&color=2f6f45&logo=githubactions&logoColor=ffffff)](https://github.com/sseaan/Homepage/actions/workflows/ci.yml) [![Astro](https://img.shields.io/github/package-json/dependency-version/sseaan/Homepage/astro?style=flat&label=Astro&labelColor=171717&color=BC52EE&logo=astro&logoColor=ffffff)](https://astro.build/) [![Node](https://img.shields.io/badge/Node-%3E%3D22.23.4-81A1C1?style=flat&labelColor=171717&logo=nodedotjs&logoColor=ffffff)](https://nodejs.org/) [![License](https://img.shields.io/badge/License-AGPL--3.0-4C566A?style=flat&labelColor=171717&logo=opensourceinitiative&logoColor=ffffff)](LICENSE)
+[![CI](https://img.shields.io/github/actions/workflow/status/sseaan/Homepage/ci.yml?style=flat&label=CI&labelColor=171717&color=2f6f45&logo=githubactions&logoColor=ffffff)](https://github.com/sseaan/Homepage/actions/workflows/ci.yml) [![Astro](https://img.shields.io/github/package-json/dependency-version/sseaan/Homepage/astro?style=flat&label=Astro&labelColor=171717&color=BC52EE&logo=astro&logoColor=ffffff)](https://astro.build/) [![Node](https://img.shields.io/badge/Node-24.18.0-81A1C1?style=flat&labelColor=171717&logo=nodedotjs&logoColor=ffffff)](https://nodejs.org/) [![License](https://img.shields.io/badge/License-AGPL--3.0-4C566A?style=flat&labelColor=171717&logo=opensourceinitiative&logoColor=ffffff)](LICENSE)
 
 轻量、克制、持续维护的个人主页：Home / Blog / Ech0 / About 四个入口，Astro 静态生成。
 
@@ -41,10 +41,10 @@
 
 ### 环境要求
 
-- Node.js **22.23.4+**（推荐使用 `.nvmrc`）
+- Node.js **24.18.0**（推荐；最低 22.23.4；见 `.nvmrc`）
 - pnpm **12.18.0+**
 
-> 本机如果同时装了 Node 26 等更新版本，`pnpm check` 依赖的 WASM 运行时可能崩溃；切换到 Node 22.23.4 后再运行检查。
+> 本机如果同时装了 Node 26 等更新版本，`pnpm check` 依赖的 WASM 运行时可能崩溃；使用 Node 24.18.0 运行检查。
 
 ### 快速开始
 
@@ -74,7 +74,7 @@ pnpm dev               # http://localhost:4321
 1. 导入 GitHub 仓库，Framework Preset 选择 **Astro**。
 2. 安装命令：`pnpm install --frozen-lockfile`。
 3. 构建命令：`pnpm build`；输出目录：`dist`。
-4. Node 版本设置为 **22.23.4**（或读取 `.nvmrc`）。
+4. Node 版本选择 **24.18.0**（EdgeOne 的 22.11 / 22.17 / 22.21 都低于 Astro 7 要求的 22.23.4；24.18.0 已实测通过）。
 5. 在 `main` 分支开启 Auto Deploy。
 6. 设置生产环境变量 `SITE_URL=https://ssean.cn`（不要以 `/` 结尾），或在 `astro.config.mjs` 中修改默认域名。
 
