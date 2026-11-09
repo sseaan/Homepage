@@ -1,0 +1,9 @@
+# pnpm 设置（pnpm 10+ 不再读取 package.json 的 pnpm 字段）
+
+# 修复 `pnpm check` 崩溃：@astrojs/astro2tsx 的 WASM 运行时
+# (@napi-rs/wasm-runtime) 会解析到 @emnapi/runtime@2.0.0-beta.2，
+# 与 @emnapi/core@1.11.3 不匹配，报 "this.bridge.deleteEnv is not a function"。
+# 统一到 Astro 其他 WASM 包已经验证可用的版本组合。
+overrides:
+  '@napi-rs/wasm-runtime': 1.2.7
+  '@emnapi/runtime': 1.11.3

@@ -1,0 +1,40 @@
+{
+  "name": "sseaan-homepage",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "mock:twikoo": "node scripts/mock-twikoo.mjs",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@astrojs/markdown-remark": "^7.3.6",
+    "@astrojs/rss": "^4.0.19",
+    "@astrojs/sitemap": "^3.7.4",
+    "@fontsource/great-vibes": "^5.3.0",
+    "astro": "^7.4.7",
+    "dompurify": "^3.4.17",
+    "remark-directive": "^4.0.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "jsdom": "^31.0.0",
+    "prettier": "^3.6.2",
+    "prettier-plugin-astro": "^0.14.1",
+    "remark-parse": "^11.0.0",
+    "typescript": "^5.9.3",
+    "unified": "^11.0.5",
+    "vitest": "^5.1.0"
+  },
+  "engines": {
+    "node": ">=22.23.4"
+  },
+  "packageManager": "pnpm@12.18.0"
+}
