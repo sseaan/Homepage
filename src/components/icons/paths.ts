@@ -29,6 +29,12 @@ export const iconShapes = {
   code: '<path d="m15.5 18 5.5-6-5.5-6"/><path d="m8.5 6-5.5 6 5.5 6"/>',
   terminal: '<path d="m4.5 17 5.5-5-5.5-5"/><path d="M12.5 19h7"/>',
   play: '<path d="M6.5 3.7 20 12 6.5 20.3z"/>',
+  pause:
+    '<rect x="7.5" y="4.5" width="3.5" height="15" rx="0.6" fill="currentColor" stroke="none"/><rect x="13" y="4.5" width="3.5" height="15" rx="0.6" fill="currentColor" stroke="none"/>',
+  'skip-back':
+    '<path d="M18.5 5.5v13L8 12z" fill="currentColor" stroke="none"/><path d="M5.5 5.5v13"/>',
+  'skip-forward':
+    '<path d="M5.5 5.5v13L16 12z" fill="currentColor" stroke="none"/><path d="M18.5 5.5v13"/>',
   gamepad:
     '<path d="M6 11h3.5M7.75 9.25v3.5"/><path d="M16 10.5h.01M18.5 12.5h.01"/><path d="M17.3 5H6.7a4 4 0 0 0-3.98 3.6l-.63 5.7A3.9 3.9 0 0 0 6 18.7c.9 0 1.75-.36 2.4-1l1.35-1.35a2 2 0 0 1 1.4-.58h1.7a2 2 0 0 1 1.4.58L15.6 17.7c.65.64 1.5 1 2.4 1a3.9 3.9 0 0 0 3.91-4.4l-.63-5.7A4 4 0 0 0 17.3 5z"/>',
   music:

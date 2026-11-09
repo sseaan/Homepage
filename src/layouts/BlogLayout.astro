@@ -4,7 +4,7 @@ import ArticleMeta from '../components/blog/ArticleMeta.astro';
 import ArticleToc from '../components/blog/ArticleToc.astro';
 import SummaryCallout from '../components/blog/SummaryCallout.astro';
 import ArticleShare from '../components/blog/ArticleShare.astro';
-import ArticleMusic from '../components/blog/ArticleMusic.astro';
+import MusicPlayer from '../components/music/MusicPlayer.astro';
 import TwikooComments from '../components/comments/TwikooComments.astro';
 import Icon from '../components/icons/Icon.astro';
 import { readingMinutes } from '../utils/blog';
@@ -28,8 +28,8 @@ const { title, summary, pubDate, updatedDate, tags = [] } = post.data;
 const hasToc = headings.filter((heading) => heading.depth >= 2 && heading.depth <= 4).length > 1;
 ---
 
-<BaseLayout title={title} description={summary} type="article">
-  <ArticleMusic music={post.data.music} title={title} />
+<BaseLayout title={title} description={summary} type="article" hideMusic={Boolean(post.data.music)}>
+  {post.data.music && <MusicPlayer variant="article" source={post.data.music} />}
 
   <div class="container page article">
     <nav class="article__back" aria-label="返回">

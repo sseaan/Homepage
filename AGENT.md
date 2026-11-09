@@ -30,7 +30,7 @@
 - Twikoo 客户端使用仓库内固定版本 `public/vendor/twikoo/twikoo-2.0.17.all.min.js`，不要改回第三方 CDN。
 - 不把生产域名、社交链接、个人资料硬编码进组件；统一放 `src/config/site.ts` 或 `src/data`。
 - 新增视觉样式必须使用 `src/styles/tokens.css` / `themes.css` 的令牌，不在组件里硬编码主题色。
-- 不自动播放文章音乐；音频接口失败、VIP 或无音源时必须优雅降级。
+- 不自动播放音乐；音频接口失败、VIP 或无音源时必须优雅降级；全局播放器默认只显示入口按钮，点击后才请求歌单。
 - 所有交互控件必须有键盘焦点、可访问名称和适当的 `aria-*`；尊重 `prefers-reduced-motion`。
 
 ## 3. 环境与命令
@@ -75,7 +75,8 @@ src/
 ├── components/
 │   ├── site/       Header、Footer、PageNav、Avatar、PageHeader
 │   ├── home/       首页区块与行式列表
-│   ├── blog/       文章元信息、目录、分享、分享卡片、音乐、Markdown 增强
+│   ├── blog/       文章元信息、目录、分享、分享卡片、Markdown 增强
+│   ├── music/      全站歌单面板与文章封面播放器
 │   ├── media/      全站共享 Lightbox
 │   ├── comments/   Twikoo 评论区
 │   ├── ech0/       Ech0 Feed 渲染
@@ -88,17 +89,17 @@ src/
 ├── content/blog/   Markdown 文章与图片引用
 ├── layouts/        BaseLayout、BlogLayout
 ├── pages/          /、/about、/ech0、/blog、/blog/[...slug]、/rss.xml、/404
-├── lib/            ech0.ts、netease.ts、remark-markdown-extras.mjs
+├── lib/            ech0.ts、netease.ts、netease-player.ts、remark-markdown-extras.mjs
 ├── styles/         tokens、themes、global、prose-extras、comments、ech0、lightbox、doodles
 └── content.config.ts
 ```
 
 职责规则：
 
-- `src/config/site.ts`：站点身份、导航、社交、页脚、备案、Ech0、Twikoo。
+- `src/config/site.ts`：站点身份、导航、社交、页脚、备案、Ech0、Twikoo、全站歌单。
 - `src/data/`：首页、About、友链的文字内容；不要把个人经历写进组件。
 - `src/content/blog/`：文章正文与 frontmatter；图片使用 S3/CDN 完整 URL，不放本地 `public/images/blog/`。
-- `src/lib/`：可测试的纯逻辑；不要放 JSX/样式。
+- `src/lib/`：可测试的纯逻辑与独立客户端控制器；不要放 JSX/样式。
 - `src/components/`：展示与局部交互；跨页面复用的基础组件放 `site/`、`media/`、`icons/`。
 - `src/layouts/`：页面骨架和跨页面组合；不要在这里写文章内容。
 - `src/styles/`：设计令牌与全局/领域样式；组件 scoped 样式只处理局部布局。
@@ -116,7 +117,7 @@ updatedDate: 2026-11-10 # 可选
 tags:
   - 随笔
 draft: false
-music: https://music.163.com/song?id=... # 可选
+music: https://music.163.com/song?id=... # 可选，歌曲或歌单
 ---
 ```
 
@@ -125,8 +126,8 @@ music: https://music.163.com/song?id=... # 可选
 - 摘要包含 **冒号+空格** 时必须用引号包住：`summary: "包含 draft: true 的说明"`。
 - `draft: true` 不生成页面，不进入列表、RSS、sitemap。
 - 文章 URL 固定为 `/blog/<文件名>`；改名会破坏评论线程和外部链接。
-- `music` 只在配置了 `PUBLIC_NETEASE_API_BASE` 时生效，见第 7 节。
-- 草稿测试文章不应长期留在 `src/content/blog/`；验收后删除。
+- `music` 只在配置了 `PUBLIC_NETEASE_API_BASE` 时生效，见第 7 节；单曲支持纯数字 ID，歌单需使用歌单链接或 `playlist:<id>` 前缀。
+- `markdown-guide.md` 是长期保留的排版示例草稿（`draft: true`）：文件留在仓库，但不进入列表、RSS、sitemap 和线上页面。其他临时验收文章仍应在验收后删除。
 
 ### Markdown 扩展
 
@@ -186,14 +187,16 @@ music: https://music.163.com/song?id=... # 可选
 - 后端部署细节见 README；本地用 `pnpm mock:twikoo`，mock 只用于开发。
 - 不在仓库保存 Twikoo 管理凭据；评论数据备份在管理面板处理。
 
-### api-enhanced 文章音乐
+### api-enhanced 音乐播放器
 
-- 仅当文章有 `music` 且构建时配置了 `PUBLIC_NETEASE_API_BASE` 时渲染。
-- 解析：`src/lib/netease.ts` 的 `parseNeteaseSongId`；支持数字 ID、`song?id=`、hash 路由和 `/song/123`。
-- 接口：`/song/detail?ids=`、`/song/url/v1?id=&level=exhigh`，失败回退 `standard` 和旧 `/song/url`。
-- 播放器只显示封面，固定右下角，手动播放；关闭、加载、无音源和错误状态齐全。
+- 全局歌单在 `src/config/site.ts` 的 `music.playlist`（网易云歌单链接或纯数字 ID）；null 时不渲染。
+- 全站只在浏览页面右下角显示「听歌」入口；点击后展开面板，收起后继续播放；未打开前不请求 API。面板含封面、曲目列表、上一首/播放/下一首、进度条。
+- 文章有 `music` 时隐藏全站入口，替换为文章自己的单曲/歌单，默认显示现有右下角封面按钮；歌单按顺序自动续播。
+- 解析：`src/lib/netease.ts` 的 `parseNeteaseMusicSource`；纯数字默认单曲，歌单使用歌单链接或 `playlist:<id>`。
+- 接口：单曲 `/song/detail?ids=`，歌单 `/playlist/detail?id=` + `/playlist/track/all`；音频 `/song/url/v1?id=&level=exhigh`，失败回退 `standard` 和旧 `/song/url`。
+- 客户端逻辑在 `src/lib/netease-player.ts`，组件在 `src/components/music/MusicPlayer.astro`；动态生成的曲目列表样式必须使用非 scoped 样式（当前组件 style 为 global）。
 - HTTPS 站点要求 API 也是 HTTPS；CORS 由 api-enhanced 的 `CORS_ALLOW_ORIGIN` 配置。
-- 不硬编码歌曲、不自动播放、不下载音频；只播放有授权的音乐。
+- 不硬编码歌曲、不自动播放、不下载音频；只播放有授权的音乐。加载失败、VIP、无音源和音频错误都要有可见状态。
 
 ### 分享卡片
 
@@ -242,7 +245,8 @@ music: https://music.163.com/song?id=... # 可选
 
 - [ ] Ech0 空/错/成功状态正常；恶意 HTML 被清洗
 - [ ] Twikoo 失败不影响正文；主题切换不丢草稿
-- [ ] 音乐无配置时不请求；VIP/无音源有提示
+- [ ] 音乐无配置时不请求；全站入口默认折叠；VIP/无音源/歌单加载失败有提示
+- [ ] 有 `music` 的文章不显示全站入口，文章播放器默认可见且不自动播放；歌单自动续播
 - [ ] 分享卡片图片不溢出、顶部对齐、短摘要高度紧凑
 
 ## 10. 修改与清理规则
@@ -267,7 +271,7 @@ music: https://music.163.com/song?id=... # 可选
 | 文章宽度 | 无目录页面也保持 40rem，避免分享栏/页头被拉到 60rem                                                 |
 | 分享栏   | 仅 X、邮件、分享卡片、复制链接                                                                      |
 | 分享卡片 | 1080px 宽，动态高度，图片内缩，顶部中心线对齐                                                       |
-| 音乐     | api-enhanced 可选；无配置不输出播放器                                                               |
+| 音乐     | api-enhanced 可选；全局歌单入口默认折叠，文章 music 覆盖歌单并默认显示封面；无配置不输出播放器      |
 | Twikoo   | 固定客户端版本，自托管，懒加载；不改评论 path                                                       |
 | Ech0     | 客户端读取 + DOMPurify；构建不依赖线上 Feed                                                         |
 | 字体     | Great Vibes 自托管，SIL OFL；正文不回退到远程字体                                                   |
@@ -277,6 +281,7 @@ music: https://music.163.com/song?id=... # 可选
 ## 12. 当前状态
 
 - 阶段 0–5 已完成：工程、视觉、博客、Twikoo、Ech0、内容填充。
-- 博客已包含灯箱、分享卡片、Markdown 扩展、api-enhanced 音乐播放器。
+- 博客已包含灯箱、分享卡片、Markdown 扩展、api-enhanced 全站歌单与文章音乐播放器。
+- `markdown-guide.md` 作为长期保留的 Markdown 排版示例草稿，保持 `draft: true`，不公开发布。
 - 阶段 6 仍需在正式域名下完成 CORS/评论回归、CI 门禁、备份策略和桌面/移动端/无障碍/三主题全量验收。
 - 站点使用 EdgeOne Makers 部署；Twikoo 后端独立维护。

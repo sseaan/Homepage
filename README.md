@@ -4,7 +4,7 @@
 
 轻量、克制、持续维护的个人主页：Home / Blog / Ech0 / About 四个入口，Astro 静态生成。
 
-极简黑白为底，少量新粗野主义的粗边与硬阴影，手绘只作为页头、星号和圈选的批注出现。内容以 Markdown 管理，评论、动态和文章音乐分别在浏览器端连接独立服务，主站保持纯静态。
+极简黑白为底，少量新粗野主义的粗边与硬阴影，手绘只作为页头、星号和圈选的批注出现。内容以 Markdown 管理，评论、动态和全站音乐分别在浏览器端连接独立服务，主站保持纯静态。
 
 > 这是个人站点，不是可直接套用的通用主题。站点信息、导航、首页文案和社交链接都集中在 `src/config` 与 `src/data`，修改内容不需要改模板。
 
@@ -13,7 +13,7 @@
 - 线上站点：<https://ssean.cn>
 - 仓库地址：<https://github.com/sseaan/Homepage>
 - 工程规范与验收清单：[AGENT.md](./AGENT.md)
-- Markdown 排版实例：<https://ssean.cn/blog/markdown-guide>
+- Markdown 排版示例（草稿，不公开发布）：[`src/content/blog/markdown-guide.md`](./src/content/blog/markdown-guide.md)
 
 ## 预览
 
@@ -31,7 +31,7 @@
 - **Markdown 扩展**：提示块、`==高亮==`、行内/整段剧透、折叠、图注、画廊、任务列表、代码块语言/行号/复制按钮。
 - **共享图片灯箱**：Blog 与 Ech0 共用一套 `<dialog>`，支持同组切换、Esc 关闭、焦点回归和滚动锁定。
 - **文章分享**：X、邮件、生成分享卡片、复制链接；分享卡片是 1080px 宽的 PNG，可下载或长按保存。
-- **文章音乐**：可选接入 api-enhanced，在文章右下角显示仅封面的网易云播放器。
+- **全站音乐**：可选接入 api-enhanced；右下角「听歌」入口打开全局歌单，文章可用 frontmatter 覆盖为单曲/歌单并默认显示封面播放器。
 - **Ech0 动态**：浏览器读取公开 Atom Feed，DOMPurify 清洗，按图片数量自动切换单图、轮播和宫格。
 - **Twikoo 评论**：自托管固定版本客户端，懒加载、独立错误状态，主题切换不丢失草稿。
 - **可访问性**：键盘焦点、跳转链接、减少动效、语义化状态提示和响应式布局。
@@ -94,11 +94,11 @@ EdgeOne 的自动部署由 push 触发；如果平台不等待 checks，建议�
 
 ### 环境变量
 
-| 变量                      | 何时需要           | 说明                                                                    |
-| ------------------------- | ------------------ | ----------------------------------------------------------------------- |
-| `SITE_URL`                | 生产环境建议设置   | canonical、Open Graph、RSS、sitemap 的绝对地址；默认 `https://ssean.cn` |
-| `PUBLIC_TWIKOO_ENV_ID`    | 需要覆盖评论后端时 | Twikoo 后端根地址；未设置时使用 `src/config/site.ts` 中的值             |
-| `PUBLIC_NETEASE_API_BASE` | 需要文章音乐时     | api-enhanced 根地址；不设置时完全不输出播放器                           |
+| 变量                      | 何时需要            | 说明                                                                    |
+| ------------------------- | ------------------- | ----------------------------------------------------------------------- |
+| `SITE_URL`                | 生产环境建议设置    | canonical、Open Graph、RSS、sitemap 的绝对地址；默认 `https://ssean.cn` |
+| `PUBLIC_TWIKOO_ENV_ID`    | 需要覆盖评论后端时  | Twikoo 后端根地址；未设置时使用 `src/config/site.ts` 中的值             |
+| `PUBLIC_NETEASE_API_BASE` | 需要全站/文章音乐时 | api-enhanced 根地址；不设置时完全不输出播放器                           |
 
 `PUBLIC_` 变量会进入浏览器构建产物，不要放密钥。Twikoo `envId` 和 api-enhanced 地址本身是公开地址。
 
@@ -106,7 +106,7 @@ EdgeOne 的自动部署由 push 触发；如果平台不等待 checks，建议�
 
 ### 站点信息
 
-- `src/config/site.ts`：站点名、描述、域名、导航、社交链接、页脚、备案、Ech0、Twikoo。
+- `src/config/site.ts`：站点名、描述、域名、导航、社交链接、页脚、备案、Ech0、Twikoo、全站歌单。
 - `src/data/home.ts`：首页简介、项目、经历、兴趣、游戏。
 - `src/data/about.ts`：About 正文、正在做的事、技术分组与语言。
 - `src/data/friends.ts`：友链。
@@ -121,7 +121,8 @@ src/
 ├── components/
 │   ├── site/       Header、Footer、PageNav、Avatar
 │   ├── home/       首页区块与项目/经历/兴趣/游戏行
-│   ├── blog/       文章行、目录、分享、音乐、Markdown 增强
+│   ├── blog/       文章行、目录、分享、Markdown 增强
+│   ├── music/      全站歌单面板 / 文章封面播放器
 │   ├── media/      全站共享 Lightbox
 │   ├── comments/   Twikoo 评论区
 │   ├── icons/      Icon 与本地 SVG 路径
@@ -133,7 +134,7 @@ src/
 ├── pages/          /、/about、/ech0、/blog、/blog/[...slug]、/rss.xml、/404
 ├── config/site.ts  站点级配置
 ├── data/           首页、About、友链
-├── lib/            Ech0、Markdown 扩展、网易云解析
+├── lib/            Ech0、Markdown 扩展、网易云解析与播放器逻辑
 ├── styles/         tokens / themes / global / prose-extras / comments / ech0
 └── content.config.ts
 ```
@@ -153,7 +154,7 @@ updatedDate: 2026-11-10 # 可选
 tags:
   - 随笔
 draft: false # true 时不会出现在列表、RSS、sitemap
-# music: https://music.163.com/song?id=... # 可选，见「文章音乐」
+# music: https://music.163.com/song?id=... # 可选，见「音乐播放器」
 ---
 正文使用 Markdown。
 ```
@@ -180,7 +181,7 @@ draft: false # true 时不会出现在列表、RSS、sitemap
 | `<figure>` + `<figcaption>`      | 带图注的图片                                     |
 | `<ul class="gallery cols-2">`    | 两列/三列画廊，灯箱同组切换                      |
 
-代码块会自动加语言、行数、行号和复制按钮；外链自动在新标签页打开。完整示例和可直接复制的写法见线上文章 [Markdown 排版指南](https://ssean.cn/blog/markdown-guide)。
+代码块会自动加语言、行数、行号和复制按钮；外链自动在新标签页打开。完整示例和可直接复制的写法见仓库内草稿 [`markdown-guide.md`](./src/content/blog/markdown-guide.md)（`draft: true`，不在线上发布）。
 
 实现位置：
 
@@ -197,14 +198,26 @@ draft: false # true 时不会出现在列表、RSS、sitemap
 - 分享卡片由 Canvas 生成，包含标题、摘要、正文首图、日期和站点地址；宽 1080px，可下载或长按保存。
 - 首图优先使用正文首图；跨域 CDN 图片需要返回 `Access-Control-Allow-Origin`，否则卡片自动降级为不含首图的版本。
 
-## 文章音乐（api-enhanced）
+## 音乐播放器（api-enhanced）
 
-文章 frontmatter 增加：
+全站播放器读取 `src/config/site.ts` 的 `music.playlist`：
+
+```ts
+music: {
+  playlist: '18577886483', // 网易云歌单链接或纯数字歌单 ID；null 时不渲染
+  label: '听歌', // 右下角入口按钮文字
+},
+```
+
+默认只在右下角显示「听歌」入口，点击后展开歌单面板（封面、曲目列表、上一首/播放/下一首、进度条）；收起面板后音乐继续播放。未点击前不会请求 API，也不自动播放。
+
+文章 frontmatter 的 `music` 会覆盖全站歌单，并在文章右下角默认显示现有封面按钮样式：
 
 ```yaml
 music: https://music.163.com/song?id=123456
-# 或
-music: '123456'
+# music: '123456'                                      # 纯数字单曲 ID
+# music: playlist:18577886483                          # 歌单（纯数字 ID 需要前缀）
+# music: https://music.163.com/playlist?id=18577886483 # 歌单链接
 ```
 
 然后在 `.env` 或部署平台设置 api-enhanced 根地址：
@@ -213,7 +226,7 @@ music: '123456'
 PUBLIC_NETEASE_API_BASE=https://music-api.example.com
 ```
 
-播放器只显示封面，固定在页面右下角；点击播放/暂停，悬停显示关闭按钮，不自动播放。歌曲详情走 `/song/detail?ids=`，音频优先 `/song/url/v1?id=&level=exhigh`，失败回退 `standard` 和旧 `/song/url`。
+歌曲详情走 `/song/detail?ids=`，歌单走 `/playlist/detail?id=` + `/playlist/track/all`；音频优先 `/song/url/v1?id=&level=exhigh`，失败回退 `standard` 和旧 `/song/url`。
 
 注意：
 
@@ -221,7 +234,7 @@ PUBLIC_NETEASE_API_BASE=https://music-api.example.com
 - 浏览器需要能跨域访问 api-enhanced；服务端 `CORS_ALLOW_ORIGIN` 需包含站点域名。
 - VIP、无音源或接口风控时显示「该歌曲暂不可播放」，不影响正文。
 - 音频地址会从 `http:` 升级为 `https:`；请只播放有权使用的音乐。
-- 未配置 `music` 或 `PUBLIC_NETEASE_API_BASE` 时，播放器完全不输出。
+- 未配置 `music.playlist`、文章 `music` 或 `PUBLIC_NETEASE_API_BASE` 时，播放器完全不输出。
 
 ## 评论（Twikoo 2.0.17）
 

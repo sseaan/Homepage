@@ -94,6 +94,16 @@ export const siteConfig = {
   /** 已填写链接的社交平台（见 socialLinks） */
   social: activeSocial,
 
+  music: {
+    /**
+     * 全局网易云歌单链接或纯数字歌单 ID；null 时不渲染全站播放器。
+     * 文章 frontmatter 的 music 会覆盖这里的歌单。
+     */
+    playlist: '18577886483' as string | null,
+    /** 右下角入口按钮文字 */
+    label: '听歌',
+  },
+
   blog: {
     title: 'Blog',
     description: '一个分享世界的角落。',

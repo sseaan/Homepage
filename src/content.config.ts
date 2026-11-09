@@ -12,7 +12,7 @@ const blog = defineCollection({
     updatedDate: z.coerce.date().optional(),
     tags: z.array(z.string()).default([]),
     draft: z.boolean().default(false),
-    /** 网易云歌曲链接或纯数字 ID；配合 PUBLIC_NETEASE_API_BASE 使用 */
+    /** 网易云单曲/歌单链接、纯数字单曲 ID 或 playlist:<id>；配合 PUBLIC_NETEASE_API_BASE 使用 */
     music: z.string().min(1).optional(),
   }),
 });

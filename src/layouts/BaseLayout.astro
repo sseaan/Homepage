@@ -5,6 +5,7 @@ import ThemeInit from '../components/theme/ThemeInit.astro';
 import SplashInit from '../components/splash/SplashInit.astro';
 import DotSplash from '../components/splash/DotSplash.astro';
 import Lightbox from '../components/media/Lightbox.astro';
+import MusicPlayer from '../components/music/MusicPlayer.astro';
 import MarkdownEnhance from '../components/blog/MarkdownEnhance.astro';
 import { rssUrl, siteConfig } from '../config/site';
 
@@ -22,6 +23,8 @@ interface Props {
   noindex?: boolean;
   /** og:type */
   type?: 'website' | 'article';
+  /** 文章自带音乐时隐藏全局歌单播放器 */
+  hideMusic?: boolean;
 }
 
 const {
@@ -29,6 +32,7 @@ const {
   description = siteConfig.description,
   noindex = false,
   type = 'website',
+  hideMusic = false,
 } = Astro.props;
 
 const pageTitle = title
@@ -79,6 +83,16 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? siteConfig.url).href
       <slot />
     </main>
     <SiteFooter />
+    {
+      !hideMusic && siteConfig.music.playlist && (
+        <MusicPlayer
+          variant="global"
+          source={siteConfig.music.playlist}
+          sourceType="playlist"
+          label={siteConfig.music.label}
+        />
+      )
+    }
     <Lightbox />
     <MarkdownEnhance />
   </body>
