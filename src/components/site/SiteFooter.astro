@@ -1,0 +1,147 @@
+---
+import { currentYear, rssUrl, siteConfig } from '../../config/site';
+import Icon from '../icons/Icon.astro';
+
+const { footer } = siteConfig;
+const yearRange =
+  footer.startYear >= currentYear ? `${currentYear}` : `${footer.startYear}–${currentYear}`;
+const hasFilings = Boolean(footer.icp || footer.police);
+---
+
+<footer class="site-footer">
+  <div class="container site-footer__inner">
+    <ul class="icon-row" aria-label="社交与订阅">
+      {
+        siteConfig.social.map((link) => (
+          <li>
+            <a
+              href={link.href}
+              rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+              target={link.href.startsWith('http') ? '_blank' : undefined}
+              aria-label={link.label}
+              title={link.label}
+            >
+              <Icon name={link.icon} size={18} />
+            </a>
+          </li>
+        ))
+      }
+      <li>
+        <a href={rssUrl} aria-label="RSS 订阅" title="RSS">
+          <Icon name="rss" size={18} />
+        </a>
+      </li>
+      {
+        footer.sponsor && (
+          <li>
+            <a
+              href={footer.sponsor.href}
+              rel="noopener noreferrer"
+              target="_blank"
+              aria-label={footer.sponsor.label}
+              title={footer.sponsor.label}
+            >
+              <Icon name="heart" size={18} />
+            </a>
+          </li>
+        )
+      }
+    </ul>
+
+    <div class="site-footer__sign">
+      <p class="site-footer__copy">
+        © {yearRange}
+        <span>{footer.copyrightHolder}</span>
+      </p>
+      {
+        hasFilings && (
+          <ul class="site-footer__filings">
+            {footer.icp && (
+              <li>
+                <a href={footer.icp.href} rel="noopener noreferrer" target="_blank">
+                  {footer.icp.number}
+                </a>
+              </li>
+            )}
+            {footer.police && (
+              <li>
+                <a href={footer.police.href} rel="noopener noreferrer" target="_blank">
+                  {footer.police.number}
+                </a>
+              </li>
+            )}
+          </ul>
+        )
+      }
+    </div>
+
+    {footer.note && <p class="site-footer__note">{footer.note}</p>}
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: var(--space-7);
+    padding-block: var(--space-3) var(--space-4);
+    border-top: 1px solid var(--color-border);
+    font-size: var(--text-sm);
+    color: var(--color-faint);
+  }
+
+  .site-footer__sign {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-3);
+    color: var(--color-muted);
+  }
+
+  .site-footer__sign :global(.signature) {
+    opacity: 0.75;
+  }
+
+  .site-footer__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .site-footer__copy {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  .site-footer__note {
+    width: 100%;
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+  }
+
+  .site-footer__filings {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-family: var(--font-mono);
+    font-size: 10px;
+  }
+
+  .site-footer__filings a {
+    color: var(--color-faint);
+    text-decoration: none;
+    border-bottom: 1px solid var(--color-border-strong);
+  }
+
+  .site-footer__filings a:hover {
+    color: var(--color-text);
+    border-bottom-color: var(--color-text);
+  }
+</style>

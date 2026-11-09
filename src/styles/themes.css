@@ -1,0 +1,146 @@
+/*
+ * 颜色令牌：极简黑白。
+ *
+ * - 白天：纯白底 + 近黑文字，细灰线和大量留白。
+ * - 黑夜：近黑底（不是纯黑）+ 浅灰文字，线更暗。
+ * - 只有一个暖色作为手写批注/点阵的强调色，其余保持中性。
+ *
+ * :root 提供白天配色（也是禁用 JS 时的安全底色）；
+ * 没有 data-theme 时跟随系统；显式 light 时系统深色不生效。
+ */
+
+:root {
+  color-scheme: light;
+
+  --color-bg: #ffffff;
+  --color-bg-soft: #fafafa;
+  --color-surface: #ffffff;
+  --color-surface-soft: #f6f6f5;
+
+  --color-text: #171717;
+  --color-text-soft: #3d3d3b;
+  --color-muted: #71716c;
+  --color-faint: #a3a39d;
+  --color-border: #e2e2dc;
+  --color-border-strong: #bdbdb5;
+
+  --color-accent: #171717;
+  --color-accent-soft: #f2f2ef;
+  --color-focus: #2563eb;
+
+  --color-success: #2f6f45;
+  --color-warning: #8a5a12;
+  --color-danger: #a33a33;
+
+  /* 代码块背景由 Shiki 的 --shiki-light-bg 提供 */
+  --color-code-border: #e8e8e4;
+
+  --doodle-stroke: #171717;
+  --doodle-stroke-soft: #8a8a84;
+  --doodle-accent: #b45309;
+
+  /* 开屏点阵：中性灰阶 + 一点暖色 */
+  --dot-1: #171717;
+  --dot-2: #57534e;
+  --dot-3: #b45309;
+  --dot-4: #a8a29e;
+  --dot-5: #3f3f3c;
+
+  --shadow-soft: 0 1px 2px rgba(23, 23, 23, 0.04);
+  --shadow-lift: 0 8px 24px -18px rgba(23, 23, 23, 0.35);
+  /* 粗野主义硬阴影：块状、无模糊 */
+  --shadow-hard: 4px 4px 0 var(--color-border-strong);
+  --shadow-hard-ink: 3px 3px 0 var(--color-text);
+
+  --header-bg: rgba(255, 255, 255, 0.9);
+}
+
+/* 系统深色：仅在用户没有明确选择浅色时生效 */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+
+    --color-bg: #0d0d0c;
+    --color-bg-soft: #121211;
+    --color-surface: #0d0d0c;
+    --color-surface-soft: #171715;
+
+    --color-text: #ededeb;
+    --color-text-soft: #c7c7c2;
+    --color-muted: #9a9a94;
+    --color-faint: #6f6f6a;
+    --color-border: #2a2a27;
+    --color-border-strong: #4c4c46;
+
+    --color-accent: #ededeb;
+    --color-accent-soft: #1c1c1a;
+    --color-focus: #86aaff;
+
+    --color-success: #86c29a;
+    --color-warning: #dcb173;
+    --color-danger: #e8998f;
+
+    --color-code-border: #262624;
+
+    --doodle-stroke: #e6e6e1;
+    --doodle-stroke-soft: #8a8a84;
+    --doodle-accent: #e9a06a;
+
+    --dot-1: #ededeb;
+    --dot-2: #a8a29e;
+    --dot-3: #e9a06a;
+    --dot-4: #6f6f6a;
+    --dot-5: #d6d3cd;
+
+    --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.5);
+    --shadow-lift: 0 10px 30px -20px rgba(0, 0, 0, 0.8);
+    --shadow-hard: 4px 4px 0 var(--color-border-strong);
+    --shadow-hard-ink: 3px 3px 0 var(--color-text);
+
+    --header-bg: rgba(13, 13, 12, 0.9);
+  }
+}
+
+/* 用户明确选择黑夜 */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --color-bg: #0d0d0c;
+  --color-bg-soft: #121211;
+  --color-surface: #0d0d0c;
+  --color-surface-soft: #171715;
+
+  --color-text: #ededeb;
+  --color-text-soft: #c7c7c2;
+  --color-muted: #9a9a94;
+  --color-faint: #6f6f6a;
+  --color-border: #2a2a27;
+  --color-border-strong: #4c4c46;
+
+  --color-accent: #ededeb;
+  --color-accent-soft: #1c1c1a;
+  --color-focus: #86aaff;
+
+  --color-success: #86c29a;
+  --color-warning: #dcb173;
+  --color-danger: #e8998f;
+
+  --color-code-border: #262624;
+
+  --doodle-stroke: #e6e6e1;
+  --doodle-stroke-soft: #8a8a84;
+  --doodle-accent: #e9a06a;
+
+  --dot-1: #ededeb;
+  --dot-2: #a8a29e;
+  --dot-3: #e9a06a;
+  --dot-4: #6f6f6a;
+  --dot-5: #d6d3cd;
+
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-lift: 0 10px 30px -20px rgba(0, 0, 0, 0.8);
+  --shadow-hard: 4px 4px 0 var(--color-border-strong);
+  --shadow-hard-ink: 3px 3px 0 var(--color-text);
+
+  --header-bg: rgba(13, 13, 12, 0.9);
+}

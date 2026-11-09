@@ -1,0 +1,129 @@
+---
+/**
+ * 手绘装饰组件。装饰不承担信息：统一 aria-hidden + pointer-events: none。
+ * 颜色使用 currentColor，由 doodle--ink / doodle--accent / doodle--soft 控制。
+ *
+ * 极简风格下建议用量：每屏 0–2 处，优先用箭头和批注点出重点，
+ * 而不是给每个标题都加下划线。
+ */
+type Variant =
+  | 'underline'
+  | 'squiggle'
+  | 'arrow'
+  | 'arrow-down'
+  | 'asterisk'
+  | 'star'
+  | 'circle'
+  | 'ring'
+  | 'bracket'
+  | 'divider';
+
+interface Props {
+  variant: Variant;
+  width?: number | string;
+  height?: number | string;
+  /** 额外类名，例如 doodle--ink */
+  class?: string;
+  strokeWidth?: number;
+}
+
+const { variant, width, height, class: className, strokeWidth = 1.8 } = Astro.props;
+
+const shapes: Record<Variant, { viewBox: string; w: number; h: number; paths: string }> = {
+  // 手绘直线：故意带一点起伏，不用均匀波浪
+  underline: {
+    viewBox: '0 0 240 12',
+    w: 240,
+    h: 12,
+    paths: '<path d="M4 7.5c36-2.4 72-3.1 108-2.6 32 .5 64 1.9 96 1.2 10-.2 20-.9 28-1.8"/>',
+  },
+  squiggle: {
+    viewBox: '0 0 240 14',
+    w: 240,
+    h: 14,
+    paths:
+      '<path d="M3 8.5c13-5.6 26 6 39 .4S67 2.4 80 8.7s26 6 39 .4 26-6.5 39 .2 26 6 39 .4 26-6.5 39 .2"/>',
+  },
+  // 向右下的弧形箭头，用于指向内容
+  arrow: {
+    viewBox: '0 0 72 48',
+    w: 72,
+    h: 48,
+    paths: '<path d="M4 7c14 3.6 27.5 11.4 39 23"/><path d="M34 29.8 43.8 31.8 45.6 22.4"/>',
+  },
+  // 向下的箭头，用于指向下方的区块
+  'arrow-down': {
+    viewBox: '0 0 40 64',
+    w: 40,
+    h: 64,
+    paths:
+      '<path d="M19 4c-1.6 16-1.2 31 1.2 47"/><path d="M9.6 40.6C13.2 46.8 17 51 20.4 54"/><path d="M30.4 40.2c-3.6 6.4-7.4 10.8-10.8 13.8"/>',
+  },
+  // 手写星号：用于小标记
+  asterisk: {
+    viewBox: '0 0 32 32',
+    w: 32,
+    h: 32,
+    paths: '<path d="M16 4.5v23"/><path d="M6.2 10.4 25.8 21.8"/><path d="M25.6 10.2 6.4 21.6"/>',
+  },
+  star: {
+    viewBox: '0 0 32 32',
+    w: 32,
+    h: 32,
+    paths: '<path d="M16 4 18.4 13.2l9.1 2.9-9.1 2.9L16 28l-2.4-9-9.1-2.9 9.1-2.9z"/>',
+  },
+  // 近似正圆的手绘环，用于背景装饰
+  ring: {
+    viewBox: '0 0 200 200',
+    w: 200,
+    h: 200,
+    paths:
+      '<path d="M103 6C52 4 9 45 7 96c-2 52 41 94 94 96 52 2 92-40 93-93 1-50-42-90-93-92-12 0-24 1.5-35 4.5"/>',
+  },
+  // 手绘圈选：略微不闭合的椭圆
+  circle: {
+    viewBox: '0 0 220 80',
+    w: 220,
+    h: 80,
+    paths:
+      '<path d="M112 5C59 3.5 13 17 9.5 38.5c-3.4 21 44.5 35.5 100 34.5 56-1 99-15.5 98-36C207 16 159 5 108 5.6c-13 .2-25 1.3-37 3.2"/>',
+  },
+  bracket: {
+    viewBox: '0 0 28 44',
+    w: 28,
+    h: 44,
+    paths: '<path d="M23 4C10 5 5 13 5 22c0 9 5 16 18 18"/>',
+  },
+  divider: {
+    viewBox: '0 0 600 12',
+    w: 600,
+    h: 12,
+    paths: '<path d="M2 7c40-4.6 80 4 120 0S202 3 242 7s80 4 120 0 80-4 120 0 80 4 116 0"/>',
+  },
+};
+
+const shape = shapes[variant];
+const w = width ?? shape.w;
+const h = height ?? shape.h;
+// 横线类装饰随容器拉伸；非等比缩放时保持线宽稳定
+const stretch = variant === 'underline' || variant === 'squiggle' || variant === 'divider';
+const preserveAspectRatio = stretch ? 'none' : undefined;
+---
+
+<svg
+  class:list={['doodle', `doodle--${variant}`, className]}
+  width={w}
+  height={h}
+  viewBox={shape.viewBox}
+  preserveAspectRatio={preserveAspectRatio}
+  vector-effect="non-scaling-stroke"
+  fill="none"
+  stroke="currentColor"
+  stroke-width={strokeWidth}
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  focusable="false"
+>
+  <Fragment set:html={shape.paths} />
+</svg>

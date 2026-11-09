@@ -1,0 +1,105 @@
+---
+/**
+ * 渐进增强 Markdown 正文：
+ * - 代码块加上语言标签、行号与复制按钮
+ * - 行内/整段剧透支持点击与键盘显示
+ *
+ * 不改变 Markdown 输出结构；脚本失败时正文仍然可读。
+ */
+---
+
+<script>
+  const languageLabels: Record<string, string> = {
+    bash: 'Bash',
+    sh: 'Shell',
+    shell: 'Shell',
+    css: 'CSS',
+    html: 'HTML',
+    js: 'JavaScript',
+    javascript: 'JavaScript',
+    json: 'JSON',
+    md: 'Markdown',
+    markdown: 'Markdown',
+    py: 'Python',
+    python: 'Python',
+    ts: 'TypeScript',
+    typescript: 'TypeScript',
+    yaml: 'YAML',
+    yml: 'YAML',
+  };
+
+  document.querySelectorAll<HTMLAnchorElement>('.prose a[href]').forEach((link) => {
+    try {
+      const url = new URL(link.href, window.location.href);
+      if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
+      if (url.origin === window.location.origin) return;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+    } catch {
+      // 非标准链接（例如 mailto:）保持原样
+    }
+  });
+
+  document.querySelectorAll<HTMLElement>('.prose pre').forEach((pre) => {
+    if (pre.parentElement?.classList.contains('code-block')) return;
+
+    const code = pre.querySelector('code');
+    const rawLanguage =
+      pre.dataset.language ?? code?.className.match(/language-([\w-]+)/)?.[1] ?? '';
+    const language = languageLabels[rawLanguage.toLowerCase()] ?? rawLanguage.toUpperCase();
+    const lineCount = pre.querySelectorAll('.line').length;
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'code-block';
+    pre.before(wrapper);
+    wrapper.append(pre);
+
+    const toolbar = document.createElement('div');
+    toolbar.className = 'code-block__bar';
+
+    const label = document.createElement('span');
+    label.className = 'code-block__lang';
+    label.textContent = `${language || 'CODE'}${lineCount > 0 ? ` · ${lineCount} 行` : ''}`;
+
+    const copy = document.createElement('button');
+    copy.type = 'button';
+    copy.className = 'code-block__copy';
+    copy.textContent = '复制';
+    copy.setAttribute('aria-label', '复制代码');
+    copy.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(pre.innerText);
+        copy.textContent = '已复制';
+        copy.dataset.state = 'copied';
+      } catch {
+        copy.textContent = '复制失败';
+      }
+
+      window.setTimeout(() => {
+        copy.textContent = '复制';
+        delete copy.dataset.state;
+      }, 1800);
+    });
+
+    toolbar.append(label, copy);
+    wrapper.prepend(toolbar);
+  });
+
+  document.querySelectorAll<HTMLElement>('[data-spoiler]').forEach((spoiler) => {
+    const toggle = () => {
+      const revealed = spoiler.classList.toggle('is-revealed');
+      spoiler.setAttribute('aria-expanded', String(revealed));
+    };
+
+    spoiler.addEventListener('click', (event) => {
+      if ((event.target as HTMLElement).closest('a')) return;
+      toggle();
+    });
+
+    spoiler.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      toggle();
+    });
+  });
+</script>

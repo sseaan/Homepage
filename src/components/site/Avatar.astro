@@ -1,0 +1,88 @@
+---
+/**
+ * 头像：配置了 siteConfig.author.avatar 就显示图片，
+ * 否则显示内置的手绘机器人占位（跟站点线稿风格一致）。
+ */
+import { siteConfig } from '../../config/site';
+
+interface Props {
+  /** 尺寸（CSS 值），默认跟随父级 */
+  size?: string;
+  /** 圆形（默认）或方形，方形用于新粗野主义头像框 */
+  shape?: 'circle' | 'square';
+  class?: string;
+}
+
+const { size = '100%', shape = 'circle', class: className } = Astro.props;
+const avatar = siteConfig.author.avatar;
+---
+
+<span class:list={['avatar', `avatar--${shape}`, className]} style={`--avatar-size:${size}`}>
+  {
+    avatar ? (
+      <img
+        class="avatar__image"
+        src={avatar}
+        alt={siteConfig.author.avatarAlt}
+        loading="eager"
+        decoding="async"
+      />
+    ) : (
+      <span class="avatar__placeholder" aria-hidden="true">
+        <svg
+          viewBox="0 0 120 120"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <rect x="27" y="36" width="66" height="52" rx="17" />
+          <path d="M60 36V26" />
+          <circle cx="60" cy="22.5" r="3.2" />
+          <path d="M19 54v12M101 54v12" />
+          <circle cx="47.5" cy="58" r="3.4" fill="currentColor" stroke="none" />
+          <circle cx="72.5" cy="58" r="3.4" fill="currentColor" stroke="none" />
+          <path d="M52 72.5c3.4 3 12.6 3 16 0" />
+        </svg>
+      </span>
+    )
+  }
+</span>
+
+<style>
+  .avatar {
+    display: inline-flex;
+    width: var(--avatar-size);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--color-surface-soft);
+    border: 1px solid var(--color-border);
+    color: var(--color-muted);
+    flex: none;
+  }
+
+  .avatar--square {
+    border-radius: 0;
+  }
+
+  .avatar__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .avatar__placeholder {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 14%;
+  }
+
+  .avatar__placeholder svg {
+    width: 100%;
+    height: 100%;
+  }
+</style>

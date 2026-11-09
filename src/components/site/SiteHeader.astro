@@ -1,0 +1,148 @@
+---
+import { siteConfig } from '../../config/site';
+import ThemeControl from '../theme/ThemeControl.astro';
+
+const pathname = Astro.url.pathname.replace(/\/+$/, '') || '/';
+
+const isActive = (href: string) =>
+  href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(`${href}/`);
+---
+
+<header class="site-header">
+  <div class="container site-header__inner">
+    <a class="brand" href="/" aria-label={`${siteConfig.name} 首页`}>
+      {siteConfig.name}
+      <span class="brand__dot" aria-hidden="true">.</span>
+    </a>
+
+    <nav class="site-nav" aria-label="主导航">
+      <ul>
+        {
+          siteConfig.nav.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                aria-current={isActive(item.href) ? 'page' : undefined}
+                class:list={['site-nav__link', { 'is-active': isActive(item.href) }]}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="site-header__actions">
+      <ThemeControl />
+    </div>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--header-bg);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    min-height: var(--header-height);
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: baseline;
+    min-height: 32px;
+    color: var(--color-text);
+    font-size: var(--text-base);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    text-decoration: none;
+    flex: none;
+  }
+
+  .brand__dot {
+    color: var(--doodle-accent);
+  }
+
+  .site-nav {
+    margin-left: auto;
+  }
+
+  .site-nav ul {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  .site-nav__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 var(--space-2);
+    color: var(--color-muted);
+    font-size: var(--text-sm);
+    text-decoration: none;
+    white-space: nowrap;
+    border-bottom: 1px solid transparent;
+    transition: color var(--motion-fast) var(--ease-out);
+  }
+
+  .site-nav__link:hover {
+    color: var(--color-text);
+  }
+
+  /* 当前页：文字变深 + 下划线，不只靠颜色 */
+  .site-nav__link.is-active {
+    color: var(--color-text);
+    border-bottom-color: var(--color-text);
+  }
+
+  .site-header__actions {
+    display: flex;
+    align-items: center;
+  }
+
+  @media (max-width: 36rem) {
+    .site-header__inner {
+      flex-wrap: wrap;
+      padding-block: var(--space-2);
+      gap: 0 var(--space-3);
+    }
+
+    .brand {
+      flex: 1 1 auto;
+    }
+
+    .site-nav {
+      order: 3;
+      width: 100%;
+      margin-left: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .site-nav::-webkit-scrollbar {
+      display: none;
+    }
+
+    .site-nav ul {
+      justify-content: space-between;
+      gap: 0;
+    }
+
+    .site-nav__link {
+      padding: 0 var(--space-1);
+    }
+  }
+</style>

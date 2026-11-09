@@ -1,0 +1,167 @@
+---
+/**
+ * 开屏彩色点阵：用 ASCII 点阵拼出 "Sseaan"。
+ * 纯装饰层：aria-hidden、pointer-events: none，主内容始终已渲染且可访问。
+ * 是否播放由 SplashInit（<head> 内联脚本）决定：写入 html[data-splash='play']。
+ */
+const pitch = 12;
+const radius = 3.2;
+const originX = 8;
+const originY = 8;
+const letterGap = 2;
+
+// 5×7 点阵字形（小写字母占下方 5 行，与大写字母基线对齐）
+const letters = [
+  {
+    color: '--dot-1',
+    rows: ['01111', '10000', '10000', '01110', '00001', '00001', '11110'],
+  },
+  {
+    color: '--dot-2',
+    offsetY: 2,
+    rows: ['01110', '10000', '01110', '00001', '11110'],
+  },
+  {
+    color: '--dot-3',
+    offsetY: 2,
+    rows: ['01110', '10001', '11111', '10000', '01110'],
+  },
+  {
+    color: '--dot-4',
+    offsetY: 2,
+    rows: ['01110', '10001', '01111', '10001', '01110'],
+  },
+  {
+    color: '--dot-5',
+    offsetY: 2,
+    rows: ['01110', '10001', '01111', '10001', '01110'],
+  },
+  {
+    color: '--dot-1',
+    offsetY: 2,
+    rows: ['10001', '11011', '10101', '10001', '10001'],
+  },
+];
+
+const dots: { x: number; y: number; delay: number; color: string }[] = [];
+let columnCursor = 0;
+let maxColumn = 0;
+
+for (const letter of letters) {
+  const offsetY = 'offsetY' in letter && letter.offsetY ? letter.offsetY : 0;
+  letter.rows.forEach((row, rowIndex) => {
+    [...row].forEach((cell, columnIndex) => {
+      if (cell !== '1') return;
+      const column = columnCursor + columnIndex;
+      const row = rowIndex + offsetY;
+      dots.push({
+        x: originX + column * pitch,
+        y: originY + row * pitch,
+        delay: (column + row) * 14,
+        color: letter.color,
+      });
+      maxColumn = Math.max(maxColumn, column);
+    });
+  });
+  columnCursor += letter.rows[0].length + letterGap;
+}
+
+const maxRow = 6;
+const viewBoxWidth = originX * 2 + (maxColumn + 1) * pitch;
+const viewBoxHeight = originY * 2 + (maxRow + 1) * pitch;
+---
+
+<div class="splash" data-splash-layer aria-hidden="true">
+  <svg
+    class="splash__matrix"
+    viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`}
+    role="presentation"
+    focusable="false"
+  >
+    {
+      dots.map((dot) => (
+        <circle
+          class="splash__dot"
+          cx={dot.x}
+          cy={dot.y}
+          r={radius}
+          style={`--d:${dot.delay}ms; color: var(${dot.color});`}
+        />
+      ))
+    }
+  </svg>
+</div>
+
+<style>
+  .splash {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    display: none;
+    place-items: center;
+    background: var(--color-bg);
+    pointer-events: none;
+  }
+
+  /* 只有门控脚本写入 data-splash 后才显示，避免未播放时闪一下 */
+  :global(html[data-splash='play']) .splash {
+    display: grid;
+  }
+
+  .splash__matrix {
+    width: min(82vw, 30rem);
+    height: auto;
+    overflow: visible;
+  }
+
+  .splash__dot {
+    fill: currentColor;
+    transform-box: fill-box;
+    transform-origin: center;
+    opacity: 0;
+  }
+
+  :global(html[data-splash='play']) .splash__dot {
+    animation: splash-dot-in 320ms var(--ease-out) both;
+    animation-delay: var(--d, 0ms);
+  }
+
+  :global(html[data-splash='play']) .splash.is-hiding {
+    opacity: 0;
+    transition: opacity 200ms linear;
+  }
+
+  @keyframes splash-dot-in {
+    from {
+      opacity: 0;
+      transform: scale(0.25);
+    }
+    70% {
+      opacity: 1;
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .splash {
+      display: none !important;
+    }
+  }
+</style>
+
+<script>
+  const root = document.documentElement;
+  const layer = document.querySelector<HTMLElement>('[data-splash-layer]');
+
+  if (layer && root.dataset.splash === 'play') {
+    // 动画主体约 1 秒，随后淡出并释放整层 DOM
+    window.setTimeout(() => layer.classList.add('is-hiding'), 950);
+    window.setTimeout(() => {
+      layer.remove();
+      delete root.dataset.splash;
+    }, 1180);
+  }
+</script>

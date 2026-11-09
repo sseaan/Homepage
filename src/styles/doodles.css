@@ -1,0 +1,82 @@
+/*
+ * 手绘装饰：只承担气质，不承担信息。
+ * 极简风格里用量要少：一句批注、一个箭头、偶尔一圈圈选，
+ * 不要每个标题下面都挂波浪线。
+ *
+ * 所有装饰 SVG 必须是 aria-hidden="true" + pointer-events: none。
+ */
+
+.doodle {
+  pointer-events: none;
+  color: var(--doodle-stroke-soft);
+  overflow: visible;
+}
+
+.doodle--ink {
+  color: var(--doodle-stroke);
+}
+
+.doodle--accent {
+  color: var(--doodle-accent);
+}
+
+.doodle--soft {
+  color: var(--doodle-stroke-soft);
+}
+
+/* 标题下划线：只在需要强调的一处使用 */
+.doodle-underline {
+  position: relative;
+  display: inline-block;
+  isolation: isolate;
+}
+
+.doodle-underline > .doodle-underline__svg {
+  position: absolute;
+  left: -1%;
+  right: -1%;
+  bottom: -0.28em;
+  width: 102%;
+  height: 0.34em;
+  z-index: -1;
+}
+
+/* 手写批注：一行小字 + 箭头 */
+.annotation {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-faint);
+  pointer-events: none;
+}
+
+.annotation--tilt-right {
+  transform: rotate(-1.6deg);
+  transform-origin: left center;
+}
+
+.annotation--tilt-left {
+  transform: rotate(1.4deg);
+  transform-origin: left center;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .doodle-hover:hover .doodle-wiggle {
+    animation: doodle-wiggle 460ms var(--ease-out);
+  }
+}
+
+@keyframes doodle-wiggle {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  30% {
+    transform: rotate(-2deg);
+  }
+  70% {
+    transform: rotate(1.4deg);
+  }
+}

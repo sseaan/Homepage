@@ -1,0 +1,141 @@
+---
+import Icon from '../icons/Icon.astro';
+import type { IconName } from '../icons/paths';
+
+const modes = [
+  { value: 'system', label: '自动（跟随系统）', icon: 'monitor' as IconName },
+  { value: 'light', label: '白天', icon: 'sun' as IconName },
+  { value: 'dark', label: '黑夜', icon: 'moon' as IconName },
+] as const;
+---
+
+<div class="theme-control" data-theme-control>
+  <button
+    type="button"
+    class="icon-btn theme-control__trigger"
+    data-theme-trigger
+    data-mode="system"
+    aria-label="主题：自动（跟随系统），点击切换"
+    title="切换主题：自动 → 白天 → 黑夜"
+  >
+    {
+      modes.map((mode) => (
+        <span class="theme-control__icon" data-icon-for={mode.value} aria-hidden="true">
+          <Icon name={mode.icon} size={17} />
+        </span>
+      ))
+    }
+  </button>
+  <span class="visually-hidden" role="status" data-theme-announce></span>
+</div>
+
+<style>
+  .theme-control {
+    position: relative;
+    flex: none;
+  }
+
+  .theme-control__icon {
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .theme-control__trigger[data-mode='light'] [data-icon-for='light'],
+  .theme-control__trigger[data-mode='system'] [data-icon-for='system'],
+  .theme-control__trigger[data-mode='dark'] [data-icon-for='dark'] {
+    display: inline-flex;
+  }
+
+  .theme-control__trigger {
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+  }
+
+  .theme-control__trigger:hover {
+    border-color: var(--color-text);
+    color: var(--color-text);
+  }
+</style>
+
+<script>
+  const STORAGE_KEY = 'site-theme';
+  const root = document.documentElement;
+  const trigger = document.querySelector<HTMLButtonElement>('[data-theme-trigger]');
+  const announce = document.querySelector<HTMLElement>('[data-theme-announce]');
+  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+  type Mode = 'light' | 'system' | 'dark';
+
+  // 点击顺序：自动 → 白天 → 黑夜 → 自动
+  const cycle: Mode[] = ['system', 'light', 'dark'];
+
+  const labels: Record<Mode, string> = {
+    light: '白天',
+    system: '自动（跟随系统）',
+    dark: '黑夜',
+  };
+
+  const getMode = (): Mode => {
+    const mode = root.dataset.themeMode;
+    return mode === 'light' || mode === 'dark' ? mode : 'system';
+  };
+
+  const resolveTheme = (mode: Mode): 'light' | 'dark' =>
+    mode === 'system' ? (mediaQuery.matches ? 'dark' : 'light') : mode;
+
+  const readStoredMode = (): Mode => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved === 'light' || saved === 'dark' || saved === 'system') return saved;
+    } catch {
+      // 忽略：localStorage 可能被禁用
+    }
+    return 'system';
+  };
+
+  const syncUi = (mode: Mode) => {
+    if (trigger) {
+      trigger.dataset.mode = mode;
+      trigger.setAttribute('aria-label', `主题：${labels[mode]}，点击切换`);
+      trigger.setAttribute('title', `当前：${labels[mode]}（自动 → 白天 → 黑夜）`);
+    }
+  };
+
+  const applyTheme = (mode: Mode, persist = true, silent = false) => {
+    const resolved = resolveTheme(mode);
+    root.dataset.themeMode = mode;
+    root.dataset.theme = resolved;
+    root.style.colorScheme = resolved;
+    syncUi(mode);
+
+    if (persist) {
+      try {
+        localStorage.setItem(STORAGE_KEY, mode);
+      } catch {
+        // 无法持久化时仍然立即生效
+      }
+    }
+
+    if (!silent && announce) announce.textContent = `主题已切换为${labels[mode]}`;
+
+    window.dispatchEvent(new CustomEvent('site:theme-change', { detail: { mode, resolved } }));
+  };
+
+  trigger?.addEventListener('click', () => {
+    const index = cycle.indexOf(getMode());
+    const next = cycle[(index + 1) % cycle.length] ?? 'system';
+    applyTheme(next);
+  });
+
+  // 系统外观变化：只有「自动」模式跟随
+  const onSystemChange = () => {
+    if (getMode() === 'system') applyTheme('system', false, true);
+  };
+  mediaQuery.addEventListener('change', onSystemChange);
+
+  // 只读已保存的偏好，避免与 ThemeInit 的首屏结果不一致
+  const initialMode = readStoredMode();
+  if (root.dataset.themeMode !== initialMode) applyTheme(initialMode, false, true);
+  else syncUi(initialMode);
+</script>

@@ -1,0 +1,41 @@
+---
+import { iconShapes, type IconName } from './paths';
+
+interface Props {
+  name: IconName;
+  /** 默认 20px；常用 16 / 20 / 24 */
+  size?: number;
+  strokeWidth?: number;
+  /** 提供 label 时图标有可访问名称（独立图标按钮用）；装饰性图标不要传 */
+  label?: string;
+  class?: string;
+}
+
+const { name, size = 20, strokeWidth = 1.75, label, class: className } = Astro.props;
+const shape = iconShapes[name];
+---
+
+<svg
+  class:list={['icon', className]}
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width={strokeWidth}
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  role={label ? 'img' : undefined}
+  aria-hidden={label ? undefined : 'true'}
+  focusable="false"
+  style="display:inline-block;vertical-align:-0.125em;flex:none"
+>
+  {label && <title>{label}</title>}
+  <Fragment set:html={shape} />
+</svg>
+
+<style>
+  .icon {
+    pointer-events: none;
+  }
+</style>

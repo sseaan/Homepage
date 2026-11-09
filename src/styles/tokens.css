@@ -1,0 +1,62 @@
+/*
+ * 设计令牌：与主题无关的部分（排版、间距、布局、动效）。
+ * 颜色令牌在 themes.css，组件不得硬编码主题色。
+ *
+ * 视觉方向：极简黑白 + 细线分隔 + 少量手写批注。
+ * 内容列偏窄，靠留白和字距形成层级。
+ */
+:root {
+  /* 字体：只用系统字体，不请求远程字体 */
+  --font-sans:
+    system-ui, -apple-system, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
+    'Noto Sans SC', sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+  --font-serif:
+    ui-serif, Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Songti SC', 'Noto Serif SC', serif;
+
+  /* 字号层级：整体克制，正文 15px 左右 */
+  --text-xs: 0.6875rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+  --text-lg: 1.0625rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: clamp(1.9rem, 1.6rem + 1.4vw, 2.5rem);
+
+  --leading-tight: 1.3;
+  --leading-normal: 1.7;
+  --leading-relaxed: 1.9;
+
+  /* 间距 */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 2.5rem;
+  --space-8: 3rem;
+  --space-9: 4rem;
+  --space-10: 5rem;
+  --space-section: clamp(2.25rem, 1.8rem + 1.8vw, 3rem);
+  --gutter: clamp(1.25rem, 0.8rem + 2vw, 2rem);
+
+  /* 布局：整站窄栏，正文更窄 */
+  /* 全站统一栏宽：Header、正文、文章页左边缘都对齐到这里 */
+  --content-width: 60rem;
+  --prose-width: 40rem;
+  --header-height: 3.5rem;
+
+  /* 形状：极简 + 少量粗野主义，直角为主 */
+  --radius-sm: 2px;
+  --radius-card: 2px;
+  --radius-pill: 999px;
+  --border-hairline: 1px;
+  --border-thick: 2px;
+
+  /* 动效 */
+  --motion-fast: 120ms;
+  --motion-base: 200ms;
+  --ease-out: cubic-bezier(0.2, 0.7, 0.3, 1);
+}

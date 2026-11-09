@@ -1,0 +1,32 @@
+---
+/**
+ * 开屏门控脚本：放在 <head>，在首次绘制前决定是否播放点阵动画。
+ * - 每个浏览器会话只播放一次（sessionStorage）
+ * - 尊重 prefers-reduced-motion
+ * - sessionStorage 不可用时仍然正常播放，不影响页面
+ */
+---
+
+<script is:inline>
+  (() => {
+    const root = document.documentElement;
+    let reduce = false;
+    try {
+      reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    } catch {
+      reduce = false;
+    }
+    if (reduce) return;
+
+    let played = true;
+    try {
+      played = sessionStorage.getItem('site-splash') === '1';
+      if (!played) sessionStorage.setItem('site-splash', '1');
+    } catch {
+      played = false;
+    }
+    if (played) return;
+
+    root.dataset.splash = 'play';
+  })();
+</script>

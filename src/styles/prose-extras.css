@@ -1,0 +1,423 @@
+/*
+ * Markdown 正文增强样式：提示块、高亮、剧透、折叠、图注、任务列表、代码工具栏。
+ * 与 global.css 的 .prose 基础排版配合使用，颜色全部走主题令牌。
+ */
+
+.prose {
+  --callout-accent: var(--color-muted);
+  --callout-bg: var(--color-bg-soft);
+}
+
+/* ---------- Callout ---------- */
+
+.prose :where(.callout) {
+  position: relative;
+  margin-block: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--callout-accent);
+  border-radius: var(--radius-sm);
+  background: var(--callout-bg);
+  font-size: var(--text-sm);
+}
+
+.prose :where(.callout.note) {
+  --callout-accent: var(--color-muted);
+}
+
+.prose :where(.callout.tip) {
+  --callout-accent: var(--color-success);
+}
+
+.prose :where(.callout.info) {
+  --callout-accent: var(--color-focus);
+}
+
+.prose :where(.callout.warning) {
+  --callout-accent: var(--color-warning);
+}
+
+.prose :where(.callout-title) {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.35rem;
+  color: var(--color-text);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.prose :where(.callout-title)::before {
+  content: '!';
+  display: inline-grid;
+  width: 1.05rem;
+  height: 1.05rem;
+  flex: none;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--callout-accent);
+  color: var(--color-bg);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  line-height: 1;
+}
+
+.prose :where(.callout.note .callout-title)::before {
+  content: 'i';
+}
+
+.prose :where(.callout.tip .callout-title)::before {
+  content: '✓';
+}
+
+.prose :where(.callout.info .callout-title)::before {
+  content: 'i';
+}
+
+.prose :where(.callout.warning .callout-title)::before {
+  content: '!';
+}
+
+.prose :where(.callout-title[data-icon])::before {
+  content: attr(data-icon);
+  width: auto;
+  min-width: 1.05rem;
+  height: auto;
+  padding: 0.05rem 0.2rem;
+  border-radius: 2px;
+  background: transparent;
+  color: var(--callout-accent);
+}
+
+.prose :where(.callout-title[data-icon='none'])::before {
+  display: none;
+}
+
+.prose :where(.callout > * + *) {
+  margin-top: var(--space-2);
+}
+
+.prose :where(.callout > :last-child) {
+  margin-bottom: 0;
+}
+
+/* ---------- 高亮 / 剧透 ---------- */
+
+.prose :where(mark) {
+  padding: 0 0.12em;
+  background: color-mix(in srgb, var(--doodle-accent) 22%, transparent);
+  color: inherit;
+  box-decoration-break: clone;
+}
+
+.prose :where(.spoiler) {
+  border-radius: 2px;
+  cursor: pointer;
+  transition: filter var(--motion-fast) var(--ease-out);
+}
+
+.prose :where(.spoiler:not(.is-revealed)) {
+  filter: blur(0.35em);
+  user-select: none;
+}
+
+.prose :where(.spoiler:not(.is-revealed) *) {
+  pointer-events: none;
+}
+
+.prose :where(.spoiler:focus-visible) {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.prose :where(.spoiler.is-revealed) {
+  filter: none;
+  cursor: auto;
+  user-select: auto;
+}
+
+.prose :where(.spoiler--block) {
+  display: block;
+  margin-block: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border: 1px dashed var(--color-border-strong);
+  background: var(--color-bg-soft);
+}
+
+.prose :where(.spoiler--block:not(.is-revealed)) {
+  filter: blur(0.55em);
+}
+
+/* ---------- 折叠 ---------- */
+
+.prose :where(details) {
+  margin-block: var(--space-4);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-soft);
+}
+
+.prose :where(details > summary) {
+  position: relative;
+  display: block;
+  padding: var(--space-3) 1.5rem var(--space-3) 0;
+  color: var(--color-text);
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+
+.prose :where(details > summary)::-webkit-details-marker {
+  display: none;
+}
+
+.prose :where(details > summary)::after {
+  content: '+';
+  position: absolute;
+  top: 50%;
+  right: 0.15rem;
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  line-height: 1;
+  transform: translateY(-50%);
+}
+
+.prose :where(details[open] > summary)::after {
+  content: '−';
+}
+
+.prose :where(details[open]) {
+  padding-bottom: var(--space-3);
+}
+
+.prose :where(details > :not(summary)) {
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+}
+
+.prose :where(details > :not(summary) + :not(summary)) {
+  margin-top: var(--space-2);
+}
+
+/* ---------- 引用变体 ---------- */
+
+.prose :where(blockquote.pullquote) {
+  position: relative;
+  margin-block: var(--space-5);
+  padding: var(--space-3) var(--space-4) var(--space-3) var(--space-5);
+  border: 0;
+  background: var(--color-surface-soft);
+  color: var(--color-text);
+  font-size: var(--text-lg);
+  font-style: normal;
+  line-height: var(--leading-normal);
+}
+
+.prose :where(blockquote.pullquote)::before {
+  content: '“';
+  position: absolute;
+  top: -0.2rem;
+  left: 0.1rem;
+  color: var(--color-border-strong);
+  font-family: var(--font-serif);
+  font-size: 3.5rem;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.prose :where(blockquote.pullquote > *) {
+  position: relative;
+}
+
+.prose :where(blockquote.pullquote cite) {
+  display: block;
+  margin-top: var(--space-2);
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+  font-style: normal;
+  text-align: right;
+}
+
+.prose :where(blockquote cite) {
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+  font-style: normal;
+}
+
+/* ---------- 图片 / 图注 ---------- */
+
+.prose :where(figure) {
+  margin-block: var(--space-5);
+}
+
+.prose :where(figure.figure--sm) {
+  max-width: 18rem;
+  margin-inline: auto;
+}
+
+.prose :where(figure.figure--md) {
+  max-width: 28rem;
+  margin-inline: auto;
+}
+
+.prose :where(figure.figure--lg) {
+  max-width: 42rem;
+  margin-inline: auto;
+}
+
+.prose :where(figure.figure--full) {
+  max-width: 100%;
+}
+
+.prose :where(figure.figure--left) {
+  margin-inline: 0 auto;
+}
+
+.prose :where(figure.figure--center) {
+  margin-inline: auto;
+}
+
+.prose :where(figure.figure--right) {
+  margin-inline: auto 0;
+}
+
+.prose :where(figure > img, figure > picture) {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  margin-inline: auto;
+}
+
+.prose :where(figcaption) {
+  margin-top: var(--space-2);
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+  text-align: center;
+}
+
+.prose :where(.gallery) figcaption {
+  margin-top: 0.35rem;
+  font-size: 10px;
+}
+
+/* ---------- 任务列表 ---------- */
+
+.prose :where(.contains-task-list) {
+  padding-left: 0;
+  list-style: none;
+}
+
+.prose :where(.task-list-item) {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+}
+
+.prose :where(.task-list-item) > input[type='checkbox'] {
+  width: 1em;
+  height: 1em;
+  margin-top: 0.42em;
+  accent-color: var(--color-text);
+}
+
+/* ---------- 表格 ---------- */
+
+.prose :where(table) {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* ---------- 代码工具栏 ---------- */
+
+.prose :where(.code-block) {
+  margin-block: var(--space-4);
+  overflow: hidden;
+  border: 1.5px solid var(--color-border-strong);
+  border-radius: var(--radius-card);
+  background: var(--color-surface-soft);
+}
+
+.prose :where(.code-block__bar) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 0.45rem 0.9rem;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+}
+
+.prose :where(.code-block__lang) {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.prose :where(.code-block__copy) {
+  padding: 0.1rem 0.4rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.prose :where(.code-block__copy:hover) {
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
+}
+
+.prose :where(.code-block__copy[data-state='copied']) {
+  color: var(--color-success);
+}
+
+.prose :where(.code-block) pre {
+  margin: 0;
+  padding: var(--space-4);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.prose :where(.code-block) pre code {
+  counter-reset: line;
+}
+
+.prose :where(.code-block) pre code .line {
+  display: inline;
+}
+
+.prose :where(.code-block) pre code .line::before {
+  content: counter(line);
+  display: inline-block;
+  width: 2em;
+  margin-right: 1em;
+  color: var(--color-faint);
+  text-align: right;
+  counter-increment: line;
+  user-select: none;
+}
+
+/* 没有 JS 时保持普通 pre 样式 */
+@media (prefers-reduced-motion: reduce) {
+  .prose :where(.spoiler) {
+    transition: none;
+  }
+}
+
+.prose :where(a[target='_blank'])::after {
+  content: '↗';
+  display: inline-block;
+  margin-left: 0.15em;
+  color: var(--color-faint);
+  font-size: 0.75em;
+  line-height: 1;
+  text-decoration: none;
+}

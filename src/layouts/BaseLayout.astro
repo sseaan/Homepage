@@ -1,0 +1,85 @@
+---
+import SiteHeader from '../components/site/SiteHeader.astro';
+import SiteFooter from '../components/site/SiteFooter.astro';
+import ThemeInit from '../components/theme/ThemeInit.astro';
+import SplashInit from '../components/splash/SplashInit.astro';
+import DotSplash from '../components/splash/DotSplash.astro';
+import Lightbox from '../components/media/Lightbox.astro';
+import MarkdownEnhance from '../components/blog/MarkdownEnhance.astro';
+import { rssUrl, siteConfig } from '../config/site';
+
+import '../styles/tokens.css';
+import '../styles/themes.css';
+import '../styles/global.css';
+import '../styles/prose-extras.css';
+import '../styles/doodles.css';
+
+interface Props {
+  /** 页面标题；不提供时使用站点默认标题 */
+  title?: string;
+  description?: string;
+  /** 不在搜索引擎收录（例如 404） */
+  noindex?: boolean;
+  /** og:type */
+  type?: 'website' | 'article';
+}
+
+const {
+  title,
+  description = siteConfig.description,
+  noindex = false,
+  type = 'website',
+} = Astro.props;
+
+const pageTitle = title
+  ? `${title} · ${siteConfig.name}`
+  : `${siteConfig.name} · ${siteConfig.tagline}`;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? siteConfig.url).href;
+---
+
+<!doctype html>
+<html lang={siteConfig.locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <meta name="generator" content={Astro.generator} />
+
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content={siteConfig.name} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content="zh_CN" />
+    <meta name="twitter:card" content="summary" />
+
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0d0d0c" media="(prefers-color-scheme: dark)" />
+
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={`${siteConfig.name} Blog`}
+      href={rssUrl}
+    />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <ThemeInit />
+    <SplashInit />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">跳到主要内容</a>
+    <DotSplash />
+    <SiteHeader />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <SiteFooter />
+    <Lightbox />
+    <MarkdownEnhance />
+  </body>
+</html>
