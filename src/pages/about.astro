@@ -3,8 +3,16 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/site/PageHeader.astro';
 import Icon from '../components/icons/Icon.astro';
 import { aboutFacts, aboutIntro, aboutSections, languageSkills, techGroups } from '../data/about';
-import { friendLinks } from '../data/friends';
+import {
+  friendExchangeSteps,
+  friendInvalidNotes,
+  friendLinks,
+  myFriendLink,
+  type FriendLink,
+} from '../data/friends';
 import { siteConfig } from '../config/site';
+
+const initialOf = (friend: FriendLink) => (friend.initial ?? friend.name.slice(0, 1)).toUpperCase();
 ---
 
 <BaseLayout
@@ -136,8 +144,24 @@ import { siteConfig } from '../config/site';
         {
           friendLinks.map((friend) => (
             <li class="box friend-card">
-              <span class="friend-card__mark" aria-hidden="true">
-                {(friend.initial ?? friend.name.slice(0, 1)).toUpperCase()}
+              <span class="friend-avatar">
+                <span class="friend-avatar__mark" aria-hidden="true">
+                  {initialOf(friend)}
+                </span>
+                {friend.avatar && (
+                  <img
+                    class="friend-avatar__image"
+                    data-friend-avatar
+                    data-friend-avatar-fallback={friend.avatarFallback}
+                    src={friend.avatar}
+                    alt=""
+                    width="40"
+                    height="40"
+                    loading="lazy"
+                    decoding="async"
+                    referrerpolicy="no-referrer"
+                  />
+                )}
               </span>
               <div class="friend-card__body">
                 <h3 class="friend-card__name">
@@ -152,12 +176,99 @@ import { siteConfig } from '../config/site';
                     </>
                   )}
                 </h3>
-                <p class="friend-card__note">{friend.note}</p>
+                <p class="friend-card__note">{friend.description}</p>
               </div>
             </li>
           ))
         }
       </ul>
+
+      <div class="friend-panel">
+        <div class="friend-panel__main">
+          <details class="friend-details" open>
+            <summary>交换友链</summary>
+            <div class="friend-details__body">
+              <p>欢迎交换友链。请先添加本站友链，再联系我：</p>
+              <ol>
+                {friendExchangeSteps.map((step) => <li>{step}</li>)}
+              </ol>
+              <p class="friend-details__contact">
+                {
+                  siteConfig.author.email && (
+                    <>
+                      邮箱：
+                      <a href={`mailto:${siteConfig.author.email}`}>{siteConfig.author.email}</a>
+                      <span aria-hidden="true"> · </span>
+                    </>
+                  )
+                }
+                <a
+                  href="https://github.com/sseaan/Homepage/issues"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  GitHub Issues ↗
+                </a>
+              </p>
+            </div>
+          </details>
+
+          <details class="friend-details">
+            <summary>友链失效与下架</summary>
+            <div class="friend-details__body">
+              <ul>
+                {friendInvalidNotes.map((note) => <li>{note}</li>)}
+              </ul>
+            </div>
+          </details>
+        </div>
+
+        <aside class="box friend-self">
+          <span class="tape" aria-hidden="true"></span>
+          <span class="friend-avatar friend-avatar--self">
+            <span class="friend-avatar__mark" aria-hidden="true">
+              {initialOf(myFriendLink)}
+            </span>
+            {
+              myFriendLink.avatar && (
+                <img
+                  class="friend-avatar__image"
+                  data-friend-avatar
+                  data-friend-avatar-fallback={myFriendLink.avatarFallback}
+                  src={myFriendLink.avatar}
+                  alt=""
+                  width="56"
+                  height="56"
+                  loading="lazy"
+                  decoding="async"
+                  referrerpolicy="no-referrer"
+                />
+              )
+            }
+          </span>
+          <div class="friend-self__body">
+            <p class="eyebrow">我的友链</p>
+            <h3 class="friend-self__name">
+              <a href={myFriendLink.url} target="_blank" rel="noopener noreferrer">
+                {myFriendLink.name}
+              </a>
+            </h3>
+            <p class="friend-self__desc">{myFriendLink.description}</p>
+            <p class="friend-self__meta">
+              <span>URL</span>
+              <a href={myFriendLink.url} target="_blank" rel="noopener noreferrer">
+                {myFriendLink.url}
+              </a>
+            </p>
+            <p class="friend-self__meta">
+              <span>Avatar</span>
+              <a href={myFriendLink.avatar} target="_blank" rel="noopener noreferrer">
+                {myFriendLink.avatar}
+              </a>
+            </p>
+          </div>
+        </aside>
+      </div>
     </section>
 
     <p class="about__back">
@@ -309,16 +420,43 @@ import { siteConfig } from '../config/site';
     box-shadow: 2px 2px 0 var(--color-border-strong);
   }
 
-  .friend-card__mark {
+  .friend-avatar {
+    position: relative;
     display: grid;
     place-items: center;
-    width: 2.25rem;
-    height: 2.25rem;
+    width: 2.5rem;
+    height: 2.5rem;
     flex: none;
+    overflow: hidden;
     border: 1.5px solid var(--color-text);
     background: var(--color-surface-soft);
+  }
+
+  .friend-avatar--self {
+    width: 4rem;
+    height: 4rem;
+  }
+
+  .friend-avatar__image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .friend-avatar__mark {
     font-family: var(--font-mono);
     font-size: var(--text-sm);
+    color: var(--color-muted);
+  }
+
+  .friend-avatar [hidden] {
+    display: none !important;
+  }
+
+  .friend-avatar--self .friend-avatar__mark {
+    font-size: var(--text-lg);
   }
 
   .friend-card__body {
@@ -341,6 +479,127 @@ import { siteConfig } from '../config/site';
     color: var(--color-muted);
   }
 
+  .friend-panel {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 18rem;
+    gap: var(--space-5);
+    align-items: start;
+    margin-top: var(--space-5);
+  }
+
+  .friend-panel__main {
+    min-width: 0;
+  }
+
+  .friend-self {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-4);
+  }
+
+  .friend-self__body {
+    display: grid;
+    gap: 0.25rem;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .friend-self__name {
+    font-size: var(--text-lg);
+  }
+
+  .friend-self__desc {
+    margin: 0;
+    color: var(--color-muted);
+    font-size: var(--text-sm);
+  }
+
+  .friend-self__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    min-width: 0;
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--color-muted);
+  }
+
+  .friend-self__meta span {
+    flex: none;
+    color: var(--color-faint);
+  }
+
+  .friend-self__meta a {
+    overflow-wrap: anywhere;
+  }
+
+  .friend-details {
+    border-top: 1px solid var(--color-border);
+  }
+
+  .friend-details:last-child {
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .friend-details summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: 0.65rem 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text);
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .friend-details summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .friend-details summary::after {
+    content: '+';
+    color: var(--color-faint);
+    font-family: var(--font-mono);
+    font-size: var(--text-base);
+    line-height: 1;
+  }
+
+  .friend-details[open] summary::after {
+    content: '−';
+  }
+
+  .friend-details__body {
+    padding-bottom: var(--space-4);
+    color: var(--color-muted);
+    font-size: var(--text-sm);
+  }
+
+  .friend-details__body p {
+    margin: 0 0 var(--space-2);
+  }
+
+  .friend-details__body ol,
+  .friend-details__body ul {
+    display: grid;
+    gap: 0.35rem;
+    padding-left: 1.25em;
+    margin: 0 0 var(--space-3);
+  }
+
+  .friend-details__contact {
+    margin-top: var(--space-3);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+  }
+
   .about__back {
     display: flex;
     flex-wrap: wrap;
@@ -348,7 +607,22 @@ import { siteConfig } from '../config/site';
     margin: 0;
   }
 
+  @media (max-width: 40rem) {
+    .friend-avatar--self {
+      width: 3.5rem;
+      height: 3.5rem;
+    }
+  }
+
   @media (max-width: 56rem) {
+    .friend-panel {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .friend-self {
+      order: -1;
+    }
+
     .about__grid {
       grid-template-columns: minmax(0, 1fr);
     }
@@ -363,3 +637,34 @@ import { siteConfig } from '../config/site';
     }
   }
 </style>
+
+<script>
+  type FriendWindow = Window & { friendAvatarErrorBound?: boolean };
+  const friendWindow = window as FriendWindow;
+
+  const showFriendFallback = (image: HTMLImageElement) => {
+    const fallbackSrc = image.dataset.friendAvatarFallback;
+    if (fallbackSrc && image.dataset.friendFallbackTried !== 'true') {
+      image.dataset.friendFallbackTried = 'true';
+      image.src = fallbackSrc;
+      return;
+    }
+
+    image.hidden = true;
+  };
+
+  if (!friendWindow.friendAvatarErrorBound) {
+    friendWindow.friendAvatarErrorBound = true;
+    document.addEventListener(
+      'error',
+      (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLImageElement) || !target.matches('[data-friend-avatar]')) {
+          return;
+        }
+        showFriendFallback(target);
+      },
+      true,
+    );
+  }
+</script>

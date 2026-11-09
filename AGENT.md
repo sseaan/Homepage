@@ -86,7 +86,7 @@ src/
 │   ├── splash/     点阵开屏
 │   └── theme/      三态主题初始化与控制
 ├── config/site.ts  站点级配置：信息、导航、社交、页脚、Ech0、Twikoo
-├── data/           home.ts / about.ts / friends.ts 可编辑内容
+├── data/           home.ts / about.ts / friends.ts（友链与交换说明）可编辑内容
 ├── content/blog/   Markdown 文章与图片引用
 ├── layouts/        BaseLayout、BlogLayout
 ├── pages/          /、/about、/ech0、/blog、/blog/[...slug]、/rss.xml、/404
@@ -98,7 +98,7 @@ src/
 职责规则：
 
 - `src/config/site.ts`：站点身份、导航、社交、页脚、备案、Ech0、Twikoo、全站歌单。
-- `src/data/`：首页、About、友链的文字内容；不要把个人经历写进组件。
+- `src/data/`：首页、About、友链的文字内容；不要把个人经历写进组件。友链头像、本站友链信息和交换/失效说明统一放 `friends.ts`。
 - `src/content/blog/`：文章正文与 frontmatter；图片使用 S3/CDN 完整 URL，不放本地 `public/images/blog/`。
 - `src/lib/`：可测试的纯逻辑与独立客户端控制器；不要放 JSX/样式。
 - `src/components/`：展示与局部交互；跨页面复用的基础组件放 `site/`、`media/`、`icons/`。
@@ -144,6 +144,13 @@ music: https://music.163.com/song?id=... # 可选，歌曲或歌单
 - 外部 `http(s)` 链接加 `target="_blank"` 与 `rel="noopener noreferrer"`
 
 样式在 `src/styles/prose-extras.css`。新增 Markdown 语法时必须同时补：转换器、样式、客户端行为（如需要）、`markdown-guide.md` 示例和测试。
+
+### 友链
+
+- `src/data/friends.ts` 维护 `friendLinks`、`myFriendLink`、交换步骤和失效说明；About 页只负责渲染。
+- `avatar` 可选；缺失或加载失败时回退到 `initial` / 名称首字，图片必须使用可公开访问的 HTTPS 地址。可选的 `avatarFallback` 用于远程头像失败时先换用备用图（例如本站 `/images/avatar.png` 或 GitHub 最终头像地址），仍失败再显示首字母。
+- 「交换友链」默认展开，「友链失效与下架」默认折叠；修改结构时保留 `<details>` 的原生键盘行为。
+- 外链统一 `target="_blank" rel="noopener noreferrer"`；头像 `alt` 置空，名称已经提供可访问文本。
 
 ### 图片
 
@@ -248,6 +255,7 @@ music: https://music.163.com/song?id=... # 可选，歌曲或歌单
 - [ ] 浅色 / 深色 / 自动三态可切换；无 JS 时不崩
 - [ ] 键盘可访问；图片有 alt；图标按钮有 aria-label
 - [ ] `prefers-reduced-motion` 下开屏与动画降级
+- [ ] 友链头像加载失败回退首字母；交换说明默认展开，失效说明默认折叠
 - [ ] 草稿不进入列表、RSS、sitemap
 - [ ] 文章 frontmatter 错误会让构建失败
 - [ ] RSS 与 sitemap 包含当前公开文章

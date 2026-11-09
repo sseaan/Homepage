@@ -33,6 +33,7 @@
 - **文章分享**：X、邮件、生成分享卡片、复制链接；分享卡片是 1080px 宽的 PNG，可下载或长按保存。
 - **全站音乐**：可选接入 api-enhanced；右下角「听歌」入口打开全局歌单，支持随机、音量、同步歌词与进度控制，并借助 ClientRouter 跨页继续播放；文章可用 frontmatter 覆盖为单曲/歌单并默认显示封面播放器。
 - **跨页无缝**：ClientRouter 导航保留主题、音乐播放器与播放进度；页面级脚本在导航后重新初始化，灯箱、评论、Ech0、目录和分享卡片不会失效。
+- **友链**：卡片显示站点图标，加载失败回退名称首字母；About 页提供本站友链信息、默认展开的交换说明和折叠的失效说明。
 - **Ech0 动态**：浏览器读取公开 Atom Feed，DOMPurify 清洗，按图片数量自动切换单图、轮播和宫格。
 - **Twikoo 评论**：自托管固定版本客户端，懒加载、独立错误状态，主题切换不丢失草稿。
 - **可访问性**：键盘焦点、跳转链接、减少动效、语义化状态提示和响应式布局。
@@ -110,7 +111,7 @@ EdgeOne 的自动部署由 push 触发；如果平台不等待 checks，建议�
 - `src/config/site.ts`：站点名、描述、域名、导航、社交链接、页脚、备案、Ech0、Twikoo、全站歌单。
 - `src/data/home.ts`：首页简介、项目、经历、兴趣、游戏。
 - `src/data/about.ts`：About 正文、正在做的事、技术分组与语言。
-- `src/data/friends.ts`：友链。
+- `src/data/friends.ts`：友链、本站友链信息、交换友链与失效说明。
 - `astro.config.mjs`：`site`、sitemap、Markdown processor 与 Shiki 双主题。
 
 未填写 `href` 的社交平台不会渲染；`author.avatar` 为 `null` 时会显示内置的手绘机器人占位。
@@ -134,7 +135,7 @@ src/
 ├── layouts/        BaseLayout、BlogLayout
 ├── pages/          /、/about、/ech0、/blog、/blog/[...slug]、/rss.xml、/404
 ├── config/site.ts  站点级配置
-├── data/           首页、About、友链
+├── data/           首页、About、友链与交换说明
 ├── lib/            Ech0、Markdown 扩展、网易云解析与播放器逻辑
 ├── styles/         tokens / themes / global / music / prose-extras / comments / ech0
 └── content.config.ts
