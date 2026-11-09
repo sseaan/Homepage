@@ -1,0 +1,48 @@
+---
+import { formatDate, isoDate, readingMinutes } from '../../utils/blog';
+import type { BlogPost } from '../../utils/blog';
+
+interface Props {
+  post: BlogPost;
+}
+
+const { post } = Astro.props;
+const { title, summary, pubDate, tags = [] } = post.data;
+const minutes = readingMinutes(post.body);
+---
+
+<li class="row blog-row">
+  <div class="row__body">
+    <h2 class="row__title">
+      <a href={`/blog/${post.id}`}>{title}</a>
+    </h2>
+    <p class="row__desc">{summary}</p>
+    <p class="row__note">
+      {
+        tags.map((tag, index) => (
+          <>
+            {index > 0 && <span aria-hidden="true"> · </span>}
+            {tag}
+          </>
+        ))
+      }
+      {tags.length > 0 && <span aria-hidden="true"> · </span>}
+      约 {minutes} 分钟
+    </p>
+  </div>
+  <div class="row__meta">
+    <time datetime={isoDate(pubDate)}>{formatDate(pubDate)}</time>
+  </div>
+</li>
+
+<style>
+  .blog-row :global(h2 a) {
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .blog-row :global(h2 a:hover) {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+</style>

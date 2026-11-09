@@ -1,0 +1,106 @@
+---
+/**
+ * 文章目录：把 h2/h3/h4 渲染成树状列表（嵌套层级用竖线连接）。
+ * 组件通过 Astro.self 递归渲染子层级。
+ */
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface TreeNode extends Heading {
+  children: TreeNode[];
+}
+
+interface Props {
+  headings?: Heading[];
+  nodes?: TreeNode[];
+}
+
+const buildTree = (headings: Heading[]): TreeNode[] => {
+  const roots: TreeNode[] = [];
+  const stack: TreeNode[] = [];
+
+  for (const heading of headings) {
+    if (heading.depth < 2 || heading.depth > 4) continue;
+    const node: TreeNode = { ...heading, children: [] };
+
+    while (stack.length > 0 && stack[stack.length - 1].depth >= node.depth) stack.pop();
+
+    const parent = stack[stack.length - 1];
+    if (parent) parent.children.push(node);
+    else roots.push(node);
+
+    stack.push(node);
+  }
+
+  return roots;
+};
+
+const nodes = Astro.props.nodes ?? buildTree(Astro.props.headings ?? []);
+---
+
+<ol class="toc__list">
+  {
+    nodes.map((node) => (
+      <li class="toc__item">
+        <a href={`#${node.slug}`} data-toc-link>
+          {node.text}
+        </a>
+        {node.children.length > 0 && <Astro.self nodes={node.children} />}
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  .toc__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1px;
+  }
+
+  /* 子层级：左侧竖线形成树状主干 */
+  .toc__list .toc__list {
+    margin: 1px 0 3px 0.28rem;
+    padding-left: 0.72rem;
+    border-left: 1px solid var(--color-border);
+  }
+
+  .toc__list .toc__list .toc__item {
+    position: relative;
+  }
+
+  /* 分支短横线 */
+  .toc__list .toc__list .toc__item::before {
+    content: '';
+    position: absolute;
+    left: calc(-0.72rem - 1px);
+    top: 0.72em;
+    width: 6px;
+    height: 1px;
+    background: var(--color-border);
+  }
+
+  .toc__item a {
+    display: block;
+    padding: 2px 0;
+    font-size: var(--text-xs);
+    line-height: 1.65;
+    color: var(--color-faint);
+    text-decoration: none;
+    transition: color var(--motion-fast) var(--ease-out);
+  }
+
+  .toc__item a:hover {
+    color: var(--color-text);
+  }
+
+  .toc__item a.is-active {
+    color: var(--color-text);
+    font-weight: 550;
+  }
+</style>

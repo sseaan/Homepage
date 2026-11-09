@@ -1,0 +1,57 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/site/PageHeader.astro';
+import BlogRow from '../../components/blog/BlogRow.astro';
+import { rssUrl, siteConfig } from '../../config/site';
+import { sortByDateDesc } from '../../utils/blog';
+
+// 草稿一律不进入公开列表
+const posts = sortByDateDesc(await getCollection('blog', ({ data }) => data.draft !== true));
+---
+
+<BaseLayout title="Blog" description={siteConfig.blog.description}>
+  <div class="container page">
+    <PageHeader
+      eyebrow="Blog"
+      title="文章"
+      lead={siteConfig.blog.description}
+      decoration="underline"
+      mark
+    >
+      <p class="page-meta">
+        <span>{posts.length} 篇公开文章</span>
+        <a class="text-link" href={rssUrl}>RSS 订阅</a>
+      </p>
+    </PageHeader>
+
+    {
+      posts.length > 0 ? (
+        <ul class="rows blog-list">
+          {posts.map((post) => (
+            <BlogRow post={post} />
+          ))}
+        </ul>
+      ) : (
+        <p class="row__note blog-list">还没有公开文章。新增 Markdown 文件并推送即可自动发布。</p>
+      )
+    }
+  </div>
+</BaseLayout>
+
+<style>
+  .page-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4);
+    margin: var(--space-2) 0 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--color-faint);
+  }
+
+  .blog-list {
+    margin-top: var(--space-4);
+  }
+</style>

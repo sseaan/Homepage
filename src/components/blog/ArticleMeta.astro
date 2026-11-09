@@ -1,0 +1,55 @@
+---
+import TagList from './TagList.astro';
+import { formatDate, isoDate } from '../../utils/blog';
+
+interface Props {
+  pubDate: Date;
+  updatedDate?: Date;
+  readingTime?: number;
+  tags?: string[];
+}
+
+const { pubDate, updatedDate, readingTime, tags = [] } = Astro.props;
+---
+
+<div class="article-meta">
+  <p class="article-meta__row">
+    <time datetime={isoDate(pubDate)}>发布于 {formatDate(pubDate)}</time>
+    {
+      updatedDate && (
+        <>
+          <span aria-hidden="true">·</span>
+          <time datetime={isoDate(updatedDate)}>更新于 {formatDate(updatedDate)}</time>
+        </>
+      )
+    }
+    {
+      readingTime && (
+        <>
+          <span aria-hidden="true">·</span>
+          <span>约 {readingTime} 分钟</span>
+        </>
+      )
+    }
+  </p>
+  {tags.length > 0 && <TagList tags={tags} />}
+</div>
+
+<style>
+  .article-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2) var(--space-4);
+  }
+
+  .article-meta__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--color-faint);
+  }
+</style>
