@@ -1,0 +1,365 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/site/PageHeader.astro';
+import Icon from '../components/icons/Icon.astro';
+import { aboutFacts, aboutIntro, aboutSections, languageSkills, techGroups } from '../data/about';
+import { friendLinks } from '../data/friends';
+import { siteConfig } from '../config/site';
+---
+
+<BaseLayout
+  title="About"
+  description={`关于 ${siteConfig.author.name}：较完整的自我介绍、技术与语言、联系方式。`}
+>
+  <div class="container page about">
+    <PageHeader
+      eyebrow="About"
+      title="关于我"
+      lead="比首页更完整的一份介绍：在做什么、怎么工作、常用哪些工具，以及怎么联系我。"
+      decoration="circle"
+      mark
+    >
+      <p class="about__facts">
+        {
+          aboutFacts.map((fact, index) => (
+            <>
+              {index > 0 && (
+                <span class="about__facts-sep" aria-hidden="true">
+                  ·
+                </span>
+              )}
+              <span class="about__fact">
+                <span class="about__fact-label">{fact.label}</span>
+                <span class="about__fact-value">{fact.value}</span>
+              </span>
+            </>
+          ))
+        }
+      </p>
+    </PageHeader>
+
+    <div class="about__grid">
+      <div class="prose about__prose">
+        {aboutIntro.map((paragraph) => <p>{paragraph}</p>)}
+
+        {
+          aboutSections.map((section) => (
+            <>
+              <h2>{section.title}</h2>
+              {section.paragraphs.map((paragraph) => (
+                <p>{paragraph}</p>
+              ))}
+            </>
+          ))
+        }
+      </div>
+
+      <aside class="about__rail">
+        <div class="box about__contact">
+          <span class="tape" aria-hidden="true"></span>
+          <p class="about__contact-title">联系我</p>
+          <ul class="about__contact-list">
+            {
+              siteConfig.social.map((link) => (
+                <li>
+                  <a
+                    href={link.href}
+                    rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                    target={link.href.startsWith('http') ? '_blank' : undefined}
+                  >
+                    <Icon name={link.icon} size={15} />
+                    <span>{link.label}</span>
+                    {link.handle && <span class="about__handle">{link.handle}</span>}
+                  </a>
+                </li>
+              ))
+            }
+            <li>
+              <a href="/rss.xml">
+                <Icon name="rss" size={15} />
+                <span>RSS 订阅</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+
+    <section class="section" aria-labelledby="stack-title">
+      <div class="section-head">
+        <h2 class="section-title" id="stack-title">技术与语言</h2>
+        <span class="section-head__note">Stack</span>
+      </div>
+
+      <ul class="rows stack-rows">
+        {
+          techGroups.map((group) => (
+            <li class="row">
+              <div class="row__body">
+                <h3 class="row__title">
+                  <Icon name={group.icon} size={15} />
+                  {group.title}
+                </h3>
+              </div>
+              <p class="stack-rows__items">{group.items.map((item) => item.name).join(' · ')}</p>
+            </li>
+          ))
+        }
+        <li class="row">
+          <div class="row__body">
+            <h3 class="row__title">
+              <Icon name="languages" size={15} />
+              自然语言
+            </h3>
+          </div>
+          <p class="stack-rows__items">
+            {
+              languageSkills.map((language, index) => (
+                <>
+                  {index > 0 && ' · '}
+                  {language.name}（{language.level}）
+                </>
+              ))
+            }
+          </p>
+        </li>
+      </ul>
+    </section>
+
+    <section class="section" id="friends" aria-labelledby="friends-title">
+      <div class="section-head">
+        <h2 class="section-title" id="friends-title">友链</h2>
+        <span class="section-head__note">Friends</span>
+      </div>
+
+      <ul class="friends">
+        {
+          friendLinks.map((friend) => (
+            <li class="box friend-card">
+              <span class="friend-card__mark" aria-hidden="true">
+                {(friend.initial ?? friend.name.slice(0, 1)).toUpperCase()}
+              </span>
+              <div class="friend-card__body">
+                <h3 class="friend-card__name">
+                  {friend.url ? (
+                    <a href={friend.url} rel="noopener noreferrer" target="_blank">
+                      {friend.name}
+                    </a>
+                  ) : (
+                    <>
+                      {friend.name}
+                      {friend.pending && <span class="pending">待补充</span>}
+                    </>
+                  )}
+                </h3>
+                <p class="friend-card__note">{friend.note}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <p class="about__back">
+      <a class="text-link" href="/blog">去博客看看 →</a>
+      <a class="text-link" href="/">回到首页</a>
+    </p>
+  </div>
+</BaseLayout>
+
+<style>
+  .about {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .about__facts {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-1) var(--space-3);
+    margin: var(--space-2) 0 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  .about__fact {
+    display: inline-flex;
+    gap: 0.5em;
+  }
+
+  .about__fact-label {
+    color: var(--color-faint);
+  }
+
+  .about__facts-sep {
+    color: var(--color-border-strong);
+  }
+
+  .about__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 17rem;
+    gap: var(--space-8);
+    align-items: start;
+  }
+
+  .about__prose h2:first-of-type {
+    margin-top: var(--space-5);
+  }
+
+  .about__rail {
+    position: sticky;
+    top: calc(var(--header-height) + var(--space-5));
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .about__contact {
+    position: relative;
+    padding: var(--space-4);
+    display: grid;
+    gap: var(--space-2);
+    transform: rotate(-0.5deg);
+  }
+
+  .about__contact-title {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .about__contact-list {
+    display: grid;
+    gap: 0;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  .about__contact-list a,
+  .about__contact-pending {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    min-height: 34px;
+    font-size: var(--text-sm);
+    color: var(--color-text-soft);
+    text-decoration: none;
+  }
+
+  .about__contact-list a:hover {
+    color: var(--color-text);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  .about__handle {
+    margin-left: auto;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--color-faint);
+  }
+
+  .about__contact-pending {
+    color: var(--color-faint);
+  }
+
+  .stack-rows .row {
+    align-items: baseline;
+  }
+
+  .stack-rows__items {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+    text-align: right;
+  }
+
+  .row__title :global(.icon) {
+    color: var(--color-faint);
+    align-self: center;
+  }
+
+  .friends {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+    gap: var(--space-4);
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  .friend-card {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    transition:
+      transform var(--motion-fast) var(--ease-out),
+      box-shadow var(--motion-fast) var(--ease-out);
+  }
+
+  .friend-card:hover {
+    transform: translate(1px, 1px);
+    box-shadow: 2px 2px 0 var(--color-border-strong);
+  }
+
+  .friend-card__mark {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    flex: none;
+    border: 1.5px solid var(--color-text);
+    background: var(--color-surface-soft);
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+  }
+
+  .friend-card__body {
+    display: grid;
+    gap: 0.15rem;
+    min-width: 0;
+  }
+
+  .friend-card__name {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.4em;
+    font-size: var(--text-base);
+  }
+
+  .friend-card__note {
+    margin: 0;
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+  }
+
+  .about__back {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin: 0;
+  }
+
+  @media (max-width: 56rem) {
+    .about__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .about__rail {
+      position: static;
+      max-width: 24rem;
+    }
+
+    .stack-rows__items {
+      text-align: left;
+    }
+  }
+</style>

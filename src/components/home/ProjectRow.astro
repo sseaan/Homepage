@@ -1,0 +1,62 @@
+---
+import Icon from '../icons/Icon.astro';
+import type { Project } from '../../data/home';
+
+interface Props {
+  project: Project;
+}
+
+const { project } = Astro.props;
+---
+
+<li class="row">
+  <div class="row__body">
+    <h3 class="row__title">
+      {project.name}
+      {
+        project.status && (
+          <>
+            <span class="row__tilde">~</span>
+            <span class="row__status">{project.status}</span>
+          </>
+        )
+      }
+      {project.pending && <span class="pending">待补充</span>}
+    </h3>
+    <p class="row__desc">{project.summary}</p>
+  </div>
+
+  <div class="row__meta">
+    {project.tech.length > 0 && <span class="project-row__tech">{project.tech.join(' · ')}</span>}
+    {
+      project.sourceUrl && (
+        <a href={project.sourceUrl} rel="noopener noreferrer" target="_blank">
+          <Icon name="github" size={14} />
+          源码
+          <span class="visually-hidden">（在新标签页打开）</span>
+        </a>
+      )
+    }
+    {
+      project.demoUrl && (
+        <a href={project.demoUrl} rel="noopener noreferrer" target="_blank">
+          <Icon name="arrow-up-right" size={14} />
+          演示
+          <span class="visually-hidden">（在新标签页打开）</span>
+        </a>
+      )
+    }
+  </div>
+</li>
+
+<style>
+  .row__status {
+    font-weight: 400;
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+  }
+
+  .project-row__tech {
+    color: var(--color-faint);
+  }
+</style>

@@ -1,0 +1,389 @@
+---
+import '@fontsource/great-vibes/latin-400.css';
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageNav from '../components/site/PageNav.astro';
+import Avatar from '../components/site/Avatar.astro';
+import HomeSection from '../components/home/HomeSection.astro';
+import ProjectRow from '../components/home/ProjectRow.astro';
+import ExperienceRows from '../components/home/ExperienceRows.astro';
+import InterestRow from '../components/home/InterestRow.astro';
+import GameRows from '../components/home/GameRows.astro';
+import Doodle from '../components/doodles/Doodle.astro';
+import Icon from '../components/icons/Icon.astro';
+import { homeProfile, homeSections, projects, experiences, interests, games } from '../data/home';
+import { rssUrl, siteConfig } from '../config/site';
+import { formatDate, isoDate, sortByDateDesc } from '../utils/blog';
+
+const allPosts = sortByDateDesc(await getCollection('blog', ({ data }) => data.draft !== true));
+const latestPosts = allPosts.slice(0, 3);
+---
+
+<BaseLayout>
+  <div class="container home-top">
+    <section class="hero" id="intro" aria-labelledby="hero-name">
+      <div class="hero__main">
+        <p class="hero__eyebrow">
+          <Doodle
+            variant="asterisk"
+            width={12}
+            height={12}
+            class="doodle--accent"
+            strokeWidth={1.6}
+          />
+          开发者 · 个人主页
+        </p>
+
+        <h1 class="hero__name" id="hero-name">
+          <span class="hero__name-mark">
+            {homeProfile.name}
+            <span class="hero__circle" aria-hidden="true">
+              <Doodle variant="circle" width="100%" height="100%" strokeWidth={1.5} />
+            </span>
+          </span>
+        </h1>
+
+        <p class="hero__lead">{homeProfile.intro[0]}</p>
+
+        <div class="hero__actions">
+          <a class="btn btn--primary" href="#projects">看项目</a>
+          <a class="btn" href="/blog">读博客</a>
+          <a class="text-link" href="/about">关于我</a>
+        </div>
+
+        <ul class="icon-row hero__social" aria-label="社交与订阅">
+          {
+            siteConfig.social.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                  target={link.href.startsWith('http') ? '_blank' : undefined}
+                  aria-label={link.label}
+                  title={link.label}
+                >
+                  <Icon name={link.icon} size={18} />
+                </a>
+              </li>
+            ))
+          }
+          <li>
+            <a href={rssUrl} aria-label="RSS 订阅" title="RSS">
+              <Icon name="rss" size={18} />
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="hero__side">
+        <div class="hero__portrait">
+          <Avatar size="100%" shape="square" />
+          <span class="hero__portrait-label" aria-hidden="true">SSEAAN<br />2026</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="home-foot">
+      {
+        latestPosts[0] && (
+          <p class="home-latest">
+            <span class="home-latest__label">最近更新</span>
+            <a href={`/blog/${latestPosts[0].id}`}>{latestPosts[0].data.title}</a>
+            <time datetime={isoDate(latestPosts[0].data.pubDate)}>
+              {formatDate(latestPosts[0].data.pubDate)}
+            </time>
+          </p>
+        )
+      }
+      <PageNav sections={homeSections} label="Home 区块导航" />
+    </div>
+  </div>
+
+  <div class="container">
+    <HomeSection id="writing" label="最近" meta="Writing">
+      {
+        latestPosts.length > 0 ? (
+          <>
+            <ul class="rows">
+              {latestPosts.map((post) => (
+                <li class="row">
+                  <div class="row__body">
+                    <h3 class="row__title">
+                      <a href={`/blog/${post.id}`}>{post.data.title}</a>
+                    </h3>
+                    <p class="row__desc">{post.data.summary}</p>
+                  </div>
+                  <div class="row__meta">
+                    <time datetime={isoDate(post.data.pubDate)}>
+                      {formatDate(post.data.pubDate)}
+                    </time>
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <p class="writing__more">
+              <a class="text-link" href="/blog">
+                全部文章
+              </a>
+            </p>
+          </>
+        ) : (
+          <p class="row__note">还没有公开文章。</p>
+        )
+      }
+    </HomeSection>
+
+    <HomeSection id="projects" label="项目" meta="Projects">
+      {
+        projects.length > 0 ? (
+          <ul class="rows">
+            {projects.map((project) => (
+              <ProjectRow project={project} />
+            ))}
+          </ul>
+        ) : (
+          <p class="row__note">还没有公开的项目内容。</p>
+        )
+      }
+    </HomeSection>
+
+    <HomeSection id="experience" label="经历" meta="Experience">
+      {
+        experiences.length > 0 ? (
+          <ExperienceRows items={experiences} />
+        ) : (
+          <p class="row__note">暂无经历内容。</p>
+        )
+      }
+    </HomeSection>
+
+    <HomeSection id="interests" label="兴趣" meta="Interests">
+      {
+        interests.length > 0 ? (
+          <InterestRow items={interests} />
+        ) : (
+          <p class="row__note">暂无兴趣内容。</p>
+        )
+      }
+    </HomeSection>
+
+    <HomeSection id="games" label="游戏" meta="Games">
+      {games.length > 0 ? <GameRows items={games} /> : <p class="row__note">暂无游戏内容。</p>}
+    </HomeSection>
+  </div>
+</BaseLayout>
+
+<style>
+  /* 首屏：简介 + 最近更新 + 锚点栏，栏宽与 Header 一致 */
+  .home-top {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100svh - var(--header-height) - var(--space-4));
+    padding-top: var(--space-8);
+  }
+
+  .hero {
+    position: relative;
+    flex: 1 1 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 15rem;
+    align-items: center;
+    gap: var(--space-7);
+    padding-block: var(--space-5);
+    scroll-margin-top: calc(var(--header-height) + var(--space-4));
+  }
+
+  .hero__main,
+  .hero__side {
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero__main {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-3);
+    max-width: 34rem;
+    min-width: 0;
+  }
+
+  .hero__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .hero__name {
+    position: relative;
+    font-family: 'Great Vibes', var(--font-serif);
+    font-size: clamp(3rem, 2.5rem + 2.8vw, 4.2rem);
+    font-weight: 400;
+    letter-spacing: 0.01em;
+    line-height: 1;
+  }
+
+  .hero__name-mark {
+    position: relative;
+    display: inline-block;
+    padding-inline: 0.04em;
+  }
+
+  /* 唯一的手绘圈选：比文字略大一圈，轻微倾斜 */
+  .hero__circle {
+    position: absolute;
+    inset: -0.36em -0.85em;
+    color: var(--doodle-stroke-soft);
+    opacity: 0.55;
+    transform: rotate(-1.8deg);
+    pointer-events: none;
+  }
+
+  .hero__lead {
+    margin: var(--space-1) 0 0;
+    max-width: 32rem;
+    color: var(--color-muted);
+    font-size: var(--text-lg);
+    line-height: var(--leading-normal);
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3) var(--space-4);
+    margin-top: var(--space-1);
+  }
+
+  .hero__social {
+    margin-top: var(--space-2);
+  }
+
+  .hero__side {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    min-width: 0;
+  }
+
+  /* 新粗野主义头像：方形粗框 + 硬阴影 + 标签 */
+  .hero__portrait {
+    position: relative;
+    width: 11rem;
+    max-width: 100%;
+    aspect-ratio: 1;
+    transform: rotate(-1.2deg);
+  }
+
+  .hero__portrait :global(.avatar) {
+    width: 100%;
+    height: 100%;
+    border: 2px solid var(--color-text);
+    border-radius: 0;
+    background: var(--color-bg-soft);
+    box-shadow: 7px 7px 0 var(--color-text);
+  }
+
+  .hero__portrait-label {
+    position: absolute;
+    left: -0.85rem;
+    bottom: -0.95rem;
+    padding: 4px 7px 3px;
+    border: 2px solid var(--color-bg);
+    background: var(--color-text);
+    color: var(--color-bg);
+    font-family: var(--font-mono);
+    font-size: 9px;
+    line-height: 1.35;
+    letter-spacing: 0.1em;
+    box-shadow: 3px 3px 0 var(--color-bg);
+  }
+
+  .home-foot {
+    margin-top: auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-5);
+    padding-block: var(--space-4) var(--space-3);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .home-latest {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5em;
+    margin: 0;
+    font-size: var(--text-sm);
+  }
+
+  .home-latest__label,
+  .home-latest time {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--color-faint);
+  }
+
+  .home-latest a {
+    color: var(--color-text);
+    text-decoration: none;
+    border-bottom: 1px solid var(--color-border-strong);
+  }
+
+  .home-latest a:hover {
+    border-bottom-color: var(--color-text);
+  }
+
+  .writing__more {
+    margin: var(--space-3) 0 0;
+  }
+
+  @media (max-width: 52rem) {
+    .hero {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-5);
+      align-items: start;
+      padding-block: var(--space-4);
+    }
+
+    .hero__side {
+      justify-self: start;
+      width: auto;
+    }
+
+    .hero__portrait {
+      width: 7rem;
+    }
+
+    .hero__portrait-label {
+      left: -0.6rem;
+      bottom: -0.75rem;
+      font-size: 8px;
+    }
+  }
+
+  @media (max-width: 40rem) {
+    .home-top {
+      min-height: 0;
+      padding-top: var(--space-6);
+    }
+
+    .hero__circle {
+      inset: -0.32em -0.75em;
+    }
+
+    .home-foot {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-3);
+    }
+  }
+</style>

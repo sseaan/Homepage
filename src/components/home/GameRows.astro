@@ -1,0 +1,77 @@
+---
+import Icon from '../icons/Icon.astro';
+import type { Game } from '../../data/home';
+
+interface Props {
+  items: Game[];
+}
+
+const { items } = Astro.props;
+---
+
+<ul class="rows">
+  {
+    items.map((item) => (
+      <li class:list={['row', { 'game-row--zzz': item.accent === 'zzz' }]}>
+        <div class="row__body">
+          <h3 class="row__title">
+            <Icon name={item.icon} size={15} />
+            <span>{item.name}</span>
+            {item.accent === 'zzz' && (
+              <span class="game-row__zzz">
+                <span aria-hidden="true">// </span>Zenless Zone Zero
+              </span>
+            )}
+            {item.pending && <span class="pending">待补充</span>}
+          </h3>
+          <p class="row__desc">{item.note}</p>
+        </div>
+        <div class="row__meta">
+          {item.accent === 'zzz' && (
+            <span class="game-row__symbols" aria-hidden="true">
+              + + +
+            </span>
+          )}
+          <span>{item.platform}</span>
+        </div>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .row__title :global(.icon) {
+    color: var(--color-faint);
+    align-self: center;
+  }
+
+  /* 绝区零：只保留橙色文字标签和符号，不改图标与背景 */
+  .game-row--zzz {
+    --zzz-orange: #d9662f;
+  }
+
+  .game-row__zzz {
+    color: var(--zzz-orange);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.02em;
+    line-height: 1.5;
+    white-space: nowrap;
+    padding-bottom: 1px;
+    border-bottom: 1px dashed color-mix(in srgb, var(--zzz-orange) 60%, transparent);
+  }
+
+  .game-row__symbols {
+    color: var(--zzz-orange);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    opacity: 0.8;
+  }
+
+  @media (max-width: 34rem) {
+    .game-row__zzz {
+      font-size: 9px;
+    }
+  }
+</style>

@@ -1,0 +1,40 @@
+---
+import Icon from '../icons/Icon.astro';
+import type { Interest } from '../../data/home';
+
+interface Props {
+  items: Interest[];
+}
+
+const { items } = Astro.props;
+---
+
+<ul class="rows">
+  {
+    items.map((item) => (
+      <li class="row">
+        <div class="row__body">
+          <h3 class="row__title">
+            <Icon name={item.icon} size={15} />
+            <span>{item.title}</span>
+            <span class="row__tilde">~</span>
+            <span class="interest__desc">{item.description}</span>
+            {item.pending && <span class="pending">待补充</span>}
+          </h3>
+        </div>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .row__title :global(.icon) {
+    color: var(--color-faint);
+    align-self: center;
+  }
+
+  .interest__desc {
+    font-weight: 400;
+    color: var(--color-muted);
+  }
+</style>

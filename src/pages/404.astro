@@ -1,0 +1,41 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/site/PageHeader.astro';
+import Doodle from '../components/doodles/Doodle.astro';
+---
+
+<BaseLayout title="页面不存在" noindex>
+  <div class="container page not-found">
+    <PageHeader
+      eyebrow="404"
+      title="这个页面走丢了"
+      lead="链接可能已经变化，可以从下面这些地方继续。"
+    />
+
+    <p class="not-found__actions">
+      <Doodle variant="arrow" width={34} height={22} class="doodle--soft not-found__arrow" />
+      <a class="text-link" href="/">回到首页</a>
+      <a class="text-link" href="/blog">文章列表</a>
+    </p>
+  </div>
+</BaseLayout>
+
+<style>
+  .not-found {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .not-found__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4);
+    margin: 0;
+  }
+
+  .not-found__arrow {
+    transform: rotate(10deg);
+    margin-left: -0.35rem;
+  }
+</style>
