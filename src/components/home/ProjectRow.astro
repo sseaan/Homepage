@@ -4,30 +4,33 @@ import type { Project } from '../../data/home';
 
 interface Props {
   project: Project;
+  index: number;
 }
 
-const { project } = Astro.props;
+const { project, index } = Astro.props;
 ---
 
-<li class="row">
-  <div class="row__body">
-    <h3 class="row__title">
-      {project.name}
-      {
-        project.status && (
-          <>
-            <span class="row__tilde">~</span>
-            <span class="row__status">{project.status}</span>
-          </>
-        )
-      }
+<li class="row project-row">
+  <span class="project-row__index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+  <div class="row__body project-row__body">
+    <div class="project-row__eyebrow">
+      {project.status && <span class="row__status">{project.status}</span>}
       {project.pending && <span class="pending">待补充</span>}
-    </h3>
+    </div>
+    <h3 class="row__title project-row__title">{project.name}</h3>
     <p class="row__desc">{project.summary}</p>
+    {
+      project.tech.length > 0 && (
+        <ul class="project-row__tech" aria-label={`${project.name} 技术栈`}>
+          {project.tech.map((item) => (
+            <li>{item}</li>
+          ))}
+        </ul>
+      )
+    }
   </div>
 
-  <div class="row__meta">
-    {project.tech.length > 0 && <span class="project-row__tech">{project.tech.join(' · ')}</span>}
+  <div class="row__meta project-row__meta">
     {
       project.sourceUrl && (
         <a href={project.sourceUrl} rel="noopener noreferrer" target="_blank">
@@ -51,12 +54,7 @@ const { project } = Astro.props;
 
 <style>
   .row__status {
-    font-weight: 400;
-    font-size: var(--text-sm);
     color: var(--color-muted);
-  }
-
-  .project-row__tech {
-    color: var(--color-faint);
+    font-weight: 500;
   }
 </style>

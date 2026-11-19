@@ -15,8 +15,14 @@ const { items } = Astro.props;
         <div class="row__body">
           <h3 class="row__title">
             <span>{item.role}</span>
-            <span class="row__tilde">~</span>
-            <span class="row__org">{item.org}</span>
+            {item.org && (
+              <>
+                <span class="row__tilde" aria-hidden="true">
+                  ·
+                </span>
+                <span class="row__org">{item.org}</span>
+              </>
+            )}
             {item.pending && <span class="pending">待补充</span>}
           </h3>
           <p class="row__desc">{item.summary}</p>

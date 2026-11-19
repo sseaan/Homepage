@@ -80,3 +80,26 @@
     transform: rotate(1.4deg);
   }
 }
+
+@media (prefers-reduced-motion: no-preference) {
+  .doodle--float {
+    animation: doodle-float 7s ease-in-out infinite;
+  }
+
+  @keyframes doodle-float {
+    0%,
+    100% {
+      transform: translateY(0) rotate(-2deg);
+    }
+    50% {
+      transform: translateY(-7px) rotate(1deg);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .doodle--float,
+  .doodle-hover:hover .doodle-wiggle {
+    animation: none !important;
+  }
+}

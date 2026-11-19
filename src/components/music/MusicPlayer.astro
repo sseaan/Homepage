@@ -19,7 +19,10 @@ const {
   pageMusic = null,
   label = '听歌',
 } = Astro.props;
-const apiBase = (import.meta.env.PUBLIC_NETEASE_API_BASE ?? '').replace(/\/+$/, '');
+const apiBase = (import.meta.env.PUBLIC_NETEASE_API_BASE ?? 'https://ncm.mvr.cc').replace(
+  /\/+$/,
+  '',
+);
 const enabled = Boolean(apiBase && (globalSource?.trim() || pageMusic?.trim()));
 ---
 

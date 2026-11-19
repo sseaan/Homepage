@@ -12,12 +12,19 @@
 
 .prose :where(.callout) {
   position: relative;
-  margin-block: var(--space-4);
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--color-border);
-  border-left: 3px solid var(--callout-accent);
+  margin-block: var(--space-5);
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--color-border-strong);
+  border-left: 4px solid var(--callout-accent);
   border-radius: var(--radius-sm);
-  background: var(--callout-bg);
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--callout-accent) 8%, transparent),
+      transparent 65%
+    ),
+    var(--callout-bg);
+  box-shadow: 3px 3px 0 var(--color-border);
   font-size: var(--text-sm);
 }
 
@@ -50,16 +57,18 @@
 .prose :where(.callout-title)::before {
   content: '!';
   display: inline-grid;
-  width: 1.05rem;
-  height: 1.05rem;
+  width: 1.2rem;
+  height: 1.2rem;
   flex: none;
   place-items: center;
+  border: 1px solid var(--callout-accent);
   border-radius: 50%;
   background: var(--callout-accent);
   color: var(--color-bg);
   font-family: var(--font-mono);
   font-size: 0.65rem;
   line-height: 1;
+  transform: rotate(-8deg);
 }
 
 .prose :where(.callout.note .callout-title)::before {
@@ -151,11 +160,20 @@
 /* ---------- 折叠 ---------- */
 
 .prose :where(details) {
-  margin-block: var(--space-4);
+  position: relative;
+  margin-block: var(--space-5);
   padding: 0 var(--space-4);
-  border: 1px solid var(--color-border);
+  border: 1px dashed var(--color-border-strong);
+  border-left: 3px solid var(--doodle-accent);
   border-radius: var(--radius-sm);
   background: var(--color-bg-soft);
+  transition:
+    background-color var(--motion-base) var(--ease-out),
+    box-shadow var(--motion-base) var(--ease-out);
+}
+
+.prose :where(details[open]) {
+  box-shadow: 3px 3px 0 var(--color-border);
 }
 
 .prose :where(details > summary) {
@@ -334,11 +352,24 @@
 /* ---------- 代码工具栏 ---------- */
 
 .prose :where(.code-block) {
-  margin-block: var(--space-4);
+  position: relative;
+  margin-block: var(--space-5);
   overflow: hidden;
-  border: 1.5px solid var(--color-border-strong);
+  border: 1.5px solid var(--color-text);
   border-radius: var(--radius-card);
   background: var(--color-surface-soft);
+  box-shadow: 4px 4px 0 var(--color-border-strong);
+}
+
+.prose :where(.code-block)::before {
+  content: '···';
+  position: absolute;
+  top: 0.33rem;
+  left: 0.75rem;
+  color: var(--doodle-accent);
+  font-family: var(--font-mono);
+  letter-spacing: 0.15em;
+  pointer-events: none;
 }
 
 .prose :where(.code-block__bar) {
@@ -346,7 +377,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
-  padding: 0.45rem 0.9rem;
+  padding: 0.55rem 0.9rem 0.55rem 3.1rem;
   border-bottom: 1px solid var(--color-border);
   color: var(--color-muted);
   font-family: var(--font-mono);

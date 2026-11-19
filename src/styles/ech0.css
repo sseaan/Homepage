@@ -1,13 +1,28 @@
 /*
- * Ech0 动态列表：只读 Feed 的展示样式。
+ * Ech0 动态列表样式。
  * 内容 HTML 由 lib/ech0.ts 清洗后注入，这里的 .ech0-item__content 规则作用于动态节点。
  */
 
 .ech0-feed {
+  position: relative;
   display: grid;
   gap: var(--space-4);
   margin-top: var(--space-6);
-  max-width: 42rem;
+  max-width: 44rem;
+}
+
+.ech0-feed::before {
+  content: 'LIVE / FEED';
+  justify-self: start;
+  padding: 0.2em 0.55em;
+  border: 1px solid var(--color-border-strong);
+  border-left: 2px solid var(--doodle-accent);
+  background: var(--color-bg-soft);
+  color: var(--color-faint);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  transform: rotate(-1deg);
 }
 
 .ech0-feed [hidden] {
@@ -21,10 +36,13 @@
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-4);
-  border: 1px solid var(--color-border);
-  background: var(--color-bg-soft);
+  border: 1px solid var(--color-border-strong);
+  border-left: 3px solid var(--doodle-accent);
+  background:
+    linear-gradient(135deg, var(--color-accent-veil), transparent 65%), var(--color-bg-soft);
   color: var(--color-muted);
   font-size: var(--text-sm);
+  box-shadow: 3px 3px 0 var(--color-border);
 }
 
 .ech0-state--loading {
@@ -71,7 +89,7 @@
   height: 14px;
   flex: none;
   border: 1.5px solid var(--color-border-strong);
-  border-top-color: var(--color-text);
+  border-top-color: var(--doodle-accent);
   border-radius: 50%;
   animation: ech0-spin 0.8s linear infinite;
 }
@@ -86,27 +104,50 @@
 
 .ech0-list {
   display: grid;
-  gap: 0;
+  gap: var(--space-5);
   margin: 0;
   padding: 0;
   list-style: none;
+  counter-reset: ech0-item;
 }
 
 .ech0-item {
+  position: relative;
   display: grid;
-  gap: var(--space-2);
-  padding-block: var(--space-5);
-  border-bottom: 1px solid var(--color-border);
+  gap: var(--space-3);
+  counter-increment: ech0-item;
+  padding: var(--space-4) 0 var(--space-5) var(--space-4);
+  border: 0;
+  border-top: 1px solid var(--color-border-strong);
+  border-left: 2px solid var(--doodle-accent);
+  background: transparent;
+  transition:
+    background-color var(--motion-fast) var(--ease-out),
+    border-color var(--motion-fast) var(--ease-out);
 }
 
-.ech0-item:last-child {
-  border-bottom: 0;
+.ech0-item::before {
+  content: counter(ech0-item, decimal-leading-zero);
+  position: absolute;
+  top: var(--space-4);
+  right: 0;
+  color: var(--color-faint);
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+.ech0-item:hover {
+  transform: none;
+  background: var(--color-accent-veil);
+  box-shadow: none;
 }
 
 .ech0-item__head {
   display: flex;
   align-items: center;
   gap: var(--space-2);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .ech0-item__time {
@@ -116,14 +157,13 @@
 }
 
 .ech0-item__badge {
-  padding: 0 0.35em;
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-sm);
+  padding: 0;
+  border: 0;
+  color: var(--doodle-accent);
   font-family: var(--font-mono);
   font-size: 9px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--color-faint);
 }
 
 .ech0-item__content {
@@ -162,8 +202,9 @@
   max-width: 100%;
   height: auto;
   max-height: 460px;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-text);
   border-radius: var(--radius-sm);
+  box-shadow: 4px 4px 0 var(--color-border-strong);
 }
 
 /* 2–4 张：横向轮播 */
@@ -418,7 +459,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ech0-spinner {
+  .ech0-item {
     animation: none;
+    transition: none;
   }
 }

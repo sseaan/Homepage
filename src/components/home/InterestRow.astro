@@ -9,32 +9,101 @@ interface Props {
 const { items } = Astro.props;
 ---
 
-<ul class="rows">
+<ul class="interest-grid">
   {
-    items.map((item) => (
-      <li class="row">
-        <div class="row__body">
-          <h3 class="row__title">
-            <Icon name={item.icon} size={15} />
-            <span>{item.title}</span>
-            <span class="row__tilde">~</span>
-            <span class="interest__desc">{item.description}</span>
-            {item.pending && <span class="pending">待补充</span>}
-          </h3>
+    items.map((item, index) => (
+      <li class="interest-card">
+        <div class="interest-card__topline">
+          <span class="interest-card__icon">
+            <Icon name={item.icon} size={19} />
+          </span>
+          <span class="interest-card__index" aria-hidden="true">
+            {String(index + 1).padStart(2, '0')}
+          </span>
         </div>
+        <h3 class="interest-card__title">
+          {item.title}
+          {item.pending && <span class="pending">待补充</span>}
+        </h3>
+        <p class="interest-card__desc">{item.description}</p>
       </li>
     ))
   }
 </ul>
 
 <style>
-  .row__title :global(.icon) {
-    color: var(--color-faint);
-    align-self: center;
+  .interest-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+    padding: 0;
+    margin: 0;
+    list-style: none;
   }
 
-  .interest__desc {
-    font-weight: 400;
+  .interest-card {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    gap: var(--space-2) var(--space-3);
+    min-height: 0;
+    padding: var(--space-3) 0;
+    border: 0;
+    border-top: 1px solid var(--color-border);
+    background: transparent;
+    box-shadow: none;
+    transition: background-color var(--motion-fast) var(--ease-out);
+  }
+
+  .interest-card:hover {
+    transform: none;
+    background: var(--color-accent-veil);
+    box-shadow: none;
+  }
+
+  .interest-card__topline {
+    display: contents;
+  }
+
+  .interest-card__icon {
+    display: grid;
+    grid-row: span 2;
+    width: 1.75rem;
+    height: 1.75rem;
+    border: 0;
+    background: transparent;
     color: var(--color-muted);
+    place-items: center;
+    transform: none;
+  }
+
+  .interest-card__index {
+    display: none;
+  }
+
+  .interest-card__title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2);
+    font-size: var(--text-base);
+  }
+
+  .interest-card__desc {
+    max-width: 34ch;
+    color: var(--color-muted);
+    font-size: var(--text-sm);
+  }
+
+  @media (max-width: 36rem) {
+    .interest-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .interest-card {
+      transition: none;
+    }
   }
 </style>

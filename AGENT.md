@@ -11,7 +11,7 @@
 
 - Home：个人简介、项目、经历、兴趣、游戏
 - Blog：Markdown 文章、目录、灯箱、分享卡片、评论
-- Ech0：只读展示 `https://echo.ssean.cn` 的公开动态
+- Ech0：公开动态 Feed，连接 `https://echo.ssean.cn`
 - About：完整介绍、技术栈、友链
 
 主站是 Astro SSG，不提供登录、CMS、数据库或 SSR API。Twikoo、Ech0 和 api-enhanced 都是浏览器端连接的外部服务；主站构建不依赖它们在线。
@@ -127,7 +127,7 @@ music: https://music.163.com/song?id=... # 可选，歌曲或歌单
 - 摘要包含 **冒号+空格** 时必须用引号包住：`summary: "包含 draft: true 的说明"`。
 - `draft: true` 不生成页面，不进入列表、RSS、sitemap。
 - 文章 URL 固定为 `/blog/<文件名>`；改名会破坏评论线程和外部链接。
-- `music` 只在配置了 `PUBLIC_NETEASE_API_BASE` 时生效，见第 7 节；单曲支持纯数字 ID，歌单需使用歌单链接或 `playlist:<id>` 前缀。
+- `music` 使用默认的 `https://ncm.mvr.cc` api-enhanced 服务；自建 API 时可通过 `PUBLIC_NETEASE_API_BASE` 覆盖。单曲支持纯数字 ID，歌单需使用歌单链接或 `playlist:<id>` 前缀。
 - `markdown-guide.md` 是长期保留的排版示例草稿（`draft: true`）：文件留在仓库，但不进入列表、RSS、sitemap 和线上页面。其他临时验收文章仍应在验收后删除。
 
 ### Markdown 扩展
@@ -226,11 +226,11 @@ music: https://music.163.com/song?id=... # 可选，歌曲或歌单
 
 ## 8. 环境变量与部署
 
-| 变量                      | 作用                                      | 注意                                                        |
-| ------------------------- | ----------------------------------------- | ----------------------------------------------------------- |
-| `SITE_URL`                | canonical / OG / RSS / sitemap 的绝对地址 | 生产建议显式设置，例如 `https://www.ssean.cn`，末尾不要 `/` |
-| `PUBLIC_TWIKOO_ENV_ID`    | 覆盖 Twikoo 后端根地址                    | 公开地址；默认在 `src/config/site.ts`                       |
-| `PUBLIC_NETEASE_API_BASE` | api-enhanced 根地址                       | 公开地址；HTTPS 站点必须 HTTPS；不配置则不渲染播放器        |
+| 变量                      | 作用                                      | 注意                                                          |
+| ------------------------- | ----------------------------------------- | ------------------------------------------------------------- |
+| `SITE_URL`                | canonical / OG / RSS / sitemap 的绝对地址 | 生产建议显式设置，例如 `https://www.ssean.cn`，末尾不要 `/`   |
+| `PUBLIC_TWIKOO_ENV_ID`    | 覆盖 Twikoo 后端根地址                    | 公开地址；默认在 `src/config/site.ts`                         |
+| `PUBLIC_NETEASE_API_BASE` | api-enhanced 根地址                       | 公开地址；默认使用 `https://ncm.mvr.cc`，HTTPS 站点必须 HTTPS |
 
 - 部署：EdgeOne Makers，Astro preset，`pnpm install --frozen-lockfile`，构建 `pnpm build`，输出 `dist`，Node `24.18.0`。EdgeOne 的 22.11 / 22.17 / 22.21 低于 Astro 7 的 22.23.4 最低要求，不要选择。
 - 主站和 Twikoo 后端分开部署；主站 push 不会更新评论后端。

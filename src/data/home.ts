@@ -43,8 +43,6 @@ export interface Game {
   platform: string;
   note: string;
   icon: IconName;
-  /** 特殊视觉风格；zzz 为绝区零的橙色点缀，overcooked 为胡闹厨房的番茄红点缀 */
-  accent?: 'zzz' | 'overcooked';
   pending?: boolean;
 }
 
@@ -61,18 +59,25 @@ export const projects: Project[] = [
   {
     name: 'Nexthrum',
     summary:
-      '跨平台 Gotify 桌面客户端，Rust 内核驱动；Windows 用 Tauri + React，macOS 用 SwiftUI。',
+      'Rust 内核驱动的跨平台 Gotify 桌面客户端；Windows 使用 Tauri + React，macOS 使用 SwiftUI。',
     tech: ['Rust', 'Tauri', 'React', 'SwiftUI'],
-    status: '开源',
+    status: '持续开发',
     sourceUrl: 'https://github.com/sseaan/Nexthrum',
   },
   {
-    name: 'jandan-rss',
-    summary: '煎蛋网首页文章 RSS，用 GitHub Actions 定时抓取更新。',
-    tech: ['Python', 'GitHub Actions', 'RSS'],
-    status: '运行中',
-    sourceUrl: 'https://github.com/sseaan/jandan-rss',
-    demoUrl: 'https://sseaan.github.io/jandan-rss/feed.xml',
+    name: 'powguard',
+    summary:
+      '自托管的 Cap 工作量证明验证码服务，兼容 @cap.js/widget，内置管理界面，单一 Go 二进制即可运行。',
+    tech: ['Go', 'Cap.js', 'Self-hosted'],
+    status: '开源',
+    sourceUrl: 'https://github.com/sseaan/powguard',
+  },
+  {
+    name: 'Voxi',
+    summary: '一款原生 macOS 菜单栏语音输入工具。',
+    tech: ['Swift', 'macOS'],
+    status: 'macOS',
+    sourceUrl: 'https://github.com/sseaan/Voxi',
   },
 ];
 
@@ -115,14 +120,12 @@ export const games: Game[] = [
     platform: 'PC / 移动端',
     note: '战斗，爽！',
     icon: 'gamepad',
-    accent: 'zzz',
   },
   {
     name: '胡闹厨房',
     platform: 'PC / 主机',
     note: '和朋友一起玩，飞盘|困难',
     icon: 'gamepad',
-    accent: 'overcooked',
   },
 ];
 

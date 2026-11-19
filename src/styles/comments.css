@@ -741,6 +741,51 @@
   margin-top: var(--space-2);
 }
 
+/* Cap challenge 是封装了 Shadow DOM 的 Web Component；使用公开的 CSS 属性 API，
+ * 在不穿透 Shadow DOM 的前提下同步站点的主题与新粗野主义边框。 */
+.comments-shell .twikoo .tk-cap-container:has(cap-widget) {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  padding: var(--space-2);
+  border: 1px dashed var(--color-border-strong);
+  border-left: 2px solid var(--doodle-accent);
+  background: var(--color-bg-soft);
+}
+
+.comments-shell .twikoo .tk-cap-container cap-widget {
+  display: block;
+  width: min(260px, calc(100vw - 4rem));
+  max-width: 100%;
+  --cap-widget-width: min(260px, calc(100vw - 4rem));
+  --cap-widget-height: 56px;
+  --cap-widget-padding: 12px;
+  --cap-gap: 12px;
+  --cap-background: var(--color-bg);
+  --cap-border-color: var(--color-text);
+  --cap-border-radius: var(--radius-sm);
+  --cap-color: var(--color-text);
+  --cap-font: var(--font-sans);
+  --cap-checkbox-size: 22px;
+  --cap-checkbox-border: 1.5px solid var(--color-border-strong);
+  --cap-checkbox-border-radius: var(--radius-sm);
+  --cap-checkbox-background: var(--color-bg);
+  --cap-spinner-background-color: var(--color-border);
+  --cap-spinner-color: var(--doodle-accent);
+  --cap-focus-ring: var(--color-focus);
+  --cap-troubleshoot-color: var(--color-muted);
+  box-shadow: 3px 3px 0 var(--color-border-strong);
+}
+
+.comments-shell .twikoo .tk-cap-container cap-widget::part(label) {
+  font-size: var(--text-sm);
+}
+
+.comments-shell .twikoo .tk-cap-container cap-widget:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 4px;
+}
+
 /* ---------- 加载 / 错误 ---------- */
 
 .comments-shell .twikoo .tk-loading-mask {

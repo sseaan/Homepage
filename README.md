@@ -100,7 +100,7 @@ EdgeOne 的自动部署由 push 触发；如果平台不等待 checks，建议�
 | ------------------------- | ------------------- | --------------------------------------------------------------------------- |
 | `SITE_URL`                | 生产环境建议设置    | canonical、Open Graph、RSS、sitemap 的绝对地址；默认 `https://www.ssean.cn` |
 | `PUBLIC_TWIKOO_ENV_ID`    | 需要覆盖评论后端时  | Twikoo 后端根地址；未设置时使用 `src/config/site.ts` 中的值                 |
-| `PUBLIC_NETEASE_API_BASE` | 需要全站/文章音乐时 | api-enhanced 根地址；不设置时完全不输出播放器                               |
+| `PUBLIC_NETEASE_API_BASE` | 需要覆盖音乐 API 时 | api-enhanced 根地址；默认使用 `https://ncm.mvr.cc`，必须允许浏览器跨域访问  |
 
 `PUBLIC_` 变量会进入浏览器构建产物，不要放密钥。Twikoo `envId` 和 api-enhanced 地址本身是公开地址。
 
@@ -224,10 +224,10 @@ music: https://music.163.com/song?id=123456
 # music: https://music.163.com/playlist?id=18577886483 # 歌单链接
 ```
 
-然后在 `.env` 或部署平台设置 api-enhanced 根地址：
+默认使用 `https://ncm.mvr.cc`。如需接入自建 api-enhanced 服务，可在 `.env` 或部署平台覆盖 API 根地址：
 
 ```bash
-PUBLIC_NETEASE_API_BASE=https://music-api.example.com
+PUBLIC_NETEASE_API_BASE=https://ncm.mvr.cc
 ```
 
 歌曲详情走 `/song/detail?ids=`，歌单走 `/playlist/detail?id=` + `/playlist/track/all`；歌词走 `/lyric?id=`；音频优先 `/song/url/v1?id=&level=exhigh`，失败回退 `standard` 和旧 `/song/url`。
@@ -238,7 +238,7 @@ PUBLIC_NETEASE_API_BASE=https://music-api.example.com
 - 浏览器需要能跨域访问 api-enhanced；服务端 `CORS_ALLOW_ORIGIN` 需包含站点域名。
 - VIP、无音源或接口风控时显示「该歌曲暂不可播放」，不影响正文。
 - 音频地址会从 `http:` 升级为 `https:`；请只播放有权使用的音乐。
-- 未配置 `music.playlist`、文章 `music` 或 `PUBLIC_NETEASE_API_BASE` 时，播放器完全不输出。
+- 未配置 `music.playlist` 且文章没有 `music` 时，播放器完全不输出。
 - 跨页连续播放依赖 ClientRouter；新增页面脚本时必须在 `astro:page-load` 后重新初始化，或使用幂等守卫，避免导航后交互失效。
 
 ## 评论（Twikoo 2.0.17）
@@ -278,9 +278,9 @@ pnpm preview
 
 </details>
 
-## Ech0（只读动态）
+## Ech0（公开动态）
 
-`/ech0` 在浏览器中读取 `https://echo.ssean.cn/rss`，不经过主站服务端，构建也不依赖 Ech0 在线。
+`/ech0` 在浏览器中读取 `https://echo.ssean.cn/rss`，不经过主站服务端，构建不依赖 Ech0 在线。
 
 - 请求带 `credentials: 'omit'`，10 秒超时；按时间倒序、按 id 去重，默认展示 10 条。
 - 加载中、空 Feed、网络失败、超时、解析失败都有独立状态和重试入口。

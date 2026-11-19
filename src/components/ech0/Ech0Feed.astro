@@ -1,6 +1,6 @@
 ---
 /**
- * Ech0 只读动态。
+ * Ech0 公开动态。
  *
  * - 访问 /ech0 时由浏览器直接读取公开 Atom Feed，不经过主站服务端；
  * - 请求不带 Cookie（credentials: 'omit'），有超时与重试；
@@ -20,7 +20,6 @@ const { feedUrl, siteUrl, maxItems, requestTimeoutMs } = siteConfig.ech0;
   class="ech0-feed"
   data-ech0
   data-feed-url={feedUrl}
-  data-site-url={siteUrl}
   data-max-items={String(maxItems)}
   data-timeout={String(requestTimeoutMs)}
   aria-labelledby="ech0-feed-title"

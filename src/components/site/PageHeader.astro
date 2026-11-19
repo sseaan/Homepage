@@ -13,12 +13,14 @@ interface Props {
   decoration?: 'underline' | 'squiggle' | 'circle';
   /** 标题旁的小星号 */
   mark?: boolean;
+  /** 用于文章列表等简洁页头 */
+  compact?: boolean;
 }
 
-const { eyebrow, title, lead, decoration, mark = false } = Astro.props;
+const { eyebrow, title, lead, decoration, mark = false, compact = false } = Astro.props;
 ---
 
-<header class="page-head">
+<header class:list={['page-head', compact && 'page-head--compact']}>
   {eyebrow && <p class="eyebrow">{eyebrow}</p>}
   <h1 class="page-head__title">
     {
@@ -52,18 +54,70 @@ const { eyebrow, title, lead, decoration, mark = false } = Astro.props;
 
 <style>
   .page-head {
+    position: relative;
     display: grid;
     gap: var(--space-2);
-    padding-bottom: var(--space-5);
+    padding: var(--space-4) 0 var(--space-6);
     border-bottom: 1px solid var(--color-border);
+    background:
+      linear-gradient(115deg, var(--color-accent-veil), transparent 48%) no-repeat,
+      linear-gradient(90deg, transparent, var(--color-grid), transparent) left bottom / 100% 1px
+        no-repeat;
+  }
+
+  .page-head::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3.75rem;
+    height: 2px;
+    background: var(--doodle-accent);
+    transform: rotate(-1deg);
+  }
+
+  .page-head :global(.eyebrow) {
+    display: inline-flex;
+    align-items: center;
+    justify-self: start;
+    padding: 0.15em 0.55em;
+    border: 1px solid var(--color-border-strong);
+    border-left: 2px solid var(--doodle-accent);
+    background: var(--color-bg-soft);
+    transform: rotate(-0.8deg);
   }
 
   .page-head__title {
     position: relative;
     isolation: isolate;
-    font-size: var(--text-3xl);
+    font-family: var(--font-serif);
+    font-size: var(--text-display);
     font-weight: 600;
-    letter-spacing: -0.025em;
+    letter-spacing: -0.035em;
+  }
+
+  .page-head--compact {
+    padding: var(--space-2) 0 var(--space-4);
+    background: none;
+  }
+
+  .page-head--compact::before {
+    display: none;
+  }
+
+  .page-head--compact :global(.eyebrow) {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    transform: none;
+  }
+
+  .page-head--compact .page-head__title {
+    font-size: clamp(2.1rem, 1.8rem + 1.1vw, 2.65rem);
+  }
+
+  .page-head--compact .page-head__mark {
+    display: none;
   }
 
   .page-head__circle-wrap {

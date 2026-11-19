@@ -1,9 +1,5 @@
 /*
- * 颜色令牌：极简黑白。
- *
- * - 白天：纯白底 + 近黑文字，细灰线和大量留白。
- * - 黑夜：近黑底（不是纯黑）+ 浅灰文字，线更暗。
- * - 只有一个暖色作为手写批注/点阵的强调色，其余保持中性。
+ * 颜色令牌：纸白 / 墨黑为底，暖橙用于手绘批注；低对比纸纹确保内容优先。
  *
  * :root 提供白天配色（也是禁用 JS 时的安全底色）；
  * 没有 data-theme 时跟随系统；显式 light 时系统深色不生效。
@@ -12,17 +8,19 @@
 :root {
   color-scheme: light;
 
-  --color-bg: #ffffff;
-  --color-bg-soft: #fafafa;
-  --color-surface: #ffffff;
-  --color-surface-soft: #f6f6f5;
+  --color-bg: #faf7f0;
+  --color-bg-soft: #f4efe5;
+  --color-surface: #fffdf7;
+  --color-surface-soft: #f2ecdf;
 
-  --color-text: #171717;
-  --color-text-soft: #3d3d3b;
-  --color-muted: #71716c;
-  --color-faint: #a3a39d;
-  --color-border: #e2e2dc;
-  --color-border-strong: #bdbdb5;
+  --color-text: #1e1b17;
+  --color-text-soft: #494239;
+  --color-muted: #72695f;
+  --color-faint: #92877b;
+  --color-border: #ded5c7;
+  --color-border-strong: #b5a894;
+  --color-grid: rgba(73, 60, 43, 0.045);
+  --color-accent-veil: color-mix(in srgb, var(--doodle-accent) 7%, transparent);
 
   --color-accent: #171717;
   --color-accent-soft: #f2f2ef;
@@ -35,24 +33,24 @@
   /* 代码块背景由 Shiki 的 --shiki-light-bg 提供 */
   --color-code-border: #e8e8e4;
 
-  --doodle-stroke: #171717;
-  --doodle-stroke-soft: #8a8a84;
-  --doodle-accent: #b45309;
+  --doodle-stroke: #1e1b17;
+  --doodle-stroke-soft: #8e8377;
+  --doodle-accent: #ae4f0c;
 
   /* 开屏点阵：中性灰阶 + 一点暖色 */
-  --dot-1: #171717;
+  --dot-1: #1e1b17;
   --dot-2: #57534e;
-  --dot-3: #b45309;
+  --dot-3: #ae4f0c;
   --dot-4: #a8a29e;
   --dot-5: #3f3f3c;
 
-  --shadow-soft: 0 1px 2px rgba(23, 23, 23, 0.04);
-  --shadow-lift: 0 8px 24px -18px rgba(23, 23, 23, 0.35);
+  --shadow-soft: 0 1px 2px rgba(30, 27, 23, 0.05);
+  --shadow-lift: 0 10px 28px -18px rgba(30, 27, 23, 0.32);
   /* 粗野主义硬阴影：块状、无模糊 */
   --shadow-hard: 4px 4px 0 var(--color-border-strong);
   --shadow-hard-ink: 3px 3px 0 var(--color-text);
 
-  --header-bg: rgba(255, 255, 255, 0.9);
+  --header-bg: rgba(250, 247, 240, 0.92);
 }
 
 /* 系统深色：仅在用户没有明确选择浅色时生效 */
@@ -71,6 +69,8 @@
     --color-faint: #6f6f6a;
     --color-border: #2a2a27;
     --color-border-strong: #4c4c46;
+    --color-grid: rgba(237, 237, 235, 0.045);
+    --color-accent-veil: color-mix(in srgb, var(--doodle-accent) 8%, transparent);
 
     --color-accent: #ededeb;
     --color-accent-soft: #1c1c1a;
@@ -116,6 +116,8 @@
   --color-faint: #6f6f6a;
   --color-border: #2a2a27;
   --color-border-strong: #4c4c46;
+  --color-grid: rgba(237, 237, 235, 0.045);
+  --color-accent-veil: color-mix(in srgb, var(--doodle-accent) 8%, transparent);
 
   --color-accent: #ededeb;
   --color-accent-soft: #1c1c1a;

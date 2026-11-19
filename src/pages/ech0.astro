@@ -7,7 +7,7 @@ import { siteConfig } from '../config/site';
 const { ech0 } = siteConfig;
 ---
 
-<BaseLayout title="Ech0" description="只读查看 Ech0 上的最新公开动态。">
+<BaseLayout title="Ech0" description="查看 Ech0 上的最新公开动态。">
   <div class="container page ech0-page">
     <PageHeader
       eyebrow="Ech0"
@@ -17,7 +17,7 @@ const { ech0 } = siteConfig;
       mark
     >
       <div class="ech0-header">
-        <p class="ech0-header__text">这里只读同步公开动态，新内容会直接出现在页面里。</p>
+        <p class="ech0-header__text">这里同步公开动态，新内容会直接出现在页面里。</p>
         <p class="ech0-header__meta">
           <span data-ech0-count>最近 {ech0.maxItems} 条</span>
           <span aria-hidden="true">·</span>

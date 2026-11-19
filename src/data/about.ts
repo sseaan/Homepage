@@ -29,7 +29,7 @@ export const aboutSections = [
     title: '我正在做的事',
     paragraphs: [
       '维护 Nexthrum：一个跨平台的 Gotify 桌面客户端，Rust 内核，Windows 用 Tauri + React，macOS 用 SwiftUI。',
-      '另一个小项目是 jandan-rss，用 Python 和 GitHub Actions 定时抓取煎蛋首页并生成 RSS。除此之外在学 C，也在寻找合适的开源项目参与。',
+      '同时在做 powguard 和 Voxi：前者是自托管的 Cap 验证服务，后者是 macOS 菜单栏语音输入工具。除此之外在学 C，也在寻找合适的开源项目参与。',
     ],
   },
   {

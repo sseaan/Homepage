@@ -1,25 +1,16 @@
 ---
-/**
- * Home 区块外壳：细线分隔 + 小号等宽标题，风格接近极简文档页。
- * 稳定锚点 ID，标题不会被固定 Header 遮挡（全局 scroll-padding-top）。
- */
+/** Home 区块标题与稳定锚点。 */
 interface Props {
   id: string;
   label: string;
-  /** 右侧的小注释，例如条目数或英文对照 */
-  meta?: string;
 }
 
-const { id, label, meta } = Astro.props;
+const { id, label } = Astro.props;
 ---
 
 <section class="section home-section" id={id} aria-labelledby={`${id}-title`}>
   <div class="section-head">
     <h2 class="section-title" id={`${id}-title`}>{label}</h2>
-    <span class="section-head__note">
-      {meta}
-      <a class="home-section__anchor" href={`#${id}`} aria-label={`链接到「${label}」区块`}> # </a>
-    </span>
   </div>
   <slot />
 </section>
@@ -29,33 +20,19 @@ const { id, label, meta } = Astro.props;
     scroll-margin-top: calc(var(--header-height) + var(--space-4));
   }
 
-  .section-head__note {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
+  .home-section.section::before {
+    display: none;
   }
 
-  .home-section__anchor {
-    color: var(--color-faint);
-    font-family: var(--font-mono);
-    font-size: var(--text-xs);
-    text-decoration: none;
-    opacity: 0;
-    transition: opacity var(--motion-fast) var(--ease-out);
+  .home-section :global(.section-title) {
+    font-family: var(--font-sans);
+    font-size: var(--text-lg);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    text-transform: none;
   }
 
-  .home-section:hover .home-section__anchor,
-  .home-section__anchor:focus-visible {
-    opacity: 1;
-  }
-
-  .home-section__anchor:hover {
-    color: var(--color-text);
-  }
-
-  @media (hover: none) {
-    .home-section__anchor {
-      opacity: 1;
-    }
+  .home-section :global(.section-title)::before {
+    display: none;
   }
 </style>
