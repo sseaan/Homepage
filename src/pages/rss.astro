@@ -1,0 +1,194 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/site/PageHeader.astro';
+import BlogRow from '../components/blog/BlogRow.astro';
+import { rssUrl, siteConfig } from '../config/site';
+import { sortByDateDesc } from '../utils/blog';
+
+const posts = sortByDateDesc(await getCollection('blog', ({ data }) => data.draft !== true));
+const feedUrl = new URL(rssUrl, Astro.site ?? siteConfig.url).href;
+---
+
+<BaseLayout
+  title="RSS 订阅"
+  description={`订阅 ${siteConfig.name}：用阅读器跟进新文章，当前共 ${posts.length} 篇公开文章。`}
+>
+  <div class="container page rss-page">
+    <PageHeader
+      eyebrow="RSS"
+      title="订阅"
+      lead="用一个阅读器跟住这里：新文章会直接进你的收件箱，不必每天回来看。"
+      mark
+      accent="warm"
+    />
+
+    <section class="rss-feed" aria-labelledby="rss-feed-title">
+      <p class="rss-feed__label" id="rss-feed-title">订阅地址</p>
+      <div class="rss-feed__row">
+        <code class="rss-feed__url">{feedUrl}</code>
+        <div class="rss-feed__actions">
+          <button class="btn rss-feed__copy" type="button" data-rss-copy data-copy-value={feedUrl}>
+            复制地址
+          </button>
+          <a class="text-link" href={rssUrl} title="原始 RSS XML">打开 XML ↗</a>
+        </div>
+      </div>
+      <p class="rss-feed__hint">
+        粘贴到任意阅读器：NetNewsWire、Feedbin、FreshRSS、Inoreader 都可以。
+      </p>
+      <p class="rss-feed__status" data-rss-copy-status role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="rss-list" aria-labelledby="rss-list-title">
+      <div class="section-head">
+        <h2 class="section-title" id="rss-list-title">全部文章</h2>
+        <span class="section-head__note">{posts.length} 篇 · RSS 2.0</span>
+      </div>
+      {
+        posts.length > 0 ? (
+          <ul class="rows blog-list">
+            {posts.map((post) => (
+              <BlogRow post={post} />
+            ))}
+          </ul>
+        ) : (
+          <p class="row__note">还没有公开文章。</p>
+        )
+      }
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .rss-page {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  /* 订阅卡片：一条暖橙上边线，地址用虚线框圈住 */
+  .rss-feed {
+    display: grid;
+    gap: 0.55rem;
+    padding: var(--space-4) var(--space-5);
+    border: 1px solid var(--color-border-strong);
+    border-top: 2px solid var(--doodle-accent);
+    background: var(--color-bg-soft);
+  }
+
+  .rss-feed__label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .rss-feed__label::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    flex: none;
+    background: var(--doodle-accent);
+  }
+
+  .rss-feed__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+  }
+
+  .rss-feed__url {
+    flex: 1 1 16rem;
+    min-width: 0;
+    padding: 0.32em 0.55em;
+    border: 1px dashed var(--color-border-strong);
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    overflow-wrap: anywhere;
+  }
+
+  .rss-feed__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .rss-feed__copy {
+    min-height: 34px;
+    padding: 0.25em 0.9em;
+    font-size: var(--text-xs);
+  }
+
+  .rss-feed__hint {
+    margin: 0;
+    color: var(--color-faint);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    line-height: 1.7;
+  }
+
+  .rss-feed__status {
+    min-height: 1.2em;
+    margin: 0;
+    color: var(--doodle-accent);
+    font-family: var(--font-mono);
+    font-size: 10px;
+  }
+
+  .rss-list {
+    display: grid;
+    gap: var(--space-1);
+    --section-accent: var(--doodle-accent);
+  }
+
+  .rss-list .section-head {
+    margin-bottom: 0;
+  }
+</style>
+
+<script>
+  // 复制订阅地址：渐进增强，剪贴板不可用时提示手动复制
+  const initRssCopy = () => {
+    const button = document.querySelector<HTMLButtonElement>('[data-rss-copy]');
+    if (!button || button.dataset.ready === 'true') return;
+    button.dataset.ready = 'true';
+
+    const status = document.querySelector<HTMLElement>('[data-rss-copy-status]');
+    const label = button.textContent?.trim() || '复制地址';
+    let timer = 0;
+
+    button.addEventListener('click', async () => {
+      const value = button.dataset.copyValue ?? '';
+      let copied = true;
+      try {
+        await navigator.clipboard.writeText(value);
+      } catch {
+        copied = false;
+      }
+
+      button.textContent = copied ? '已复制' : '复制失败';
+      if (status) {
+        status.textContent = copied
+          ? '订阅地址已复制，去阅读器里粘贴吧。'
+          : '无法访问剪贴板，请手动选中地址复制。';
+      }
+
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        button.textContent = label;
+      }, 2200);
+    });
+  };
+
+  initRssCopy();
+  document.addEventListener('astro:page-load', initRssCopy);
+</script>

@@ -4,7 +4,7 @@
 
 轻量、克制、持续维护的个人主页：Home / Blog / Ech0 / About 四个入口，Astro 静态生成。
 
-极简黑白为底，少量新粗野主义的粗边与硬阴影，手绘只作为页头、头像、返回箭头、星号和圈选的批注出现。内容以 Markdown 管理，评论、动态和全站音乐分别在浏览器端连接独立服务，主站保持纯静态。
+极简黑白为底，只用细线与留白分隔内容；暖橙只手绘笔触里出现，作为页头、头像、返回箭头、星号和圈选的批注。内容以 Markdown 管理，评论、动态和全站音乐分别在浏览器端连接独立服务，主站保持纯静态。
 
 > 这是个人站点，不是可直接套用的通用主题。站点信息、导航、首页文案和社交链接都集中在 `src/config` 与 `src/data`，修改内容不需要改模板。
 
@@ -24,10 +24,12 @@
 
 ## 特性
 
-- **四个入口**：Home、Blog、Ech0、About；Header、页脚和页面容器共用 60rem 栏宽，文章正文 40rem。
-- **极简视觉**：黑白灰阶、细线分隔、1.5–2px 粗边、直角与无模糊硬阴影；手绘装饰只出现在少量位置。
+- **五个入口**：Home、Projects、Blog、Ech0、About；Header、页脚和页面容器共用 60rem 栏宽，首页经历为 44rem 窄栏，文章正文 40rem。
+- **项目页**：`/projects/` 用三列书签卡片展示 Nexthrum、Voxi、powguard 与煎蛋 RSS；每张卡片含 4:3 预览、状态、域名/平台、技术栈和源码/下载入口。
+- **极简视觉**：纯色纸面、灰阶、1px 发丝分隔线、直角；无底纹、无渐变光晕、无阴影卡片，手绘装饰只出现在少量位置。
 - **三态主题**：自动 → 白天 → 黑夜，点一次切换一次，首屏内联脚本避免闪烁。
 - **Markdown 博客**：Content Collections + Zod 校验，支持草稿过滤、标签、阅读时长、RSS、sitemap、上一篇/下一篇和右侧树状目录。
+- **RSS 订阅页**：`/rss/` 是与站点同主题的订阅说明页，可一键复制 `/rss.xml` 地址；订阅器仍直接读 `/rss.xml`。
 - **Markdown 扩展**：提示块、`==高亮==`、行内/整段剧透、折叠、图注、画廊、任务列表、代码块语言/行号/复制按钮。
 - **共享图片灯箱**：Blog 与 Ech0 共用一套 `<dialog>`，支持同组切换、Esc 关闭、焦点回归和滚动锁定。
 - **文章分享**：X、邮件、生成分享卡片、复制链接；分享卡片是 1080px 宽的 PNG，可下载或长按保存。
@@ -109,7 +111,8 @@ EdgeOne 的自动部署由 push 触发；如果平台不等待 checks，建议�
 ### 站点信息
 
 - `src/config/site.ts`：站点名、描述、域名、导航、社交链接、页脚、备案、Ech0、Twikoo、全站歌单。
-- `src/data/home.ts`：首页简介、项目、经历、兴趣、游戏。
+- `src/data/home.ts`：首页简介、经历、兴趣、游戏。
+- `src/data/projects.ts`：项目说明、技术栈、链接与预览图映射（图片在 `src/assets/projects/`）。
 - `src/data/about.ts`：About 正文、正在做的事、技术分组与语言。
 - `src/data/friends.ts`：友链、本站友链信息、交换友链与失效说明。
 - `astro.config.mjs`：`site`、sitemap、Markdown processor 与 Shiki 双主题。
@@ -122,7 +125,7 @@ EdgeOne 的自动部署由 push 触发；如果平台不等待 checks，建议�
 src/
 ├── components/
 │   ├── site/       Header、Footer、PageNav、Avatar
-│   ├── home/       首页区块与项目/经历/兴趣/游戏行
+│   ├── home/       首页区块与经历/兴趣/游戏行
 │   ├── blog/       文章行、目录、分享、Markdown 增强
 │   ├── music/      全站歌单面板 / 文章封面播放器
 │   ├── media/      全站共享 Lightbox
@@ -133,9 +136,9 @@ src/
 │   └── theme/      三态主题控制
 ├── content/blog/   Markdown 文章
 ├── layouts/        BaseLayout、BlogLayout
-├── pages/          /、/about、/ech0、/blog、/blog/[...slug]、/rss.xml、/404
+├── pages/          /、/projects、/about、/ech0、/blog、/blog/[...slug]、/rss/、/rss.xml、/404
 ├── config/site.ts  站点级配置
-├── data/           首页、About、友链与交换说明
+├── data/           首页、项目、About、友链与交换说明
 ├── lib/            Ech0、Markdown 扩展、网易云解析与播放器逻辑
 ├── styles/         tokens / themes / global / music / prose-extras / comments / ech0
 └── content.config.ts
@@ -197,7 +200,7 @@ draft: false # true 时不会出现在列表、RSS、sitemap
 - Blog 正文图片托管在 S3 / CDN：`https://img.mvr.cc/blog/<Post>/...`，Markdown 中使用完整 URL；本地文章图片副本已移除，S3 是唯一源。
 - Blog 正文图片和 Ech0 动态共用 `src/components/media/Lightbox.astro`。
 - 分享栏只有 X、邮件、分享卡片、复制链接。
-- 分享卡片由 Canvas 生成，包含标题、摘要、正文首图、日期和站点地址；宽 1080px，可下载或长按保存。
+- 分享卡片由 Canvas 生成，包含标题、摘要、正文首图、日期和站点地址；宽 1080px，配色读取当前主题令牌（深色模式生成深色卡片），可下载或长按保存。
 - 首图优先使用正文首图；跨域 CDN 图片需要返回 `Access-Control-Allow-Origin`，否则卡片自动降级为不含首图的版本。
 
 ## 音乐播放器（api-enhanced）
@@ -303,9 +306,11 @@ pnpm preview
 
 ## 视觉与主题
 
-- 颜色只有中性灰阶 + 一个暖色强调（`--doodle-accent`），背景纯白 / 近黑。
-- 全站 60rem 内容栏；文章正文 40rem，带右侧目录时使用 40rem + 12rem 双栏。
-- 区块用细线和行式列表分隔，不堆叠卡片与阴影。
+- 颜色以中性灰阶 + 纸白 / 近黑为底，暖橙只用于手绘；区块刻线与 hover 点缀使用一组 `--accent-*` 令牌。
+- 全站 60rem 内容栏；首页经历为 44rem 窄栏；项目页在 60rem 内用「预览 + 说明」两列；文章正文 40rem，带右侧目录时使用 40rem + 12rem 双栏。
+- 区块用细线和行式列表分隔；项目页用细边书签卡片，预览为 4:3，hover 只做 1px 抬升与轻阴影。
+- 文章目录是右侧 12rem 的细线树状列表，顶部一条橙色阅读进度条，当前节用橙条和序号标出。
+- 音乐面板顶部有三色刻线（暖橙 / 靛蓝 / 松绿）和暖色正在播放区，播放、进度、曲目高亮统一用暖橙。
 - 首页名字使用自托管的 **Great Vibes**（SIL OFL，来自 `@fontsource/great-vibes`，只加载 latin 400 子集），许可证见 `public/fonts/GreatVibes-LICENSE.txt`。
 - 主题顺序固定为 **自动 → 白天 → 黑夜**；首屏由 `ThemeInit` 写回 `data-theme`，无 JS 时跟随系统。
 - 开屏点阵约 1 秒，同一会话只播放一次；`prefers-reduced-motion: reduce` 时直接跳过。

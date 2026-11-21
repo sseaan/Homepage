@@ -47,19 +47,6 @@ const isActive = (href: string) =>
     background: color-mix(in srgb, var(--header-bg) 86%, transparent);
     backdrop-filter: blur(14px) saturate(1.1);
     border-bottom: 1px solid var(--color-border);
-    box-shadow: 0 1px 0 color-mix(in srgb, var(--doodle-accent) 28%, transparent);
-  }
-
-  .site-header::after {
-    content: '';
-    position: absolute;
-    right: max(var(--gutter), calc((100vw - var(--content-width)) / 2 + var(--gutter)));
-    bottom: -1px;
-    width: 3.5rem;
-    height: 2px;
-    background: var(--doodle-accent);
-    transform: rotate(-2deg);
-    transform-origin: right center;
   }
 
   .site-header__inner {
@@ -80,11 +67,6 @@ const isActive = (href: string) =>
     letter-spacing: -0.035em;
     text-decoration: none;
     flex: none;
-    transition: transform var(--motion-fast) var(--ease-spring);
-  }
-
-  .brand:hover {
-    transform: translateY(-1px) rotate(-1deg);
   }
 
   .brand__dot {
@@ -118,22 +100,43 @@ const isActive = (href: string) =>
     transition:
       color var(--motion-fast) var(--ease-out),
       background-color var(--motion-fast) var(--ease-out),
-      border-color var(--motion-fast) var(--ease-out),
-      transform var(--motion-fast) var(--ease-spring);
+      border-color var(--motion-fast) var(--ease-out);
   }
 
   .site-nav__link:hover {
     color: var(--color-text);
     border-color: var(--color-border-strong);
-    background: var(--color-accent-veil);
-    transform: translateY(-1px) rotate(-1deg);
+    background: var(--color-veil);
   }
 
-  /* 当前页：反转成一枚小标签，避免只依赖颜色 */
+  /* 悬停时从左侧扫入的强调线；当前页保留一条常驻线 */
+  .site-nav__link::after {
+    content: '';
+    position: absolute;
+    left: var(--space-2);
+    right: var(--space-2);
+    bottom: 0.4rem;
+    height: 1px;
+    background: var(--doodle-accent);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform var(--motion-base) var(--ease-out);
+  }
+
+  .site-nav__link:hover::after,
+  .site-nav__link:focus-visible::after {
+    transform: scaleX(1);
+  }
+
+  /* 当前页：加重字重 + 常驻 2px 细线，不只依赖颜色 */
   .site-nav__link.is-active {
-    color: var(--color-bg);
-    border-color: var(--color-text);
-    background: var(--color-text);
+    color: var(--color-text);
+    font-weight: 600;
+  }
+
+  .site-nav__link.is-active::after {
+    height: 2px;
+    transform: scaleX(1);
   }
 
   .site-header__actions {

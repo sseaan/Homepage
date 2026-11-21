@@ -3,12 +3,19 @@
 interface Props {
   id: string;
   label: string;
+  /** 区块顶部刻线配色，对应 themes.css 的 --accent-* */
+  accent?: 'warm' | 'blue' | 'green' | 'violet' | 'red';
 }
 
-const { id, label } = Astro.props;
+const { id, label, accent = 'warm' } = Astro.props;
 ---
 
-<section class="section home-section" id={id} aria-labelledby={`${id}-title`}>
+<section
+  class="section home-section"
+  id={id}
+  aria-labelledby={`${id}-title`}
+  style={`--section-accent: var(--accent-${accent})`}
+>
   <div class="section-head">
     <h2 class="section-title" id={`${id}-title`}>{label}</h2>
   </div>
@@ -20,19 +27,11 @@ const { id, label } = Astro.props;
     scroll-margin-top: calc(var(--header-height) + var(--space-4));
   }
 
-  .home-section.section::before {
-    display: none;
-  }
-
   .home-section :global(.section-title) {
     font-family: var(--font-sans);
     font-size: var(--text-lg);
     font-weight: 600;
     letter-spacing: -0.01em;
     text-transform: none;
-  }
-
-  .home-section :global(.section-title)::before {
-    display: none;
   }
 </style>

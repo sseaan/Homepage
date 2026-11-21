@@ -4,7 +4,8 @@
  * 极简样式：一行小字链接，不抢标题层级。
  */
 interface Props {
-  sections: readonly { id: string; label: string }[];
+  /** accent 取自 themes.css 的 --accent-*，用于 hover 时的点缀色 */
+  sections: readonly { id: string; label: string; accent?: string }[];
   label?: string;
 }
 
@@ -16,7 +17,12 @@ const { sections, label = '页内导航' } = Astro.props;
     {
       sections.map((section) => (
         <li>
-          <a href={`#${section.id}`}>{section.label}</a>
+          <a
+            href={`#${section.id}`}
+            style={section.accent ? `--section-accent: var(--accent-${section.accent})` : undefined}
+          >
+            {section.label}
+          </a>
         </li>
       ))
     }
@@ -46,15 +52,13 @@ const { sections, label = '页内导航' } = Astro.props;
     transition:
       color var(--motion-fast) var(--ease-out),
       border-color var(--motion-fast) var(--ease-out),
-      background-color var(--motion-fast) var(--ease-out),
-      transform var(--motion-fast) var(--ease-spring);
+      background-color var(--motion-fast) var(--ease-out);
   }
 
   .page-nav a:hover,
   .page-nav a:focus-visible {
-    color: var(--color-text);
+    color: var(--section-accent, var(--color-text));
     border-color: var(--color-border-strong);
-    background: var(--color-accent-veil);
-    transform: translateY(-2px) rotate(-1deg);
+    background: var(--color-veil);
   }
 </style>

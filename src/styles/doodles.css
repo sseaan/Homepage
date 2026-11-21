@@ -95,11 +95,38 @@
       transform: translateY(-7px) rotate(1deg);
     }
   }
+
+  /* 描边动画：手绘线条自己画出来，只用于首屏那几笔 */
+  .doodle--draw path {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: doodle-draw 900ms var(--ease-out) forwards;
+  }
+
+  .doodle--draw path:nth-child(2) {
+    animation-delay: 160ms;
+  }
+
+  .doodle--draw path:nth-child(3) {
+    animation-delay: 300ms;
+  }
+
+  @keyframes doodle-draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .doodle--float,
   .doodle-hover:hover .doodle-wiggle {
     animation: none !important;
+  }
+
+  .doodle--draw path {
+    stroke-dasharray: none;
+    stroke-dashoffset: 0;
+    animation: none;
   }
 }

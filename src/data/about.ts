@@ -19,24 +19,24 @@ export interface LanguageSkill {
 }
 
 export const aboutIntro = [
-  '我是 Sean，也写作 Sseaan。19 岁，常驻广州。',
-  '我喜欢把想法做成能用的东西：跨平台的 Gotify 客户端、自托管的小服务，以及这个用 Astro 搭起来的站点。',
-  '不上课的时候会写手帐、收集文具，或者玩绝区零。正在学 C，也愿意参与开源协作。',
+  '我是 Sean，也写作 Sseaan',
+  '我喜欢写点小工具：跨平台的 Gotify 客户端、语音输入小工具，以及这个用 Astro 搭起来的站点',
+  '不上课的时候会写手帐、收集文具，不然就玩点独游、绝区零。正在学习算法（打A应该不够实力）',
 ];
 
 export const aboutSections = [
   {
     title: '我正在做的事',
     paragraphs: [
-      '维护 Nexthrum：一个跨平台的 Gotify 桌面客户端，Rust 内核，Windows 用 Tauri + React，macOS 用 SwiftUI。',
-      '同时在做 powguard 和 Voxi：前者是自托管的 Cap 验证服务，后者是 macOS 菜单栏语音输入工具。除此之外在学 C，也在寻找合适的开源项目参与。',
+      '维护 Nexthrum：一个跨平台的 Gotify 桌面客户端，Rust 内核驱动，两套前端框架分别支持 Windows 和 macOS',
+      '同时在做 powguard 和 Voxi：前者是自托管的 Cap 验证服务，后者是 macOS 菜单栏语音输入工具。除此之外就是学习算法',
     ],
   },
   {
     title: '这个站点',
     paragraphs: [
       '站点用 Astro 静态生成，文章从旧的 Astro Blog 迁移过来；评论用 Twikoo，Ech0 动态在访问时直接读取公开 Feed。',
-      '设计上保持黑白、细线和小量手绘元素，尽量让内容本身成为主角。',
+      '设计上保持极简风和手绘元素，意图是尽量让内容本身成为主角。',
     ],
   },
 ];
@@ -47,6 +47,7 @@ export const techGroups: TechGroup[] = [
     icon: 'languages',
     items: [
       { name: 'Rust' },
+      { name: 'Go' },
       { name: 'TypeScript' },
       { name: 'Python' },
       { name: 'C', note: '学习中' },

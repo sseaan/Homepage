@@ -2,8 +2,8 @@
  * 设计令牌：与主题无关的部分（排版、间距、布局、动效）。
  * 颜色令牌在 themes.css，组件不得硬编码主题色。
  *
- * 视觉方向：编辑部式手帐 + 新粗野主义；纸面网格、暖色批注、硬边与轻巧动效。
- * 内容列维持清晰，装饰只做层次，不替代信息。
+ * 视觉方向：编辑部式极简；纯色纸面、发丝分隔线、少量手绘批注。
+ * 装饰只做层次，不替代信息；橙色只出现在手绘笔触里。
  */
 :root {
   /* 字体：只用系统字体，不请求远程字体 */
@@ -16,6 +16,7 @@
     ui-serif, Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Songti SC', 'Noto Serif SC', serif;
 
   /* 字号层级：整体克制，正文 15px 左右 */
+  --text-2xs: 0.75rem;
   --text-xs: 0.6875rem;
   --text-sm: 0.8125rem;
   --text-base: 0.9375rem;
@@ -46,10 +47,11 @@
   /* 布局：整站窄栏，正文更窄 */
   /* 全站统一栏宽：Header、正文、文章页左边缘都对齐到这里 */
   --content-width: 60rem;
+  --rows-narrow: 44rem;
   --prose-width: 40rem;
   --header-height: 3.5rem;
 
-  /* 形状：极简 + 少量粗野主义，直角为主 */
+  /* 形状：直角、1px 细边；不用阴影卡片和错位动效 */
   --radius-sm: 2px;
   --radius-card: 2px;
   --radius-pill: 999px;
@@ -61,5 +63,4 @@
   --motion-base: 240ms;
   --motion-slow: 560ms;
   --ease-out: cubic-bezier(0.2, 0.7, 0.3, 1);
-  --ease-spring: cubic-bezier(0.2, 0.85, 0.3, 1.16);
 }

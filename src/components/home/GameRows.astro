@@ -14,7 +14,10 @@ const { items } = Astro.props;
     items.map((item) => (
       <li class="row">
         <div class="row__body">
-          <h3 class="row__title">
+          <h3
+            class="row__title"
+            style={item.accent ? `color: var(--accent-${item.accent})` : undefined}
+          >
             <Icon name={item.icon} size={15} />
             <span>{item.name}</span>
             {item.pending && <span class="pending">待补充</span>}

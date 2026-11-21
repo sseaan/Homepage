@@ -113,6 +113,8 @@ const shapes: Record<Variant, { viewBox: string; w: number; h: number; paths: st
 const shape = shapes[variant];
 const w = width ?? shape.w;
 const h = height ?? shape.h;
+// pathLength="1" 让“描边画出”动画不依赖真实路径长度
+const paths = shape.paths.replaceAll('<path ', '<path pathLength="1" ');
 // 横线类装饰随容器拉伸；非等比缩放时保持线宽稳定
 const stretch = variant === 'underline' || variant === 'squiggle' || variant === 'divider';
 const preserveAspectRatio = stretch ? 'none' : undefined;
@@ -133,5 +135,5 @@ const preserveAspectRatio = stretch ? 'none' : undefined;
   aria-hidden="true"
   focusable="false"
 >
-  <Fragment set:html={shape.paths} />
+  <Fragment set:html={paths} />
 </svg>

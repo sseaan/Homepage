@@ -22,3 +22,6 @@ pnpm-debug.log*
 # editors
 .vscode/
 .idea/
+
+# test output
+.vitest/

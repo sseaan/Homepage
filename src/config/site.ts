@@ -86,6 +86,7 @@ export const siteConfig = {
 
   nav: [
     { label: 'Home', href: '/', icon: 'home' },
+    { label: 'Projects', href: '/projects', icon: 'palette' },
     { label: 'Blog', href: '/blog', icon: 'notebook' },
     { label: 'Ech0', href: '/ech0', icon: 'draft' },
     { label: 'About', href: '/about', icon: 'user' },
@@ -157,6 +158,8 @@ export const siteConfig = {
 } as const;
 
 export const rssUrl = '/rss.xml';
+/** 人类可读的订阅页，站点里所有可见的 RSS 入口都指向这里 */
+export const rssPageUrl = '/rss/';
 
 /** 当前年份，用于页脚版权区间 */
 export const currentYear = new Date().getFullYear();

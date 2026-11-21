@@ -1,5 +1,5 @@
 /*
- * 颜色令牌：纸白 / 墨黑为底，暖橙用于手绘批注；低对比纸纹确保内容优先。
+ * 颜色令牌：纸白 / 墨黑为底，暖橙只用于手绘批注；纯色底确保内容优先。
  *
  * :root 提供白天配色（也是禁用 JS 时的安全底色）；
  * 没有 data-theme 时跟随系统；显式 light 时系统深色不生效。
@@ -19,8 +19,8 @@
   --color-faint: #92877b;
   --color-border: #ded5c7;
   --color-border-strong: #b5a894;
-  --color-grid: rgba(73, 60, 43, 0.045);
-  --color-accent-veil: color-mix(in srgb, var(--doodle-accent) 7%, transparent);
+  /* 中性淡底：hover 与轻量块面，不带色相 */
+  --color-veil: color-mix(in srgb, var(--color-text) 4%, transparent);
 
   --color-accent: #171717;
   --color-accent-soft: #f2f2ef;
@@ -37,6 +37,14 @@
   --doodle-stroke-soft: #8e8377;
   --doodle-accent: #ae4f0c;
 
+  /* 点缀色：只用于区块刻线、hover 细节与高亮，不铺大面积 */
+  --accent-warm: #b4491a;
+  --accent-blue: #2f4d80;
+  --accent-green: #35604a;
+  --accent-violet: #6a4680;
+  --accent-red: #a63a30;
+  --accent-marker: #f2d585;
+
   /* 开屏点阵：中性灰阶 + 一点暖色 */
   --dot-1: #1e1b17;
   --dot-2: #57534e;
@@ -46,9 +54,6 @@
 
   --shadow-soft: 0 1px 2px rgba(30, 27, 23, 0.05);
   --shadow-lift: 0 10px 28px -18px rgba(30, 27, 23, 0.32);
-  /* 粗野主义硬阴影：块状、无模糊 */
-  --shadow-hard: 4px 4px 0 var(--color-border-strong);
-  --shadow-hard-ink: 3px 3px 0 var(--color-text);
 
   --header-bg: rgba(250, 247, 240, 0.92);
 }
@@ -69,8 +74,7 @@
     --color-faint: #6f6f6a;
     --color-border: #2a2a27;
     --color-border-strong: #4c4c46;
-    --color-grid: rgba(237, 237, 235, 0.045);
-    --color-accent-veil: color-mix(in srgb, var(--doodle-accent) 8%, transparent);
+    --color-veil: color-mix(in srgb, var(--color-text) 6%, transparent);
 
     --color-accent: #ededeb;
     --color-accent-soft: #1c1c1a;
@@ -86,6 +90,13 @@
     --doodle-stroke-soft: #8a8a84;
     --doodle-accent: #e9a06a;
 
+    --accent-warm: #e9a06a;
+    --accent-blue: #93b4e6;
+    --accent-green: #8dbfa4;
+    --accent-violet: #c0a4d8;
+    --accent-red: #e8998f;
+    --accent-marker: #5c4a20;
+
     --dot-1: #ededeb;
     --dot-2: #a8a29e;
     --dot-3: #e9a06a;
@@ -94,8 +105,6 @@
 
     --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.5);
     --shadow-lift: 0 10px 30px -20px rgba(0, 0, 0, 0.8);
-    --shadow-hard: 4px 4px 0 var(--color-border-strong);
-    --shadow-hard-ink: 3px 3px 0 var(--color-text);
 
     --header-bg: rgba(13, 13, 12, 0.9);
   }
@@ -116,8 +125,7 @@
   --color-faint: #6f6f6a;
   --color-border: #2a2a27;
   --color-border-strong: #4c4c46;
-  --color-grid: rgba(237, 237, 235, 0.045);
-  --color-accent-veil: color-mix(in srgb, var(--doodle-accent) 8%, transparent);
+  --color-veil: color-mix(in srgb, var(--color-text) 6%, transparent);
 
   --color-accent: #ededeb;
   --color-accent-soft: #1c1c1a;
@@ -133,6 +141,13 @@
   --doodle-stroke-soft: #8a8a84;
   --doodle-accent: #e9a06a;
 
+  --accent-warm: #e9a06a;
+  --accent-blue: #93b4e6;
+  --accent-green: #8dbfa4;
+  --accent-violet: #c0a4d8;
+  --accent-red: #e8998f;
+  --accent-marker: #5c4a20;
+
   --dot-1: #ededeb;
   --dot-2: #a8a29e;
   --dot-3: #e9a06a;
@@ -141,8 +156,6 @@
 
   --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.5);
   --shadow-lift: 0 10px 30px -20px rgba(0, 0, 0, 0.8);
-  --shadow-hard: 4px 4px 0 var(--color-border-strong);
-  --shadow-hard-ink: 3px 3px 0 var(--color-text);
 
   --header-bg: rgba(13, 13, 12, 0.9);
 }

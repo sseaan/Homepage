@@ -28,16 +28,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: var(--color-bg);
-  background-image:
-    radial-gradient(ellipse at 12% 4%, var(--color-accent-veil), transparent 34rem),
-    linear-gradient(var(--color-grid) 1px, transparent 1px),
-    linear-gradient(90deg, var(--color-grid) 1px, transparent 1px);
-  background-size:
-    auto,
-    34px 34px,
-    34px 34px;
-  background-attachment: fixed;
+  background: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-sans);
   font-size: var(--text-base);
@@ -102,8 +93,8 @@ a:hover {
 }
 
 ::selection {
-  background: var(--color-text);
-  color: var(--color-bg);
+  background: var(--accent-marker);
+  color: var(--color-text);
 }
 
 hr {
@@ -149,35 +140,23 @@ hr {
   }
 }
 
-/* ---------- 粗野主义小件 ---------- */
+/* ---------- 小件 ---------- */
 
-/* 带硬阴影的方块：用于“现在”、友链、头像框等局部卡片 */
+/* 轻量块面：发丝边 + 纸面底色，不加阴影 */
 .box {
-  border: 1.5px solid var(--color-text);
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-card);
   background: var(--color-bg);
-  box-shadow: var(--shadow-hard);
   transition:
-    transform var(--motion-fast) var(--ease-spring),
+    border-color var(--motion-fast) var(--ease-out),
+    transform var(--motion-fast) var(--ease-out),
     box-shadow var(--motion-fast) var(--ease-out);
 }
 
 .box:hover {
-  transform: translate(-2px, -2px) rotate(-0.25deg);
-  box-shadow: 6px 6px 0 var(--doodle-accent);
-}
-
-/* 胶带：手绘/拼贴感的小装饰，纯视觉 */
-.tape {
-  position: absolute;
-  top: -0.6rem;
-  left: 1.25rem;
-  width: 3.5rem;
-  height: 1rem;
-  background: color-mix(in srgb, var(--doodle-accent) 32%, var(--color-bg));
-  border: 1px solid color-mix(in srgb, var(--doodle-accent) 55%, var(--color-border-strong));
-  transform: rotate(-2.2deg);
-  pointer-events: none;
+  border-color: var(--color-text);
+  box-shadow: var(--shadow-soft);
+  transform: translateY(-1px);
 }
 
 .eyebrow {
@@ -193,7 +172,7 @@ hr {
 
 .eyebrow::before {
   content: '✳';
-  color: var(--doodle-accent);
+  color: var(--color-faint);
   font-size: 0.9em;
   letter-spacing: 0;
 }
@@ -229,18 +208,6 @@ hr {
   border-top: 1px solid var(--color-border);
 }
 
-.section::before {
-  content: '';
-  position: absolute;
-  top: -1px;
-  left: 0;
-  width: 3.25rem;
-  height: 2px;
-  background: var(--doodle-accent);
-  transform: rotate(-1deg);
-  transform-origin: left center;
-}
-
 .section-head {
   display: flex;
   align-items: baseline;
@@ -264,12 +231,10 @@ hr {
 
 .section-title::before {
   content: '';
-  width: 8px;
-  height: 8px;
-  background: var(--doodle-accent);
-  box-shadow: 2px 2px 0 var(--color-text);
+  width: 7px;
+  height: 7px;
+  background: var(--section-accent, var(--color-text));
   flex: none;
-  transform: rotate(45deg);
 }
 
 .section-head__note {
@@ -295,9 +260,7 @@ hr {
   gap: var(--space-1) var(--space-4);
   padding-block: var(--space-3);
   border-top: 1px solid var(--color-border);
-  transition:
-    background-color var(--motion-fast) var(--ease-out),
-    transform var(--motion-fast) var(--ease-out);
+  transition: background-color var(--motion-fast) var(--ease-out);
 }
 
 .rows > .row:first-child {
@@ -305,23 +268,23 @@ hr {
   padding-top: 0;
 }
 
-.row:not(.project-row):not(.blog-row)::before {
+.row:not(.blog-row)::before {
   content: '';
   position: absolute;
   inset-block: 0;
   left: 0;
   width: 2px;
-  background: var(--doodle-accent);
+  background: var(--color-border-strong);
   transform: scaleY(0);
   transform-origin: center;
   transition: transform var(--motion-base) var(--ease-out);
 }
 
-.row:not(.project-row):not(.blog-row):hover {
-  background: var(--color-accent-veil);
+.row:not(.blog-row):hover {
+  background: color-mix(in srgb, var(--section-accent, var(--color-text)) 7%, transparent);
 }
 
-.row:not(.project-row):not(.blog-row):hover::before {
+.row:not(.blog-row):hover::before {
   transform: scaleY(1);
 }
 
@@ -342,8 +305,16 @@ hr {
   text-decoration: none;
 }
 
+a.row__title {
+  background-image: linear-gradient(var(--doodle-accent), var(--doodle-accent));
+  background-repeat: no-repeat;
+  background-position: 0 calc(100% - 1px);
+  background-size: 0 1px;
+  transition: background-size var(--motion-base) var(--ease-out);
+}
+
 a.row__title:hover {
-  text-decoration: underline;
+  background-size: 100% 1px;
 }
 
 .row__tilde {
@@ -423,7 +394,7 @@ a.row__title:hover {
 
 .blog-list > li.blog-row:hover {
   transform: none;
-  background: var(--color-accent-veil);
+  background: color-mix(in srgb, var(--section-accent, var(--color-text)) 7%, transparent);
   box-shadow: none;
 }
 
@@ -439,143 +410,17 @@ a.row__title:hover {
   }
 }
 
-/* ---------- 首页项目列表 ---------- */
+/* ---------- 首页经历：窄栏列表 ---------- */
 
-.home-projects {
-  grid-template-columns: minmax(0, 1fr);
-  gap: 0;
+/* 正文列收窄到 44rem，日期仍贴页面右边缘 */
+.rows--narrow > .row {
+  grid-template-columns: minmax(0, var(--rows-narrow)) auto;
+  justify-content: space-between;
 }
 
-.home-projects > .project-row {
-  grid-template-columns: 2.5rem minmax(0, 1fr) auto;
-  align-items: start;
-  gap: var(--space-3) var(--space-4);
-  min-width: 0;
-  min-height: 0;
-  margin: 0;
-  padding: var(--space-4) 0;
-  border: 0;
-  border-top: 1px solid var(--color-border);
-  background: transparent;
-  box-shadow: none;
-  transition: background-color var(--motion-fast) var(--ease-out);
-}
-
-.home-projects > li.project-row:first-child {
-  padding-top: var(--space-4);
-  border-top: 1px solid var(--color-border-strong);
-}
-
-.home-projects > .project-row:hover,
-.home-projects > .project-row:focus-within {
-  transform: none;
-  background: var(--color-accent-veil);
-  box-shadow: none;
-}
-
-.project-row__index {
-  position: static;
-  display: block;
-  width: auto;
-  padding-top: 0.2rem;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-  color: var(--color-faint);
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  font-weight: 400;
-  line-height: 1;
-  transform: none;
-}
-
-.project-row__body {
-  align-content: start;
-  gap: 0.3rem;
-}
-
-.project-row__eyebrow {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.4rem 0.65rem;
-  min-height: 0;
-  padding: 0;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-faint);
-}
-
-.project-row__eyebrow .row__status {
-  padding: 0;
-  border: 0;
-  letter-spacing: 0;
-  text-transform: none;
-}
-
-.project-row__title {
-  font-size: var(--text-lg);
-  letter-spacing: -0.02em;
-}
-
-.project-row__tech {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem 0.75rem;
-  padding: 0;
-  margin: var(--space-1) 0 0;
-  list-style: none;
-}
-
-.project-row__tech li {
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--color-faint);
-  font-family: var(--font-mono);
-  font-size: 10px;
-  line-height: 1.6;
-  white-space: nowrap;
-}
-
-.project-row__meta {
-  align-self: start;
-  justify-content: flex-end;
-  padding: 0;
-  border: 0;
-}
-
-.project-row__meta a {
-  min-height: 28px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--color-muted);
-}
-
-.project-row__meta a:hover {
-  border: 0;
-  background: transparent;
-  color: var(--color-text);
-  text-decoration: underline;
-}
-
-@media (max-width: 42rem) {
-  .home-projects > .project-row {
-    grid-template-columns: 2rem minmax(0, 1fr);
-  }
-
-  .home-projects > .project-row .project-row__meta {
-    grid-column: 2;
-    justify-content: flex-start;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .home-projects > .project-row {
-    transition: none;
+@media (max-width: 34rem) {
+  .rows--narrow > .row {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -601,13 +446,13 @@ a.row__title:hover {
   transition:
     color var(--motion-fast) var(--ease-out),
     border-color var(--motion-fast) var(--ease-out),
-    transform var(--motion-fast) var(--ease-spring);
+    transform var(--motion-fast) var(--ease-out);
 }
 
 .tag:hover {
   color: var(--color-text);
-  border-color: var(--doodle-accent);
-  transform: translateY(-2px) rotate(-1deg);
+  border-color: var(--color-text);
+  transform: translateY(-1px);
 }
 
 .tag + .tag::before {
@@ -631,7 +476,7 @@ a.row__title:hover {
 }
 
 .text-link:hover {
-  border-color: var(--color-text);
+  border-color: var(--doodle-accent);
 }
 
 .btn {
@@ -641,7 +486,7 @@ a.row__title:hover {
   gap: 0.4em;
   min-height: 38px;
   padding: 0.3em 1em;
-  border: 1.5px solid var(--color-text);
+  border: 1px solid var(--color-text);
   border-radius: var(--radius-sm);
   background: var(--color-bg);
   color: var(--color-text);
@@ -649,28 +494,35 @@ a.row__title:hover {
   font-weight: 550;
   text-decoration: none;
   cursor: pointer;
-  box-shadow: var(--shadow-hard-ink);
   transition:
-    transform var(--motion-fast) var(--ease-spring),
-    box-shadow var(--motion-fast) var(--ease-out),
     background-color var(--motion-fast) var(--ease-out),
-    color var(--motion-fast) var(--ease-out);
+    border-color var(--motion-fast) var(--ease-out),
+    color var(--motion-fast) var(--ease-out),
+    transform var(--motion-fast) var(--ease-out),
+    box-shadow var(--motion-fast) var(--ease-out);
 }
 
 .btn:hover {
-  transform: translate(-1px, -1px) rotate(-0.4deg);
-  box-shadow: 4px 4px 0 var(--color-text);
+  background: var(--color-surface-soft);
+  box-shadow: var(--shadow-soft);
+  transform: translateY(-1px);
 }
 
 .btn:active {
-  transform: translate(3px, 3px);
-  box-shadow: none;
+  background: var(--color-surface-soft);
+  transform: translateY(0);
 }
 
 .btn--primary {
   background: var(--color-text);
   border-color: var(--color-text);
   color: var(--color-bg);
+}
+
+.btn--primary:hover,
+.btn--primary:active {
+  background: var(--color-text-soft);
+  border-color: var(--color-text-soft);
 }
 
 /* 纯图标按钮：必须提供可访问名称 */
@@ -718,14 +570,14 @@ a.row__title:hover {
     color var(--motion-fast) var(--ease-out),
     background-color var(--motion-fast) var(--ease-out),
     border-color var(--motion-fast) var(--ease-out),
-    transform var(--motion-fast) var(--ease-spring);
+    transform var(--motion-fast) var(--ease-out);
 }
 
 .icon-row a:hover {
   color: var(--color-text);
   border-color: var(--color-border-strong);
-  background: var(--color-accent-veil);
-  transform: translateY(-2px) rotate(-3deg);
+  background: var(--color-veil);
+  transform: translateY(-2px);
 }
 
 /* 图标 + 文字的链接（联系方式等） */
@@ -768,12 +620,11 @@ a.row__title:hover {
   align-items: flex-start;
   gap: var(--space-3);
   padding: var(--space-4);
-  border: 1.5px solid var(--color-text);
+  border: 1px solid var(--color-text);
   border-radius: var(--radius-card);
   background: var(--color-bg);
   color: var(--color-muted);
   font-size: var(--text-sm);
-  box-shadow: var(--shadow-hard);
 }
 
 .notice p {
@@ -816,12 +667,11 @@ a.row__title:hover {
   content: counter(prose-heading, decimal-leading-zero);
   flex: none;
   padding: 0.08em 0.3em;
-  border: 1px solid var(--doodle-accent);
+  border: 1px solid var(--color-border-strong);
   color: var(--doodle-accent);
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   line-height: 1.5;
-  transform: rotate(-2deg);
 }
 
 .prose :where(h3) {
@@ -853,7 +703,7 @@ a.row__title:hover {
 
 .prose :where(blockquote) {
   padding-left: var(--space-4);
-  border-left: 2px solid var(--color-border-strong);
+  border-left: 2px solid var(--doodle-accent);
   color: var(--color-muted);
 }
 
@@ -990,6 +840,11 @@ a.row__title:hover {
 
 .prose :where(a) {
   overflow-wrap: anywhere;
+}
+
+.prose :where(a):hover {
+  color: var(--doodle-accent);
+  text-decoration-color: currentColor;
 }
 
 /* ---------- 无障碍工具 ---------- */

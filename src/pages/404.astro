@@ -9,11 +9,17 @@ import Doodle from '../components/doodles/Doodle.astro';
     <PageHeader
       eyebrow="404"
       title="这个页面走丢了"
+      accent="violet"
       lead="链接可能已经变化，可以从下面这些地方继续。"
     />
 
     <p class="not-found__actions">
-      <Doodle variant="arrow" width={34} height={22} class="doodle--soft not-found__arrow" />
+      <Doodle
+        variant="arrow"
+        width={34}
+        height={22}
+        class="doodle--soft doodle--draw not-found__arrow"
+      />
       <a class="text-link" href="/">回到首页</a>
       <a class="text-link" href="/blog">文章列表</a>
     </p>

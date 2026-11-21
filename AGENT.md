@@ -7,9 +7,10 @@
 
 ## 1. 项目定位
 
-一个以静态内容为主的个人主页，包含四个顶栏入口：
+一个以静态内容为主的个人主页，包含五个顶栏入口：
 
-- Home：个人简介、项目、经历、兴趣、游戏
+- Home：个人简介、最近更新、经历、兴趣、游戏
+- Projects：Nexthrum / Voxi / powguard / 煎蛋 RSS 的预览、说明与外链
 - Blog：Markdown 文章、目录、灯箱、分享卡片、评论
 - Ech0：公开动态 Feed，连接 `https://echo.ssean.cn`
 - About：完整介绍、技术栈、友链
@@ -86,10 +87,11 @@ src/
 │   ├── splash/     点阵开屏
 │   └── theme/      三态主题初始化与控制
 ├── config/site.ts  站点级配置：信息、导航、社交、页脚、Ech0、Twikoo
-├── data/           home.ts / about.ts / friends.ts（友链与交换说明）可编辑内容
+├── data/           home.ts / projects.ts / about.ts / friends.ts（友链与交换说明）可编辑内容
+├── assets/projects/ 项目预览图（构建时转 webp）
 ├── content/blog/   Markdown 文章与图片引用
 ├── layouts/        BaseLayout、BlogLayout
-├── pages/          /、/about、/ech0、/blog、/blog/[...slug]、/rss.xml、/404
+├── pages/          /、/projects、/about、/ech0、/blog、/blog/[...slug]、/rss/、/rss.xml、/404
 ├── lib/            ech0.ts、netease.ts、netease-player.ts、remark-markdown-extras.mjs
 ├── styles/         tokens、themes、global、music、prose-extras、comments、ech0、lightbox、doodles
 └── content.config.ts
@@ -98,7 +100,7 @@ src/
 职责规则：
 
 - `src/config/site.ts`：站点身份、导航、社交、页脚、备案、Ech0、Twikoo、全站歌单。
-- `src/data/`：首页、About、友链的文字内容；不要把个人经历写进组件。友链头像、本站友链信息和交换/失效说明统一放 `friends.ts`。
+- `src/data/`：首页、项目、About、友链的文字内容；不要把个人经历写进组件。项目列表与预览图映射统一放 `projects.ts`，友链头像、本站友链信息和交换/失效说明统一放 `friends.ts`。
 - `src/content/blog/`：文章正文与 frontmatter；图片使用 S3/CDN 完整 URL，不放本地 `public/images/blog/`。
 - `src/lib/`：可测试的纯逻辑与独立客户端控制器；不要放 JSX/样式。
 - `src/components/`：展示与局部交互；跨页面复用的基础组件放 `site/`、`media/`、`icons/`。
@@ -163,14 +165,21 @@ music: https://music.163.com/song?id=... # 可选，歌曲或歌单
 
 ## 6. 视觉规范
 
-- 基底：纯白 / 近黑背景，中性灰阶；强调色只使用 `--doodle-accent`（当前为暖橙）。
+- 基底：纯色纸白 / 近黑背景，不加底纹、方格或渐变光晕；块面只用纯色令牌（`--color-bg` / `--color-bg-soft` / `--color-surface-soft`）。
+- hover 用中性淡底 `--color-veil`；少量 1px 位移、下划线扫入、描边画出属于允许的动效，不做旋转特写和硬阴影。
+- 暖橙 `--doodle-accent` 只出现在手绘笔触里；区块刻线、hover 细节与高亮使用 `--accent-warm / blue / green / violet / red / marker`，不铺大面积。
 - 排版：全站容器 60rem；普通文章正文 40rem；带目录时 40rem + 12rem。
-- 形状：1.5–2px 粗边、2px 直角圆角、无模糊硬阴影；不要堆叠卡片和阴影。
+- 首页经历：正文列收窄到 44rem（`--rows-narrow` + `.rows--narrow`），日期贴页面右边缘。
+- 项目页：60rem 栏内三列书签卡片（52rem 以下 2 列、34rem 以下 1 列）；卡片含 4:3 预览、状态角标、域名/平台、名称、技术栈与源码/下载链接。桌面应用直接用真实窗口截图，不伪造 UI；预览图放 `src/assets/projects/`，用 `astro:assets` 的 `Image` 输出 webp。
+- 文章目录（右栏 12rem）：细线树状列表 + 顶部橙色阅读进度条；当前节用 2px 橙条与橙色序号标出，所在分组同步加深。
+- 音乐面板：顶部三色刻线（暖橙 / 靛蓝 / 松绿），正在播放区用暖色淡底；播放中显示橙色均衡器，进度、音量、曲目与歌词高亮统一用 `--doodle-accent`。
+- RSS：可见入口（页头图标、Blog/About 文字链）统一指向 `/rss/` 主题页；`/rss.xml` 只给订阅器，`BaseLayout` 的 `<link rel="alternate">` 保持指向它。不要给 `/rss.xml` 挂 XSLT（Chrome 已弃用 XSLT 并弹红色警告）。
+- 形状：1px 发丝边、2px 直角圆角；不用卡片阴影，不堆叠卡片。
 - 字体：系统无衬线为正文；首页名字使用自托管 Great Vibes（SIL OFL）；不请求第三方字体服务。
 - 手绘只做少量批注：Home 名字/头像箭头、文章返回箭头、Blog/About/Ech0 页头、404 箭头、圈选/星号。不要每个标题都加装饰。
 - 游戏条目装饰统一使用 `// 游戏名` 与 `+ + +`：绝区零为橙色 `#d9662f`，胡闹厨房为番茄红 `#b23b2e`；不要改图标或背景。
 - 分享栏固定 X / 邮件 / 分享卡片 / 复制链接，不增加 Facebook、微博、Telegram。
-- 分享卡片为 Canvas 生成，宽 1080px，高度随标题/摘要动态计算；顶部品牌/日期同一中心线，图片收在页边距内。
+- 分享卡片为 Canvas 生成，宽 1080px，高度随标题/摘要动态计算；颜色读取 `--color-*` / `--doodle-accent` 令牌（深色模式生成深色卡片），标题用衬线、眉标与页脚用等宽，发丝外框替代粗黑边；顶部品牌/日期同一中心线，图片收在页边距内。
 - 主题顺序固定为 **自动 → 白天 → 黑夜**；首屏 ThemeInit 防闪烁；无 JS 跟随系统。
 - 开屏点阵约 1 秒，同一会话只播放一次；`prefers-reduced-motion: reduce` 时跳过。
 
@@ -250,7 +259,7 @@ music: https://music.163.com/song?id=... # 可选，歌曲或歌单
 
 ### 页面与内容
 
-- [ ] `/`、`/about`、`/blog`、`/ech0`、文章详情、`/rss.xml`、`/404` 可访问
+- [ ] `/`、`/projects/`、`/about`、`/blog`、`/ech0`、`/rss/`、文章详情、`/rss.xml`、`/404` 可访问
 - [ ] 移动端无横向溢出；文章正文 40rem，分享栏右边与正文对齐
 - [ ] 浅色 / 深色 / 自动三态可切换；无 JS 时不崩
 - [ ] 键盘可访问；图片有 alt；图标按钮有 aria-label

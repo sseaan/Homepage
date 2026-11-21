@@ -15,12 +15,17 @@ interface Props {
   mark?: boolean;
   /** 用于文章列表等简洁页头 */
   compact?: boolean;
+  /** 页面点缀色，对应 themes.css 的 --accent-* */
+  accent?: 'warm' | 'blue' | 'green' | 'violet' | 'red';
 }
 
-const { eyebrow, title, lead, decoration, mark = false, compact = false } = Astro.props;
+const { eyebrow, title, lead, decoration, mark = false, compact = false, accent } = Astro.props;
 ---
 
-<header class:list={['page-head', compact && 'page-head--compact']}>
+<header
+  class:list={['page-head', compact && 'page-head--compact']}
+  style={accent ? `--section-accent: var(--accent-${accent})` : undefined}
+>
   {eyebrow && <p class="eyebrow">{eyebrow}</p>}
   <h1 class="page-head__title">
     {
@@ -28,7 +33,13 @@ const { eyebrow, title, lead, decoration, mark = false, compact = false } = Astr
         <span class="page-head__circle-wrap">
           {title}
           <span class="page-head__circle" aria-hidden="true">
-            <Doodle variant="circle" width="100%" height="100%" strokeWidth={1.3} />
+            <Doodle
+              variant="circle"
+              width="100%"
+              height="100%"
+              strokeWidth={1.3}
+              class="doodle--draw"
+            />
           </span>
         </span>
       ) : decoration ? (
@@ -43,7 +54,13 @@ const { eyebrow, title, lead, decoration, mark = false, compact = false } = Astr
     {
       mark && (
         <span class="page-head__mark" aria-hidden="true">
-          <Doodle variant="asterisk" width={16} height={16} strokeWidth={1.4} />
+          <Doodle
+            variant="asterisk"
+            width={16}
+            height={16}
+            strokeWidth={1.4}
+            class="doodle--draw"
+          />
         </span>
       )
     }
@@ -59,21 +76,10 @@ const { eyebrow, title, lead, decoration, mark = false, compact = false } = Astr
     gap: var(--space-2);
     padding: var(--space-4) 0 var(--space-6);
     border-bottom: 1px solid var(--color-border);
-    background:
-      linear-gradient(115deg, var(--color-accent-veil), transparent 48%) no-repeat,
-      linear-gradient(90deg, transparent, var(--color-grid), transparent) left bottom / 100% 1px
-        no-repeat;
   }
 
-  .page-head::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 3.75rem;
-    height: 2px;
-    background: var(--doodle-accent);
-    transform: rotate(-1deg);
+  .page-head :global(.eyebrow)::before {
+    color: var(--section-accent, var(--color-faint));
   }
 
   .page-head :global(.eyebrow) {
@@ -82,9 +88,7 @@ const { eyebrow, title, lead, decoration, mark = false, compact = false } = Astr
     justify-self: start;
     padding: 0.15em 0.55em;
     border: 1px solid var(--color-border-strong);
-    border-left: 2px solid var(--doodle-accent);
     background: var(--color-bg-soft);
-    transform: rotate(-0.8deg);
   }
 
   .page-head__title {
@@ -138,7 +142,7 @@ const { eyebrow, title, lead, decoration, mark = false, compact = false } = Astr
   .page-head__mark {
     display: inline-block;
     margin-left: 0.3em;
-    color: var(--doodle-accent);
+    color: var(--section-accent, var(--doodle-accent));
     opacity: 0.8;
     vertical-align: super;
     transform: rotate(10deg);

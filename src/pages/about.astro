@@ -10,7 +10,7 @@ import {
   myFriendLink,
   type FriendLink,
 } from '../data/friends';
-import { siteConfig } from '../config/site';
+import { rssPageUrl, siteConfig } from '../config/site';
 
 const initialOf = (friend: FriendLink) => (friend.initial ?? friend.name.slice(0, 1)).toUpperCase();
 ---
@@ -26,6 +26,7 @@ const initialOf = (friend: FriendLink) => (friend.initial ?? friend.name.slice(0
       lead="比首页更完整的一份介绍：在做什么、怎么工作、常用哪些工具，以及怎么联系我。"
       decoration="circle"
       mark
+      accent="green"
     >
       <p class="about__facts">
         {
@@ -64,7 +65,6 @@ const initialOf = (friend: FriendLink) => (friend.initial ?? friend.name.slice(0
 
       <aside class="about__rail">
         <div class="box about__contact">
-          <span class="tape" aria-hidden="true"></span>
           <p class="about__contact-title">联系我</p>
           <ul class="about__contact-list">
             {
@@ -83,7 +83,7 @@ const initialOf = (friend: FriendLink) => (friend.initial ?? friend.name.slice(0
               ))
             }
             <li>
-              <a href="/rss.xml">
+              <a href={rssPageUrl}>
                 <Icon name="rss" size={15} />
                 <span>RSS 订阅</span>
               </a>
@@ -93,7 +93,11 @@ const initialOf = (friend: FriendLink) => (friend.initial ?? friend.name.slice(0
       </aside>
     </div>
 
-    <section class="section" aria-labelledby="stack-title">
+    <section
+      class="section"
+      aria-labelledby="stack-title"
+      style="--section-accent: var(--accent-blue)"
+    >
       <div class="section-head">
         <h2 class="section-title" id="stack-title">技术与语言</h2>
         <span class="section-head__note">Stack</span>
@@ -134,7 +138,12 @@ const initialOf = (friend: FriendLink) => (friend.initial ?? friend.name.slice(0
       </ul>
     </section>
 
-    <section class="section" id="friends" aria-labelledby="friends-title">
+    <section
+      class="section"
+      id="friends"
+      aria-labelledby="friends-title"
+      style="--section-accent: var(--accent-green)"
+    >
       <div class="section-head">
         <h2 class="section-title" id="friends-title">友链</h2>
         <span class="section-head__note">Friends</span>
@@ -224,7 +233,6 @@ const initialOf = (friend: FriendLink) => (friend.initial ?? friend.name.slice(0
         </div>
 
         <aside class="box friend-self">
-          <span class="tape" aria-hidden="true"></span>
           <span class="friend-avatar friend-avatar--self">
             <span class="friend-avatar__mark" aria-hidden="true">
               {initialOf(myFriendLink)}
@@ -293,12 +301,10 @@ const initialOf = (friend: FriendLink) => (friend.initial ?? friend.name.slice(0
     margin: var(--space-2) 0 0;
     padding: var(--space-3) var(--space-4);
     border: 1px dashed var(--color-border-strong);
-    border-left: 3px solid var(--doodle-accent);
     background: var(--color-bg-soft);
     font-family: var(--font-mono);
     font-size: var(--text-xs);
     color: var(--color-muted);
-    transform: rotate(-0.35deg);
   }
 
   .about__fact {
@@ -337,9 +343,7 @@ const initialOf = (friend: FriendLink) => (friend.initial ?? friend.name.slice(0
     padding: var(--space-5);
     display: grid;
     gap: var(--space-2);
-    border-top: 3px solid var(--doodle-accent);
-    background: linear-gradient(135deg, var(--color-accent-veil), transparent 58%), var(--color-bg);
-    transform: rotate(-0.5deg);
+    background: var(--color-bg);
   }
 
   .about__contact-title {
@@ -394,7 +398,7 @@ const initialOf = (friend: FriendLink) => (friend.initial ?? friend.name.slice(0
   }
 
   .stack-rows .row:hover {
-    border-left-color: var(--doodle-accent);
+    border-left-color: var(--color-border-strong);
   }
 
   .stack-rows__items {
@@ -425,15 +429,11 @@ const initialOf = (friend: FriendLink) => (friend.initial ?? friend.name.slice(0
     align-items: flex-start;
     gap: var(--space-3);
     padding: var(--space-4);
-    border-top: 2px solid var(--doodle-accent);
-    transition:
-      transform var(--motion-fast) var(--ease-spring),
-      box-shadow var(--motion-fast) var(--ease-out);
+    transition: border-color var(--motion-fast) var(--ease-out);
   }
 
   .friend-card:hover {
-    transform: translate(-2px, -2px) rotate(-0.35deg);
-    box-shadow: 5px 5px 0 var(--doodle-accent);
+    border-color: var(--color-text);
   }
 
   .friend-avatar {

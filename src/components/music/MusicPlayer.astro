@@ -96,9 +96,16 @@ const enabled = Boolean(apiBase && (globalSource?.trim() || pageMusic?.trim()));
             <img data-music-panel-cover alt="" width="112" height="112" loading="lazy" hidden />
           </div>
           <div class="music-panel__track-info">
-            <p class="music-panel__song" data-music-song>
-              正在加载歌单…
-            </p>
+            <div class="music-panel__song-row">
+              <p class="music-panel__song" data-music-song>
+                正在加载歌单…
+              </p>
+              <span class="music-panel__eq" aria-hidden="true">
+                <i />
+                <i />
+                <i />
+              </span>
+            </div>
             <p class="music-panel__artist" data-music-artist />
           </div>
         </div>

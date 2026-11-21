@@ -5,14 +5,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PageNav from '../components/site/PageNav.astro';
 import Avatar from '../components/site/Avatar.astro';
 import HomeSection from '../components/home/HomeSection.astro';
-import ProjectRow from '../components/home/ProjectRow.astro';
 import ExperienceRows from '../components/home/ExperienceRows.astro';
 import InterestRow from '../components/home/InterestRow.astro';
 import GameRows from '../components/home/GameRows.astro';
 import Doodle from '../components/doodles/Doodle.astro';
 import Icon from '../components/icons/Icon.astro';
-import { homeProfile, homeSections, projects, experiences, interests, games } from '../data/home';
-import { rssUrl, siteConfig } from '../config/site';
+import { homeProfile, homeSections, experiences, interests, games } from '../data/home';
+import { rssPageUrl, siteConfig } from '../config/site';
 import { formatDate, isoDate, sortByDateDesc } from '../utils/blog';
 
 const allPosts = sortByDateDesc(await getCollection('blog', ({ data }) => data.draft !== true));
@@ -38,20 +37,41 @@ const latestPosts = allPosts.slice(0, 3);
           <span class="hero__name-mark">
             {homeProfile.name}
             <span class="hero__circle" aria-hidden="true">
-              <Doodle variant="circle" width="100%" height="100%" strokeWidth={1.5} />
+              <Doodle
+                variant="circle"
+                width="100%"
+                height="100%"
+                strokeWidth={1.5}
+                class="doodle--draw"
+              />
             </span>
           </span>
         </h1>
 
         <p class="hero__lead">{homeProfile.intro[0]}</p>
-        <p class="hero__detail">{homeProfile.intro[1]}</p>
+        <p class="hero__detail">
+          {
+            homeProfile.highlight && homeProfile.intro[1].includes(homeProfile.highlight) ? (
+              <>
+                {homeProfile.intro[1].split(homeProfile.highlight)[0]}
+                <mark class="marker">{homeProfile.highlight}</mark>
+                {homeProfile.intro[1]
+                  .split(homeProfile.highlight)
+                  .slice(1)
+                  .join(homeProfile.highlight)}
+              </>
+            ) : (
+              homeProfile.intro[1]
+            )
+          }
+        </p>
         <p class="hero__role">
           <span class="hero__role-label">CURRENT STUDY</span>
           {homeProfile.role}
         </p>
 
         <div class="hero__actions">
-          <a class="btn btn--primary" href="#projects">看项目</a>
+          <a class="btn btn--primary" href="/projects/">看项目</a>
           <a class="btn" href="/blog">读博客</a>
           <a class="text-link" href="/about">关于我</a>
         </div>
@@ -73,7 +93,7 @@ const latestPosts = allPosts.slice(0, 3);
             ))
           }
           <li>
-            <a href={rssUrl} aria-label="RSS 订阅" title="RSS">
+            <a href={rssPageUrl} aria-label="RSS 订阅" title="RSS">
               <Icon name="rss" size={18} />
             </a>
           </li>
@@ -86,7 +106,7 @@ const latestPosts = allPosts.slice(0, 3);
           width={54}
           height={34}
           strokeWidth={1.8}
-          class="doodle--ink hero__arrow"
+          class="doodle--ink doodle--draw hero__arrow"
         />
         <div class="hero__portrait">
           <Doodle
@@ -94,7 +114,7 @@ const latestPosts = allPosts.slice(0, 3);
             width={232}
             height={232}
             strokeWidth={1.15}
-            class="doodle--accent hero__ring"
+            class="doodle--accent doodle--draw hero__ring"
           />
           <Avatar size="100%" shape="square" />
         </div>
@@ -118,7 +138,7 @@ const latestPosts = allPosts.slice(0, 3);
   </div>
 
   <div class="container">
-    <HomeSection id="writing" label="最近">
+    <HomeSection id="writing" label="最近" accent="warm">
       {
         latestPosts.length > 0 ? (
           <>
@@ -151,21 +171,7 @@ const latestPosts = allPosts.slice(0, 3);
       }
     </HomeSection>
 
-    <HomeSection id="projects" label="项目">
-      {
-        projects.length > 0 ? (
-          <ul class="rows home-projects">
-            {projects.map((project, index) => (
-              <ProjectRow project={project} index={index} />
-            ))}
-          </ul>
-        ) : (
-          <p class="row__note">还没有公开的项目内容。</p>
-        )
-      }
-    </HomeSection>
-
-    <HomeSection id="experience" label="经历">
+    <HomeSection id="experience" label="经历" accent="green">
       {
         experiences.length > 0 ? (
           <ExperienceRows items={experiences} />
@@ -175,7 +181,7 @@ const latestPosts = allPosts.slice(0, 3);
       }
     </HomeSection>
 
-    <HomeSection id="interests" label="兴趣">
+    <HomeSection id="interests" label="兴趣" accent="violet">
       {
         interests.length > 0 ? (
           <InterestRow items={interests} />
@@ -185,7 +191,7 @@ const latestPosts = allPosts.slice(0, 3);
       }
     </HomeSection>
 
-    <HomeSection id="games" label="游戏">
+    <HomeSection id="games" label="游戏" accent="red">
       {games.length > 0 ? <GameRows items={games} /> : <p class="row__note">暂无游戏内容。</p>}
     </HomeSection>
   </div>
@@ -210,7 +216,6 @@ const latestPosts = allPosts.slice(0, 3);
     gap: var(--space-7);
     margin-block: var(--space-3) var(--space-5);
     padding: clamp(1.75rem, 4vw, 3rem) clamp(1.25rem, 3.5vw, 3rem);
-    background: radial-gradient(ellipse at 84% 50%, var(--color-accent-veil), transparent 44%);
     scroll-margin-top: calc(var(--header-height) + var(--space-4));
   }
 
@@ -258,10 +263,25 @@ const latestPosts = allPosts.slice(0, 3);
   .hero__circle {
     position: absolute;
     inset: -0.36em -0.85em;
-    color: var(--doodle-stroke-soft);
-    opacity: 0.55;
+    color: var(--doodle-accent);
+    opacity: 0.62;
     transform: rotate(-1.8deg);
     pointer-events: none;
+  }
+
+  /* 荧光笔：只标一句里的一小段，像在纸上划重点 */
+  .marker {
+    padding: 0 0.12em;
+    background: linear-gradient(
+      180deg,
+      transparent 54%,
+      var(--accent-marker) 54%,
+      var(--accent-marker) 94%,
+      transparent 94%
+    );
+    color: inherit;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
   }
 
   .hero__lead {
@@ -288,7 +308,7 @@ const latestPosts = allPosts.slice(0, 3);
     gap: 0.5rem;
     margin-top: var(--space-1);
     padding-left: var(--space-3);
-    border-left: 2px solid var(--doodle-accent);
+    border-left: 1px solid var(--color-border-strong);
     color: var(--color-muted);
     font-family: var(--font-mono);
     font-size: var(--text-xs);
@@ -313,8 +333,8 @@ const latestPosts = allPosts.slice(0, 3);
   }
 
   .hero__social a:hover {
-    border-color: var(--doodle-accent);
-    background: var(--doodle-accent);
+    border-color: var(--color-text);
+    background: var(--color-text);
     color: var(--color-bg);
   }
 
@@ -342,16 +362,16 @@ const latestPosts = allPosts.slice(0, 3);
 
   @media (prefers-reduced-motion: no-preference) {
     :global(.hero__ring) {
-      animation: hero-ring-float 8s ease-in-out infinite;
+      animation: hero-ring-float 9s ease-in-out infinite;
     }
 
     @keyframes hero-ring-float {
       0%,
       100% {
-        transform: translate(-50%, -50%) rotate(-2deg);
+        transform: translate(-50%, -50%) rotate(-1.5deg);
       }
       50% {
-        transform: translate(-50%, calc(-50% - 6px)) rotate(2deg);
+        transform: translate(-50%, calc(-50% - 6px)) rotate(1.5deg);
       }
     }
   }
@@ -373,12 +393,11 @@ const latestPosts = allPosts.slice(0, 3);
     width: 13rem;
     max-width: 100%;
     aspect-ratio: 1;
-    transform: rotate(-1deg);
-    transition: transform var(--motion-base) var(--ease-spring);
+    transition: transform var(--motion-base) var(--ease-out);
   }
 
   .hero__portrait:hover {
-    transform: rotate(0.8deg) translateY(-3px);
+    transform: scale(1.02);
   }
 
   .hero__portrait :global(.avatar) {
@@ -430,15 +449,15 @@ const latestPosts = allPosts.slice(0, 3);
 
   .home-latest a::after {
     content: '↗';
+    display: inline-block;
     margin-left: 0.35em;
     color: var(--doodle-accent);
     font-family: var(--font-mono);
     font-size: 0.8em;
-    transition: transform var(--motion-fast) var(--ease-spring);
+    transition: transform var(--motion-fast) var(--ease-out);
   }
 
   .home-latest a:hover::after {
-    display: inline-block;
     transform: translate(2px, -2px);
   }
 
@@ -465,15 +484,11 @@ const latestPosts = allPosts.slice(0, 3);
   .home-writing > .row:hover {
     transform: none;
     border-left-color: transparent;
-    background: var(--color-accent-veil);
+    background: color-mix(in srgb, var(--section-accent, var(--color-text)) 7%, transparent);
   }
 
-  .home-section .row:not(.project-row)::before {
+  .home-section .row::before {
     display: none;
-  }
-
-  .home-section .row:not(.project-row):hover {
-    background: transparent;
   }
 
   #experience .row__meta {

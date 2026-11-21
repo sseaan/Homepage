@@ -7,6 +7,17 @@ interface Props {
 }
 
 const { items } = Astro.props;
+
+// 描述里支持 ~~删除线~~，其余内容按纯文本输出
+const inlineParts = (text: string) =>
+  text
+    .split(/(~~[^~]+~~)/g)
+    .filter(Boolean)
+    .map((part) =>
+      part.startsWith('~~') && part.endsWith('~~')
+        ? { text: part.slice(2, -2), strike: true }
+        : { text: part, strike: false },
+    );
 ---
 
 <ul class="interest-grid">
@@ -25,7 +36,11 @@ const { items } = Astro.props;
           {item.title}
           {item.pending && <span class="pending">待补充</span>}
         </h3>
-        <p class="interest-card__desc">{item.description}</p>
+        <p class="interest-card__desc">
+          {inlineParts(item.description).map((part) =>
+            part.strike ? <del>{part.text}</del> : part.text,
+          )}
+        </p>
       </li>
     ))
   }
@@ -57,7 +72,7 @@ const { items } = Astro.props;
 
   .interest-card:hover {
     transform: none;
-    background: var(--color-accent-veil);
+    background: color-mix(in srgb, var(--section-accent, var(--color-text)) 7%, transparent);
     box-shadow: none;
   }
 
@@ -93,6 +108,12 @@ const { items } = Astro.props;
     max-width: 34ch;
     color: var(--color-muted);
     font-size: var(--text-sm);
+  }
+
+  .interest-card__desc del {
+    color: var(--color-faint);
+    text-decoration-color: var(--color-border-strong);
+    text-decoration-thickness: 1px;
   }
 
   @media (max-width: 36rem) {
